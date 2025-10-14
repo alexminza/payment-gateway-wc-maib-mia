@@ -1,0 +1,20 @@
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../maib-mia-sdk-php"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.5",
+        "alexminza/maib-mia-sdk": "*",
+        "monolog/monolog": "^2.7"
+    },
+    "config": {
+        "platform": {
+            "php": "7.2.5"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
