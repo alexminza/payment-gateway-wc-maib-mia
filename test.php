@@ -47,6 +47,7 @@ class MAIB_MIA_Test
         $this->MAIB_MIA_BASE_URI = getenv('MAIB_MIA_BASE_URI');
         $this->MAIB_MIA_CLIENT_ID = getenv('MAIB_MIA_CLIENT_ID');
         $this->MAIB_MIA_CLIENT_SECRET = getenv('MAIB_MIA_CLIENT_SECRET');
+        $this->MAIB_MIA_SIGNATURE_KEY = getenv('MAIB_MIA_SIGNATURE_KEY');
     }
 
     private function maib_mia_init_client()
@@ -92,7 +93,7 @@ class MAIB_MIA_Test
      * @param string $currency
      * @param string $orderUrl
      * @param string $callbackUrl
-     * @param int    $validity_minutes
+     * @param int    $validityMinutes
      */
     private function maib_mia_pay($client, $authToken, $orderId, $orderName, $totalAmount, $currency, $orderUrl, $callbackUrl, $validityMinutes)
     {
@@ -114,10 +115,10 @@ class MAIB_MIA_Test
         return $create_qr_response;
     }
 
-    public function test()
+    public function test_pay()
     {
         $client = $this->maib_mia_init_client();
-        $authToken = 'Bearer ' . $this->maib_mia_generate_token($client);
+        $authToken = $this->maib_mia_generate_token($client);
 
         $orderId = '12345';
         $orderName = "Order #$orderId";
@@ -132,7 +133,36 @@ class MAIB_MIA_Test
         $qrId = $payResponse['result']['qrId'];
         $qrUrl = $payResponse['result']['url'];
     }
+
+    public function test_callback()
+    {
+        //https://docs.maibmerchants.md/mia-qr-api/en/examples/signature-key-verification
+
+        $callback = '{
+            "result": {
+                "qrId": "c3108b2f-6c2e-43a2-bdea-123456789012",
+                "extensionId": "3fe7f013-23a6-4d09-a4a4-123456789012",
+                "qrStatus": "Paid",
+                "payId": "eb361f48-bb39-45e2-950b-123456789012",
+                "referenceId": "MIA0001234567",
+                "orderId": "123",
+                "amount": 50.00,
+                "commission": 0.1,
+                "currency": "MDL",
+                "payerName": "TEST QR PAYMENT",
+                "payerIban": "MD88AG000000011621810140",
+                "executedAt": "2025-04-18T14:04:11.81145+00:00",
+                "terminalId": null
+            },
+            "signature": "fHM+l4L1ycFWZDRTh/Vr8oybq1Q1xySdjyvmFQCmZ4s="
+        }';
+
+        $callbackData = json_decode($callback, true);
+        print_r($callbackData);
+        $validationResult = MaibMiaClient::validateCallbackSignature($callbackData, $this->MAIB_MIA_SIGNATURE_KEY);
+        print("RESULT: $validationResult");
+    }
 }
 
 $vb_mia_test = new MAIB_MIA_Test();
-$vb_mia_test->test();
+$vb_mia_test->test_callback();
