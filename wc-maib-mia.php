@@ -259,6 +259,38 @@ function woocommerce_maib_mia_init()
             return $validate_result;
         }
 
+        protected function logs_admin_website_notice()
+        {
+            if (current_user_can('manage_woocommerce')) {
+                $message = $this->get_logs_admin_message();
+                wc_add_notice($message, 'error');
+            }
+        }
+
+        protected function logs_admin_notice()
+        {
+            $message = $this->get_logs_admin_message();
+            WC_Admin_Notices::add_custom_notice(self::MOD_ID . '_logs_admin_notice', $message);
+        }
+
+        protected function settings_admin_notice()
+        {
+            $message = $this->get_settings_admin_message();
+            WC_Admin_Notices::add_custom_notice(self::MOD_ID . '_settings_admin_notice', $message);
+        }
+
+        protected function get_settings_admin_message()
+        {
+            $message = sprintf(wp_kses_post(__('%1$s is not properly configured. Verify plugin <a href="%2$s">Connection Settings</a>.', 'wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
+            return $message;
+        }
+
+        protected function get_logs_admin_message()
+        {
+            $message = sprintf(wp_kses_post(__('See <a href="%2$s">%1$s settings</a> page for log details and setup instructions.', 'wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
+            return $message;
+        }
+
         #region Utility
         protected function get_test_message($message)
         {
