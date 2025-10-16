@@ -194,6 +194,71 @@ function woocommerce_maib_mia_init()
             );
         }
 
+        public function is_valid_for_use()
+        {
+            if (!in_array(get_option('woocommerce_currency'), self::SUPPORTED_CURRENCIES)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        public function is_available()
+        {
+            if (!$this->is_valid_for_use())
+                return false;
+
+            if (!$this->check_settings())
+                return false;
+
+            return parent::is_available();
+        }
+
+        public function needs_setup()
+        {
+            return !$this->check_settings();
+        }
+
+        public function admin_options()
+        {
+            $this->validate_settings();
+            $this->display_errors();
+
+            parent::admin_options();
+        }
+
+        protected function check_settings()
+        {
+            return !self::string_empty($this->maib_mia_client_id)
+                && !self::string_empty($this->maib_mia_client_secret)
+                && !self::string_empty($this->maib_mia_signature_key);
+        }
+
+        protected function validate_settings()
+        {
+            $validate_result = true;
+
+            if (!$this->is_valid_for_use()) {
+                $this->add_error(sprintf(
+                    '<strong>%1$s: %2$s</strong>. %3$s: %4$s',
+                    esc_html__('Unsupported store currency', 'wc-maib-mia'),
+                    esc_html(get_option('woocommerce_currency')),
+                    esc_html__('Supported currencies', 'wc-maib-mia'),
+                    esc_html(join(', ', self::SUPPORTED_CURRENCIES))
+                ));
+
+                $validate_result = false;
+            }
+
+            if (!$this->check_settings()) {
+                $message_instructions = sprintf(__('See plugin documentation for <a href="%1$s" target="_blank">installation instructions</a>.', 'wc-maib-mia'), 'https://wordpress.org/plugins/wc-maib-mia/#installation');
+                $this->add_error(sprintf('<strong>%1$s</strong>: %2$s. %3$s', esc_html__('Connection Settings', 'wc-maib-mia'), esc_html__('Not configured', 'wc-maib-mia'), wp_kses_post($message_instructions)));
+                $validate_result = false;
+            }
+
+            return $validate_result;
+        }
+
         #region Utility
         protected function get_test_message($message)
         {
