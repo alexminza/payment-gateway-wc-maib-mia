@@ -1,0 +1,13 @@
+{
+    "intelephense.environment.phpVersion": "7.2.5",
+    "intelephense.environment.includePaths": [
+        "/Users/alexander/Documents/GitHub/WooCommerce"
+    ],
+    "intelephense.stubs": [
+        "Core",
+        "date",
+        "json",
+        "standard",
+        "wordpress"
+    ]
+}

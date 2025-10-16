@@ -54,7 +54,242 @@ function woocommerce_maib_mia_missing_wc_notice()
 
 function woocommerce_maib_mia_init()
 {
-    class WC_MAIB_MIA extends WC_Payment_Gateway {}
+    class WC_MAIB_MIA extends WC_Payment_Gateway
+    {
+        #region Constants
+        const MOD_ID             = 'maib_mia';
+        const MOD_TITLE          = 'maib MIA';
+        const MOD_PREFIX         = 'maib_mia_';
+
+        const SUPPORTED_CURRENCIES = ['MDL'];
+        const ORDER_TEMPLATE       = 'Order #%1$s';
+
+        const MAIB_TRANS_ID        = 'trans_id';
+        const MAIB_TRANSACTION_ID  = 'TRANSACTION_ID';
+
+        const MAIB_ERROR           = 'error';
+        #endregion
+
+        protected $testmode, $debug, $logger, $transaction_type, $order_template;
+        protected $maib_mia_base_url, $maib_mia_client_id, $maib_mia_client_secret, $maib_mia_signature_key;
+
+        public function __construct()
+        {
+            $this->id                 = self::MOD_ID;
+            $this->method_title       = self::MOD_TITLE;
+            $this->method_description = 'maib MIA Payment Gateway for WooCommerce';
+            $this->has_fields         = false;
+            $this->supports           = array('products', 'refunds');
+
+            #region Initialize user set variables
+            $this->enabled            = $this->get_option('enabled', 'no');
+            $this->title              = $this->get_option('title', $this->method_title);
+            $this->description        = $this->get_option('description');
+
+            $plugin_dir               = plugin_dir_url(__FILE__);
+            $this->icon               = apply_filters('woocommerce_maib_mia_icon', "{$plugin_dir}assets/img/mia_instant_mobile.svg");
+
+            $this->testmode           = wc_string_to_bool($this->get_option('testmode', 'no'));
+            $this->debug              = wc_string_to_bool($this->get_option('debug', 'no'));
+            $this->logger             = new WC_Logger(null, $this->debug ? WC_Log_Levels::DEBUG : WC_Log_Levels::INFO);
+
+            if ($this->testmode)
+                $this->description = $this->get_test_message($this->description);
+
+            $this->order_template     = $this->get_option('order_template', self::ORDER_TEMPLATE);
+
+            #https://github.com/alexminza/maib-mia-sdk-php/blob/v1.0.0/src/MaibMia/MaibMiaClient.php
+            $this->maib_mia_base_url  = $this->testmode ? MaibMiaClient::SANDBOX_BASE_URL : MaibMiaClient::DEFAULT_BASE_URL;
+
+            $this->maib_mia_client_id     = $this->get_option('maib_mia_client_id');
+            $this->maib_mia_client_secret = $this->get_option('maib_mia_client_secret');
+            $this->maib_mia_signature_key = $this->get_option('maib_mia_signature_key');
+
+            $this->init_form_fields();
+            $this->init_settings();
+            #endregion
+
+            if (is_admin())
+                add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
+
+            add_action("woocommerce_api_wc_{$this->id}", array($this, 'check_response'));
+        }
+
+        public function init_form_fields()
+        {
+            $this->form_fields = array(
+                'enabled'         => array(
+                    'title'       => __('Enable/Disable', 'wc-maib-mia'),
+                    'type'        => 'checkbox',
+                    'label'       => __('Enable this gateway', 'wc-maib-mia'),
+                    'default'     => 'yes'
+                ),
+                'title'           => array(
+                    'title'       => __('Title', 'wc-maib-mia'),
+                    'type'        => 'text',
+                    'description' => __('Payment method title that the customer will see during checkout.', 'wc-maib-mia'),
+                    'desc_tip'    => true,
+                    'default'     => self::MOD_TITLE
+                ),
+                'description'     => array(
+                    'title'       => __('Description', 'wc-maib-mia'),
+                    'type'        => 'textarea',
+                    'description' => __('Payment method description that the customer will see during checkout.', 'wc-maib-mia'),
+                    'desc_tip'    => true,
+                    'default'     => ''
+                ),
+
+                'testmode'        => array(
+                    'title'       => __('Test mode', 'wc-maib-mia'),
+                    'type'        => 'checkbox',
+                    'label'       => __('Enabled', 'wc-maib-mia'),
+                    'description' => __('Use Test or Live bank gateway to process the payments. Disable when ready to accept live payments.', 'wc-maib-mia'),
+                    'desc_tip'    => true,
+                    'default'     => 'no'
+                ),
+                'debug'           => array(
+                    'title'       => __('Debug mode', 'wc-maib-mia'),
+                    'type'        => 'checkbox',
+                    'label'       => __('Enable logging', 'wc-maib-mia'),
+                    'default'     => 'no',
+                    'description' => sprintf('<a href="%2$s">%1$s</a>', esc_html__('View logs', 'wc-maib-mia'), esc_url(self::get_logs_url())),
+                    'desc_tip'    => __('Save debug messages to the WooCommerce System Status logs. Note: this may log personal information. Use this for debugging purposes only and delete the logs when finished.', 'wc-maib-mia')
+                ),
+
+                'order_template'  => array(
+                    'title'       => __('Order description', 'wc-maib-mia'),
+                    'type'        => 'text',
+                    'description' => __('Format: <code>%1$s</code> - Order ID, <code>%2$s</code> - Order items summary', 'wc-maib-mia'),
+                    'desc_tip'    => __('Order description that the customer will see on the bank payment page.', 'wc-maib-mia'),
+                    'default'     => self::ORDER_TEMPLATE
+                ),
+
+                'connection_settings' => array(
+                    'title'       => __('Connection Settings', 'wc-maib-mia'),
+                    'description' => __('Payment gateway connection credentials are provided by the bank.', 'wc-maib-mia'),
+                    'type'        => 'title'
+                ),
+                'maib_mia_client_id' => array(
+                    'title'       => __('Client ID', 'wc-maib-mia'),
+                    'type'        => 'text',
+                ),
+                'maib_mia_client_secret' => array(
+                    'title'       => __('Client Secret', 'wc-maib-mia'),
+                    'type'        => 'password',
+                ),
+                'maib_mia_signature_key' => array(
+                    'title'       => __('Signature Key', 'wc-maib-mia'),
+                    'type'        => 'password',
+                ),
+
+                'payment_notification' => array(
+                    'title'       => __('Payment Notification', 'wc-maib-mia'),
+                    'description' => sprintf(
+                        '<b>%1$s:</b> <code>%2$s</code>',
+                        esc_html__('Callback URL', 'wc-maib-mia'),
+                        esc_url($this->get_callback_url())
+                    ),
+                    'type'        => 'title'
+                )
+            );
+        }
+
+        #region Utility
+        protected function get_test_message($message)
+        {
+            if ($this->testmode)
+                $message = sprintf(esc_html__('TEST: %1$s', 'wc-maib-mia'), esc_html($message));
+
+            return $message;
+        }
+
+        protected static function get_language()
+        {
+            $lang = get_locale();
+            return substr($lang, 0, 2);
+        }
+
+        protected static function get_client_ip()
+        {
+            return WC_Geolocation::get_ip_address();
+        }
+
+        protected function get_callback_url()
+        {
+            //https://developer.woo.com/docs/woocommerce-plugin-api-callbacks/
+            return WC()->api_request_url("wc_{$this->id}");
+        }
+
+        protected static function get_logs_url()
+        {
+            return add_query_arg(
+                array(
+                    'page'   => 'wc-status',
+                    'tab'    => 'logs',
+                    'source' => self::MOD_ID
+                ),
+                admin_url('admin.php')
+            );
+        }
+
+        public static function get_settings_url()
+        {
+            return add_query_arg(
+                array(
+                    'page'    => 'wc-settings',
+                    'tab'     => 'checkout',
+                    'section' => self::MOD_ID
+                ),
+                admin_url('admin.php')
+            );
+        }
+
+        protected function log($message, $level = WC_Log_Levels::DEBUG)
+        {
+            //https://developer.woo.com/docs/logging-in-woocommerce/
+            //https://stackoverflow.com/questions/1423157/print-php-call-stack
+            $log_context = array('source' => self::MOD_ID);
+            $this->logger->log($level, $message, $log_context);
+        }
+
+        protected static function static_log($message, $level = WC_Log_Levels::DEBUG)
+        {
+            $logger = wc_get_logger();
+            $log_context = array('source' => self::MOD_ID);
+            $logger->log($level, $message, $log_context);
+        }
+
+        protected static function print_var($var)
+        {
+            //https://woocommerce.github.io/code-reference/namespaces/default.html#function_wc_print_r
+            return wc_print_r($var, true);
+        }
+
+        protected static function string_empty($string)
+        {
+            return is_null($string) || strlen($string) === 0;
+        }
+        #endregion
+
+        #region Admin
+        public static function plugin_links($links)
+        {
+            $plugin_links = array(
+                sprintf('<a href="%1$s">%2$s</a>', esc_url(self::get_settings_url()), esc_html__('Settings', 'wc-maib-mia'))
+            );
+
+            return array_merge($plugin_links, $links);
+        }
+        #endregion
+
+        #region WooCommerce
+        public static function add_gateway($methods)
+        {
+            $methods[] = self::class;
+            return $methods;
+        }
+        #endregion
+    }
 
     //Add gateway to WooCommerce
     add_filter('woocommerce_payment_gateways', array(WC_MAIB_MIA::class, 'add_gateway'));
@@ -93,3 +328,4 @@ add_action('woocommerce_blocks_loaded', function () {
         );
     }
 });
+#endregion

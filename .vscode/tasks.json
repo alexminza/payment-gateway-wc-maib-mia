@@ -29,6 +29,24 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             }
-        }
+        },
+        {
+            "label": "zip plugin",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "command": "zip",
+            "args": [
+                "-r",
+                "-X",
+                "${workspaceFolderBasename}.zip",
+                "./*",
+                "-x",
+                "composer.phar",
+                "*.log"
+            ],
+            "problemMatcher": []
+        },
     ]
 }
