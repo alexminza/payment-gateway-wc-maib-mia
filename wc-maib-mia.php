@@ -64,12 +64,15 @@ function woocommerce_maib_mia_init()
         const SUPPORTED_CURRENCIES = ['MDL'];
         const ORDER_TEMPLATE       = 'Order #%1$s';
 
-        const MOD_PAY_ID          =  self::MOD_PREFIX . 'pay_id';
+        const MOD_QR_ID            =  self::MOD_PREFIX . 'qr_id';
+        const MOD_QR_URL           =  self::MOD_PREFIX . 'qr_url';
+        const MOD_PAY_ID           =  self::MOD_PREFIX . 'pay_id';
 
-        const DEFAULT_TIMEOUT      = 15;
+        const DEFAULT_TIMEOUT  = 15; //seconds
+        const DEFAULT_VALIDITY = 15; //minutes
         #endregion
 
-        protected $testmode, $debug, $logger, $transaction_type, $order_template;
+        protected $testmode, $debug, $logger, $transaction_type, $order_template, $transaction_validity;
         protected $maib_mia_base_url, $maib_mia_client_id, $maib_mia_client_secret, $maib_mia_signature_key;
 
         public function __construct()
@@ -86,7 +89,7 @@ function woocommerce_maib_mia_init()
             $this->description        = $this->get_option('description');
 
             $plugin_dir               = plugin_dir_url(__FILE__);
-            $this->icon               = apply_filters('woocommerce_maib_mia_icon', "{$plugin_dir}assets/img/mia_instant_mobile.svg");
+            $this->icon               = apply_filters('woocommerce_maib_mia_icon', "{$plugin_dir}assets/img/mia.svg");
 
             $this->testmode           = wc_string_to_bool($this->get_option('testmode', 'no'));
             $this->debug              = wc_string_to_bool($this->get_option('debug', 'no'));
@@ -95,7 +98,8 @@ function woocommerce_maib_mia_init()
             if ($this->testmode)
                 $this->description = $this->get_test_message($this->description);
 
-            $this->order_template     = $this->get_option('order_template', self::ORDER_TEMPLATE);
+            $this->order_template       = $this->get_option('order_template', self::ORDER_TEMPLATE);
+            $this->transaction_validity = intval($this->get_option('transaction_validity', self::DEFAULT_VALIDITY));
 
             #https://github.com/alexminza/maib-mia-sdk-php/blob/v1.0.0/src/MaibMia/MaibMiaClient.php
             $this->maib_mia_base_url  = $this->testmode ? MaibMiaClient::SANDBOX_BASE_URL : MaibMiaClient::DEFAULT_BASE_URL;
@@ -161,6 +165,13 @@ function woocommerce_maib_mia_init()
                     'description' => __('Format: <code>%1$s</code> - Order ID, <code>%2$s</code> - Order items summary', 'wc-maib-mia'),
                     'desc_tip'    => __('Order description that the customer will see on the bank payment page.', 'wc-maib-mia'),
                     'default'     => self::ORDER_TEMPLATE
+                ),
+                'transaction_validity'  => array(
+                    'title'       => __('Transaction validity', 'wc-maib-mia'),
+                    'type'        => 'decimal',
+                    'description' => __('Transaction validity in minutes', 'wc-maib-mia'),
+                    'desc_tip'    => true,
+                    'default'     => self::DEFAULT_VALIDITY
                 ),
 
                 'connection_settings' => array(
@@ -317,7 +328,94 @@ function woocommerce_maib_mia_init()
             return $client;
         }
 
-        public function process_payment($order_id) {}
+        /**
+         * @param MaibMiaClient $client
+         */
+        private function maib_mia_generate_token($client)
+        {
+            $tokenResponse = $client->getToken($this->maib_mia_client_id, $this->maib_mia_client_secret);
+            $accessToken = $tokenResponse['result']['accessToken'];
+
+            return $accessToken;
+        }
+
+        /**
+         * @param MaibMiaClient $client
+         * @param string $token
+         * @param string $order_id
+         * @param string $order_name
+         * @param float  $total_amount
+         * @param string $currency
+         * @param string $callback_url
+         * @param string $redirect_url
+         * @param int    $validity_minutes
+         */
+        private function maib_mia_pay($client, $token, $order_id, $order_name, $total_amount, $currency, $callback_url, $redirect_url, $validity_minutes)
+        {
+            $expires_at = (new DateTime())->modify("+{$validity_minutes} minutes")->format('c');
+
+            $qr_data = array(
+                'type' => 'Dynamic',
+                'expiresAt' => $expires_at,
+                'amountType' => 'Fixed',
+                'amount' => $total_amount,
+                'currency' => $currency,
+                'description' => $order_name,
+                'orderId' => strval($order_id),
+                'callbackUrl' => $callback_url,
+                'redirectUrl' => $redirect_url
+            );
+
+            return $client->createQr($qr_data, $token);
+        }
+
+        public function process_payment($order_id)
+        {
+            $order = wc_get_order($order_id);
+            $order_total = $order->get_total();
+            $order_currency = $order->get_currency();
+            $order_description = $this->get_order_description($order);
+            $callback_url = $this->get_callback_url();
+            $redirect_url = $this->get_redirect_url($order);
+            $create_qr_response = null;
+
+            try {
+                $client = $this->init_maib_mia_client();
+                $token = $this->maib_mia_generate_token($client);
+
+                $create_qr_response = $this->maib_mia_pay($client, $token, $order_id, $order_description, $order_total, $order_currency, $callback_url, $redirect_url, $this->transaction_validity);
+                $this->log(self::print_var($create_qr_response));
+            } catch (Exception $ex) {
+                $this->log($ex, WC_Log_Levels::ERROR);
+            }
+
+            if (!empty($create_qr_response)) {
+                $create_qr_response_ok = $create_qr_response['ok'];
+                if ($create_qr_response_ok) {
+                    $create_qr_response_result = $create_qr_response['result'];
+                    $qr_id = $create_qr_response_result['qrId'];
+                    $qr_url = $create_qr_response_result['url'];
+
+                    #region Update order payment transaction metadata
+                    //https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book#apis-for-gettingsetting-posts-and-postmeta
+                    //https://developer.woocommerce.com/docs/hpos-extension-recipe-book/#2-supporting-high-performance-order-storage-in-your-extension
+                    $order->add_meta_data(self::MOD_QR_ID, $qr_id, true);
+                    $order->add_meta_data(self::MOD_QR_URL, $qr_url, true);
+                    $order->save();
+                    #endregion
+
+                    $message = sprintf(esc_html__('Payment initiated via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html(self::print_http_query($create_qr_response)));
+                    $message = $this->get_test_message($message);
+                    $this->log($message, WC_Log_Levels::INFO);
+                    $order->add_order_note($message);
+
+                    return array(
+                        'result'   => 'success',
+                        'redirect' => $qr_url
+                    );
+                }
+            }
+        }
 
         public function check_response() {}
 
@@ -378,21 +476,17 @@ function woocommerce_maib_mia_init()
             return $message;
         }
 
-        protected static function get_language()
+        protected function get_redirect_url($order)
         {
-            $lang = get_locale();
-            return substr($lang, 0, 2);
-        }
-
-        protected static function get_client_ip()
-        {
-            return WC_Geolocation::get_ip_address();
+            $redirectUrl = $this->get_return_url($order);
+            return apply_filters(self::MOD_ID . '_redirect_url', $redirectUrl);
         }
 
         protected function get_callback_url()
         {
             //https://developer.woo.com/docs/woocommerce-plugin-api-callbacks/
-            return WC()->api_request_url("wc_{$this->id}");
+            $callbackUrl = WC()->api_request_url("wc_{$this->id}");
+            return apply_filters(self::MOD_ID . '_callback_url', $callbackUrl);
         }
 
         protected static function get_logs_url()
@@ -438,6 +532,16 @@ function woocommerce_maib_mia_init()
         {
             //https://woocommerce.github.io/code-reference/namespaces/default.html#function_wc_print_r
             return wc_print_r($var, true);
+        }
+
+        protected static function print_http_query($var)
+        {
+            if (empty($var))
+                return $var;
+
+            return is_array($var)
+                ? http_build_query($var)
+                : $var;
         }
 
         protected static function string_empty($string)

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "12cf58f8bdd1dc310e4e89d73667d3a1",
+    "content-hash": "92302b62f956b498d0edff746f40fa59",
     "packages": [
         {
             "name": "alexminza/maib-mia-sdk",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../maib-mia-sdk-php",
-                "reference": "714ca40a0e8db323d1c69f1a37203b64f7cf5652"
+                "reference": "528a3eee546103fdca711bc9936bed49cdff10fe"
             },
             "require": {
                 "guzzlehttp/guzzle": "~7.0",
