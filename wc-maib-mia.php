@@ -64,10 +64,7 @@ function woocommerce_maib_mia_init()
         const SUPPORTED_CURRENCIES = ['MDL'];
         const ORDER_TEMPLATE       = 'Order #%1$s';
 
-        const MAIB_TRANS_ID        = 'trans_id';
-        const MAIB_TRANSACTION_ID  = 'TRANSACTION_ID';
-
-        const MAIB_ERROR           = 'error';
+        const MOD_PAY_ID          =  self::MOD_PREFIX . 'pay_id';
 
         const DEFAULT_TIMEOUT      = 15;
         #endregion
@@ -318,6 +315,57 @@ function woocommerce_maib_mia_init()
             $client = new MaibMiaClient($guzzleClient);
 
             return $client;
+        }
+
+        public function process_payment($order_id) {}
+
+        public function check_response() {}
+
+        public function process_refund($order_id, $amount = null, $reason = '') {}
+        #endregion
+
+        #region Order
+        protected static function get_order_net_total($order)
+        {
+            //https://github.com/woocommerce/woocommerce/issues/17795
+            //https://github.com/woocommerce/woocommerce/pull/18196
+            $total_refunded = 0;
+            $order_refunds = $order->get_refunds();
+            foreach ($order_refunds as $refund) {
+                if ($refund->get_refunded_payment())
+                    $total_refunded += $refund->get_amount();
+            }
+
+            $order_total = $order->get_total();
+            return $order_total - $total_refunded;
+        }
+
+        protected static function get_order_pay_id($order)
+        {
+            //https://woocommerce.github.io/code-reference/classes/WC-Data.html#method_get_meta
+            $pay_id = $order->get_meta(self::MOD_PAY_ID, true);
+            return $pay_id;
+        }
+
+        protected function get_order_description($order)
+        {
+            $description = sprintf(
+                $this->order_template,
+                $order->get_id(),
+                self::get_order_items_summary($order)
+            );
+
+            return apply_filters(self::MOD_ID . '_order_description', $description, $order);
+        }
+
+        protected static function get_order_items_summary($order)
+        {
+            $items = $order->get_items();
+            $items_names = array_map(function ($item) {
+                return $item->get_name();
+            }, $items);
+
+            return join(', ', $items_names);
         }
         #endregion
 
