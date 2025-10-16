@@ -196,7 +196,7 @@ function woocommerce_maib_mia_init()
 
         public function is_valid_for_use()
         {
-            if (!in_array(get_option('woocommerce_currency'), self::SUPPORTED_CURRENCIES)) {
+            if (!in_array(get_woocommerce_currency(), self::SUPPORTED_CURRENCIES)) {
                 return false;
             }
 
@@ -242,7 +242,7 @@ function woocommerce_maib_mia_init()
                 $this->add_error(sprintf(
                     '<strong>%1$s: %2$s</strong>. %3$s: %4$s',
                     esc_html__('Unsupported store currency', 'wc-maib-mia'),
-                    esc_html(get_option('woocommerce_currency')),
+                    esc_html(get_woocommerce_currency()),
                     esc_html__('Supported currencies', 'wc-maib-mia'),
                     esc_html(join(', ', self::SUPPORTED_CURRENCIES))
                 ));
