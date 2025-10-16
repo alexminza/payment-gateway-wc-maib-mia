@@ -68,6 +68,8 @@ function woocommerce_maib_mia_init()
         const MAIB_TRANSACTION_ID  = 'TRANSACTION_ID';
 
         const MAIB_ERROR           = 'error';
+
+        const DEFAULT_TIMEOUT      = 15;
         #endregion
 
         protected $testmode, $debug, $logger, $transaction_type, $order_template;
@@ -290,6 +292,34 @@ function woocommerce_maib_mia_init()
             $message = sprintf(wp_kses_post(__('See <a href="%2$s">%1$s settings</a> page for log details and setup instructions.', 'wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
             return $message;
         }
+
+        #region Payment
+        protected function init_maib_mia_client()
+        {
+            $options = [
+                'base_uri' => $this->maib_mia_base_url,
+                'timeout' => self::DEFAULT_TIMEOUT
+            ];
+
+            if ($this->debug) {
+                $logName = self::MOD_ID . '_guzzle';
+                $logFileName = WC_Log_Handler_File::get_log_file_path($logName);
+
+                $log = new \Monolog\Logger($logName);
+                $log->pushHandler(new \Monolog\Handler\StreamHandler($logFileName, \Monolog\Logger::DEBUG));
+
+                $stack = \GuzzleHttp\HandlerStack::create();
+                $stack->push(\GuzzleHttp\Middleware::log($log, new \GuzzleHttp\MessageFormatter(\GuzzleHttp\MessageFormatter::DEBUG)));
+
+                $options['handler'] = $stack;
+            }
+
+            $guzzleClient = new \GuzzleHttp\Client($options);
+            $client = new MaibMiaClient($guzzleClient);
+
+            return $client;
+        }
+        #endregion
 
         #region Utility
         protected function get_test_message($message)
