@@ -404,7 +404,7 @@ function woocommerce_maib_mia_init()
                     $order->save();
                     #endregion
 
-                    $message = sprintf(esc_html__('Payment initiated via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html(self::print_http_query($create_qr_response)));
+                    $message = sprintf(esc_html__('Payment initiated via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html(self::print_response_object($create_qr_response)));
                     $message = $this->get_test_message($message);
                     $this->log($message, WC_Log_Levels::INFO);
                     $order->add_order_note($message);
@@ -415,6 +415,27 @@ function woocommerce_maib_mia_init()
                     );
                 }
             }
+
+            $message = sprintf(esc_html__('Payment initiation failed via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html(self::print_response_object($create_qr_response)));
+			$message = $this->get_test_message($message);
+			$order->add_order_note($message);
+			$this->log($message, WC_Log_Levels::ERROR);
+
+			$message = sprintf(esc_html__('Order #%1$s payment initiation failed via %2$s.', 'wc-maib-mia'), esc_html($order_id), esc_html($this->method_title));
+
+			//https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
+			$is_store_api_request = method_exists(WC(), 'is_store_api_request') && WC()->is_store_api_request();
+			if($is_store_api_request) {
+				throw new Exception($message);
+			}
+
+			wc_add_notice($message, 'error');
+			$this->logs_admin_website_notice();
+
+			return array(
+				'result'   => 'failure',
+				'messages' => $message
+			);
         }
 
         public function check_response() {}
@@ -534,14 +555,15 @@ function woocommerce_maib_mia_init()
             return wc_print_r($var, true);
         }
 
-        protected static function print_http_query($var)
+        /**
+         * @param GuzzleHttp\Command\Result $response
+         */
+        protected static function print_response_object($response)
         {
-            if (empty($var))
-                return $var;
+            if($response)
+                return json_encode($response->toArray());
 
-            return is_array($var)
-                ? http_build_query($var)
-                : $var;
+            return '';
         }
 
         protected static function string_empty($string)
