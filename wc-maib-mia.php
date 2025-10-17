@@ -67,6 +67,7 @@ function woocommerce_maib_mia_init()
         const MOD_QR_ID            =  self::MOD_PREFIX . 'qr_id';
         const MOD_QR_URL           =  self::MOD_PREFIX . 'qr_url';
         const MOD_PAY_ID           =  self::MOD_PREFIX . 'pay_id';
+        const MOD_CALLBACK         =  self::MOD_PREFIX . 'callback';
 
         const DEFAULT_TIMEOUT  = 15; //seconds
         const DEFAULT_VALIDITY = 15; //minutes
@@ -417,28 +418,101 @@ function woocommerce_maib_mia_init()
             }
 
             $message = sprintf(esc_html__('Payment initiation failed via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html(self::print_response_object($create_qr_response)));
-			$message = $this->get_test_message($message);
-			$order->add_order_note($message);
-			$this->log($message, WC_Log_Levels::ERROR);
+            $message = $this->get_test_message($message);
+            $order->add_order_note($message);
+            $this->log($message, WC_Log_Levels::ERROR);
 
-			$message = sprintf(esc_html__('Order #%1$s payment initiation failed via %2$s.', 'wc-maib-mia'), esc_html($order_id), esc_html($this->method_title));
+            $message = sprintf(esc_html__('Order #%1$s payment initiation failed via %2$s.', 'wc-maib-mia'), esc_html($order_id), esc_html($this->method_title));
 
-			//https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
-			$is_store_api_request = method_exists(WC(), 'is_store_api_request') && WC()->is_store_api_request();
-			if($is_store_api_request) {
-				throw new Exception($message);
-			}
+            //https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
+            $is_store_api_request = method_exists(WC(), 'is_store_api_request') && WC()->is_store_api_request();
+            if ($is_store_api_request) {
+                throw new Exception($message);
+            }
 
-			wc_add_notice($message, 'error');
-			$this->logs_admin_website_notice();
+            wc_add_notice($message, 'error');
+            $this->logs_admin_website_notice();
 
-			return array(
-				'result'   => 'failure',
-				'messages' => $message
-			);
+            return array(
+                'result'   => 'failure',
+                'messages' => $message
+            );
         }
 
-        public function check_response() {}
+        public function check_response()
+        {
+            if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+                $message = sprintf(esc_html__('This %1$s Callback URL works and should not be called directly.', 'wc-maib-mia'), esc_html($this->method_title));
+                wc_add_notice($message, 'notice');
+
+                wp_safe_redirect(wc_get_cart_url());
+                return false;
+            }
+
+            try {
+                $callback_body = file_get_contents('php://input');
+                $this->log(self::print_var($callback_body));
+
+                $callback_data = json_decode($callback_body, true);
+                $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
+
+                if (!$validation_result) {
+                    $message = sprintf(esc_html__('%1$s callback signature validation failed.', 'wc-maib-mia'), esc_html($this->method_title));
+                    $this->log($message, WC_Log_Levels::ERROR);
+
+                    wc_add_notice($message, 'error');
+                    $this->logs_admin_website_notice();
+
+                    wp_safe_redirect(wc_get_cart_url());
+                    return false;
+                }
+            } catch (Exception $ex) {
+                $this->log($ex, WC_Log_Levels::ERROR);
+            }
+
+            $callback_data_result = $callback_data['result'];
+            $order_id = $callback_data_result['orderId'];
+            $order = wc_get_order($order_id);
+
+            if (!$order) {
+                $message = sprintf(esc_html__('Order not found by Order ID: %1$s received from %2$s.', 'wc-maib-mia'), esc_html($order_id), esc_html($this->method_title));
+                $this->log($message, WC_Log_Levels::ERROR);
+
+                wc_add_notice($message, 'error');
+                $this->logs_admin_website_notice();
+
+                wp_safe_redirect(wc_get_cart_url());
+                return false;
+            }
+
+            $qr_status = $callback_data_result['qrStatus'];
+            if ($qr_status === 'Paid') {
+                $pay_id = $callback_data_result['payId'];
+                $reference_id = $callback_data_result['referenceId'];
+
+                #region Update order payment metadata
+                $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
+                $order->add_meta_data(self::MOD_PAY_ID, $pay_id, true);
+                $order->save();
+                #endergion
+
+                $message_action = esc_html__('Payment completed via %1$s: %2$s', 'wc-maib-mia');
+                $message = sprintf($message_action, esc_html($this->method_title), esc_html($callback_body));
+                $message = $this->get_test_message($message);
+                $this->log($message, WC_Log_Levels::INFO);
+                $order->add_order_note($message);
+
+                $order->payment_complete($reference_id);
+                WC()->cart->empty_cart();
+
+                $message = sprintf(esc_html__('Order #%1$s paid successfully via %2$s.', 'wc-maib-mia'), esc_html($order_id), esc_html($this->method_title));
+                $this->log($message, WC_Log_Levels::INFO);
+                wc_add_notice($message, 'success');
+
+                wp_safe_redirect($this->get_return_url($order));
+                return true;
+            }
+        }
 
         public function process_refund($order_id, $amount = null, $reason = '') {}
         #endregion
@@ -560,7 +634,7 @@ function woocommerce_maib_mia_init()
          */
         protected static function print_response_object($response)
         {
-            if($response)
+            if ($response)
                 return json_encode($response->toArray());
 
             return '';
