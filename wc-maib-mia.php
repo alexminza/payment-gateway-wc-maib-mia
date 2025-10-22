@@ -162,7 +162,7 @@ function woocommerce_maib_mia_init()
                 'order_template'  => array(
                     'title'       => __('Order description', 'wc-maib-mia'),
                     'type'        => 'text',
-                    'description' => __('Format: <code>%1$s</code> - Order ID, <code>%2$s</code> - Order items summary', 'wc-maib-mia'),
+                    'description' => __('Format: <code>%1$s</code> - Order ID', 'wc-maib-mia'),
                     'desc_tip'    => __('Order description that the customer will see on the bank payment page.', 'wc-maib-mia'),
                     'default'     => self::ORDER_TEMPLATE
                 ),
@@ -556,7 +556,7 @@ function woocommerce_maib_mia_init()
             }
 
             $order = wc_get_order($order_id);
-            $pay_id = $order->get_meta(strtolower(self::MOD_PAY_ID), true);
+            $pay_id = $order->get_meta(self::MOD_PAY_ID, true);
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
             $payment_refund_response = null;
@@ -609,52 +609,13 @@ function woocommerce_maib_mia_init()
         }
         #endregion
 
-        #region Order
-        protected static function get_order_net_total($order)
-        {
-            //https://github.com/woocommerce/woocommerce/issues/17795
-            //https://github.com/woocommerce/woocommerce/pull/18196
-            $total_refunded = 0;
-            $order_refunds = $order->get_refunds();
-            foreach ($order_refunds as $refund) {
-                if ($refund->get_refunded_payment())
-                    $total_refunded += $refund->get_amount();
-            }
-
-            $order_total = $order->get_total();
-            return $order_total - $total_refunded;
-        }
-
-        protected static function get_order_pay_id($order)
-        {
-            //https://woocommerce.github.io/code-reference/classes/WC-Data.html#method_get_meta
-            $pay_id = $order->get_meta(self::MOD_PAY_ID, true);
-            return $pay_id;
-        }
-
+        #region Utility
         protected function get_order_description($order)
         {
-            $description = sprintf(
-                $this->order_template,
-                $order->get_id(),
-                self::get_order_items_summary($order)
-            );
-
+            $description = sprintf($this->order_template, $order->get_id());
             return apply_filters(self::MOD_ID . '_order_description', $description, $order);
         }
 
-        protected static function get_order_items_summary($order)
-        {
-            $items = $order->get_items();
-            $items_names = array_map(function ($item) {
-                return $item->get_name();
-            }, $items);
-
-            return join(', ', $items_names);
-        }
-        #endregion
-
-        #region Utility
         protected function get_test_message($message)
         {
             if ($this->testmode)
