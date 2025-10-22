@@ -302,7 +302,7 @@ function woocommerce_maib_mia_init()
             return $message;
         }
 
-        #region Payment
+        #region maib MIA
         protected function init_maib_mia_client()
         {
             $options = [
@@ -370,6 +370,23 @@ function woocommerce_maib_mia_init()
             return $client->createQr($qr_data, $token);
         }
 
+        /**
+         * @param MaibMiaClient $client
+         * @param string $token
+         * @param string $pay_id
+         * @param string $reason
+         */
+        private function maib_mia_refund($client, $token, $pay_id, $reason)
+        {
+            $refund_data = array(
+                'reason' => $reason
+            );
+
+            return $client->paymentRefund($refund_data, $token);
+        }
+        #endregion
+
+        #region Payment
         public function process_payment($order_id)
         {
             $order = wc_get_order($order_id);
@@ -520,7 +537,7 @@ function woocommerce_maib_mia_init()
                 $order->save();
 
                 $order->payment_complete($callback_reference_id);
-                #endergion
+                #endregion
 
                 $message = sprintf(esc_html__('Payment completed via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html($callback_body));
                 $message = $this->get_test_message($message);
@@ -530,7 +547,65 @@ function woocommerce_maib_mia_init()
             }
         }
 
-        public function process_refund($order_id, $amount = null, $reason = '') {}
+        public function process_refund($order_id, $amount = null, $reason = '')
+        {
+            if (!$this->check_settings()) {
+                $message = $this->get_settings_admin_message();
+                return new WP_Error($this->id . '_error', $message);
+            }
+
+            $order = wc_get_order($order_id);
+            $pay_id = $order->get_meta(strtolower(self::MOD_PAY_ID), true);
+            $order_total = $order->get_total();
+            $order_currency = $order->get_currency();
+            $payment_refund_response = null;
+
+            #region Validate refund amount
+            if (isset($amount) && $amount != $order_total) {
+                $message = esc_html__('Partial refunds are not currently supported by maib MIA.', 'wc-maib-mia');
+                $this->log($message, WC_Log_Levels::ERROR);
+
+                return new WP_Error($this->id . '_error', $message);
+            }
+            #endregion
+
+            try {
+                $client = $this->init_maib_mia_client();
+                $token = $this->maib_mia_generate_token($client);
+
+                $payment_refund_response = $this->maib_mia_refund($client, $token, $pay_id, $reason);
+                $this->log(self::print_var($payment_refund_response));
+            } catch (Exception $ex) {
+                $this->log($ex, WC_Log_Levels::ERROR);
+                return new WP_Error($this->id . '_error', $ex->getMessage());
+            }
+
+            if (!empty($payment_refund_response)) {
+                $payment_refund_response_ok = $payment_refund_response['ok'];
+                if ($payment_refund_response_ok) {
+                    $payment_refund_response_result = $payment_refund_response['result'];
+
+                    $refund_status = $payment_refund_response_result['status'];
+                    if (strtolower($refund_status) === 'refunded') {
+                        $message = sprintf(esc_html__('Refund of %1$s %2$s via %3$s approved: %4$s', 'wc-maib-mia'), esc_html($order_total), esc_html($order_currency), esc_html($this->method_title), esc_html(self::print_response_object($payment_refund_response)));
+                        $message = $this->get_test_message($message);
+                        $this->log($message, WC_Log_Levels::INFO);
+                        $order->add_order_note($message);
+
+                        return true;
+                    }
+                }
+            }
+
+            $message = sprintf(esc_html__('Refund of %1$s %2$s via %3$s failed: %4$s', 'wc-maib-mia'), esc_html($order_total), esc_html($order_currency), esc_html($this->method_title), esc_html(self::print_response_object($payment_refund_response)));
+            $message = $this->get_test_message($message);
+            $order->add_order_note($message);
+            $this->log($message, WC_Log_Levels::ERROR);
+
+            $this->logs_admin_notice();
+
+            return new WP_Error($this->id . '_error', $message);
+        }
         #endregion
 
         #region Order
