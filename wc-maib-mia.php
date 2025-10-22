@@ -494,8 +494,8 @@ function woocommerce_maib_mia_init()
                 $order_total = $order->get_total();
                 $order_currency = $order->get_currency();
 
-                if ($order_total !== $callback_amount || $order_currency !== $callback_currency) {
-                    $message = sprintf(esc_html__('Order amount mismatch: Callback %1$f %2$s, Order %3$f %4$s.', 'wc-maib-mia'), $callback_amount, $callback_currency, $order_total, $order_currency);
+                if ($order_total != $callback_amount || strtoupper($order_currency) !== strtoupper($callback_currency)) {
+                    $message = sprintf(esc_html__('Order amount mismatch: Callback: %1$f %2$s, Order: %3$f %4$s.', 'wc-maib-mia'), $callback_amount, $callback_currency, $order_total, $order_currency);
                     $this->log($message, WC_Log_Levels::ERROR);
 
                     wp_die('Order data mismatch', WP_Http::UNPROCESSABLE_ENTITY);
