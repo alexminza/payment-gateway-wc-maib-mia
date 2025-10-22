@@ -74,7 +74,7 @@ function woocommerce_maib_mia_init()
         #endregion
 
         protected $testmode, $debug, $logger, $transaction_type, $order_template, $transaction_validity;
-        protected $maib_mia_base_url, $maib_mia_client_id, $maib_mia_client_secret, $maib_mia_signature_key;
+        protected $maib_mia_base_url, $maib_mia_callback_url, $maib_mia_client_id, $maib_mia_client_secret, $maib_mia_signature_key;
 
         public function __construct()
         {
@@ -88,9 +88,7 @@ function woocommerce_maib_mia_init()
             $this->enabled            = $this->get_option('enabled', 'no');
             $this->title              = $this->get_option('title', $this->method_title);
             $this->description        = $this->get_option('description');
-
-            $plugin_dir               = plugin_dir_url(__FILE__);
-            $this->icon               = apply_filters('woocommerce_maib_mia_icon', "{$plugin_dir}assets/img/mia.svg");
+            $this->icon               = apply_filters('woocommerce_maib_mia_icon', plugin_dir_url(__FILE__) . 'assets/img/mia.svg');
 
             $this->testmode           = wc_string_to_bool($this->get_option('testmode', 'no'));
             $this->debug              = wc_string_to_bool($this->get_option('debug', 'no'));
@@ -104,6 +102,7 @@ function woocommerce_maib_mia_init()
 
             #https://github.com/alexminza/maib-mia-sdk-php/blob/v1.0.0/src/MaibMia/MaibMiaClient.php
             $this->maib_mia_base_url  = $this->testmode ? MaibMiaClient::SANDBOX_BASE_URL : MaibMiaClient::DEFAULT_BASE_URL;
+            $this->maib_mia_callback_url  =$this->get_option('maib_mia_callback_url', $this->get_callback_url());
 
             $this->maib_mia_client_id     = $this->get_option('maib_mia_client_id');
             $this->maib_mia_client_secret = $this->get_option('maib_mia_client_secret');
@@ -195,13 +194,14 @@ function woocommerce_maib_mia_init()
 
                 'payment_notification' => array(
                     'title'       => __('Payment Notification', 'wc-maib-mia'),
-                    'description' => sprintf(
-                        '<b>%1$s:</b> <code>%2$s</code>',
-                        esc_html__('Callback URL', 'wc-maib-mia'),
-                        esc_url($this->get_callback_url())
-                    ),
                     'type'        => 'title'
-                )
+                ),
+                'maib_mia_callback_url' => array(
+                    'title'       => __('Callback URL', 'wc-maib-mia'),
+                    'type'        => 'text',
+                    'description' => sprintf('<code>%1$s</code>', esc_url($this->get_callback_url())),
+                    'default'     => $this->get_callback_url()
+                ),
             );
         }
 
@@ -376,7 +376,7 @@ function woocommerce_maib_mia_init()
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
             $order_description = $this->get_order_description($order);
-            $callback_url = $this->get_callback_url();
+            $callback_url = $this->maib_mia_callback_url;
             $redirect_url = $this->get_redirect_url($order);
             $create_qr_response = null;
 
@@ -451,7 +451,7 @@ function woocommerce_maib_mia_init()
 
             try {
                 $callback_body = file_get_contents('php://input');
-                $this->log(self::print_var($callback_body));
+                $this->log(sprintf(__('Payment notification callback: %1$s', 'wc-maib-mia'), self::print_var($callback_body)));
 
                 $callback_data = json_decode($callback_body, true);
                 $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
