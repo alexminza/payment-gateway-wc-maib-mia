@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../maib-mia-sdk-php",
-                "reference": "528a3eee546103fdca711bc9936bed49cdff10fe"
+                "reference": "d8673a7514b0d9d3ae7bee1b7c7ff6c4db5224fd"
             },
             "require": {
                 "guzzlehttp/guzzle": "~7.0",

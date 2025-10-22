@@ -379,6 +379,7 @@ function woocommerce_maib_mia_init()
         private function maib_mia_refund($client, $token, $pay_id, $reason)
         {
             $refund_data = array(
+                'payId' => $pay_id,
                 'reason' => $reason
             );
 
