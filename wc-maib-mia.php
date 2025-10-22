@@ -102,7 +102,7 @@ function woocommerce_maib_mia_init()
 
             #https://github.com/alexminza/maib-mia-sdk-php/blob/v1.0.0/src/MaibMia/MaibMiaClient.php
             $this->maib_mia_base_url  = $this->testmode ? MaibMiaClient::SANDBOX_BASE_URL : MaibMiaClient::DEFAULT_BASE_URL;
-            $this->maib_mia_callback_url  =$this->get_option('maib_mia_callback_url', $this->get_callback_url());
+            $this->maib_mia_callback_url  = $this->get_option('maib_mia_callback_url', $this->get_callback_url());
 
             $this->maib_mia_client_id     = $this->get_option('maib_mia_client_id');
             $this->maib_mia_client_secret = $this->get_option('maib_mia_client_secret');
@@ -449,67 +449,83 @@ function woocommerce_maib_mia_init()
                 return false;
             }
 
+            #region Validate callback
             try {
                 $callback_body = file_get_contents('php://input');
-                $this->log(sprintf(__('Payment notification callback: %1$s', 'wc-maib-mia'), self::print_var($callback_body)));
+                $this->log(sprintf(esc_html__('Payment notification callback: %1$s', 'wc-maib-mia'), self::print_var($callback_body)));
 
                 $callback_data = json_decode($callback_body, true);
                 $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
-
-                if (!$validation_result) {
-                    $message = sprintf(esc_html__('%1$s callback signature validation failed.', 'wc-maib-mia'), esc_html($this->method_title));
-                    $this->log($message, WC_Log_Levels::ERROR);
-
-                    wc_add_notice($message, 'error');
-                    $this->logs_admin_website_notice();
-
-                    wp_safe_redirect(wc_get_cart_url());
-                    return false;
-                }
             } catch (Exception $ex) {
                 $this->log($ex, WC_Log_Levels::ERROR);
+                wp_die(get_status_header_desc(WP_Http::INTERNAL_SERVER_ERROR), WP_Http::INTERNAL_SERVER_ERROR);
+                throw $ex;
             }
 
-            $callback_data_result = $callback_data['result'];
-            $order_id = $callback_data_result['orderId'];
-            $order = wc_get_order($order_id);
-
-            if (!$order) {
-                $message = sprintf(esc_html__('Order not found by Order ID: %1$s received from %2$s.', 'wc-maib-mia'), esc_html($order_id), esc_html($this->method_title));
+            if (!$validation_result) {
+                $message = sprintf(esc_html__('%1$s callback signature validation failed.', 'wc-maib-mia'), esc_html($this->method_title));
                 $this->log($message, WC_Log_Levels::ERROR);
 
-                wc_add_notice($message, 'error');
-                $this->logs_admin_website_notice();
-
-                wp_safe_redirect(wc_get_cart_url());
+                wp_die('Invalid callback signature', WP_Http::UNAUTHORIZED);
                 return false;
             }
+            #endregion
 
-            $qr_status = $callback_data_result['qrStatus'];
-            if ($qr_status === 'Paid') {
-                $pay_id = $callback_data_result['payId'];
-                $reference_id = $callback_data_result['referenceId'];
+            #region Validate order ID
+            $callback_data_result = $callback_data['result'];
+            $callback_order_id = intval($callback_data_result['orderId']);
+            $order = wc_get_order($callback_order_id);
 
-                #region Update order payment metadata
+            if (!$order) {
+                $message = sprintf(esc_html__('Order not found by Order ID: %1$d received from %2$s.', 'wc-maib-mia'), $callback_order_id, esc_html($this->method_title));
+                $this->log($message, WC_Log_Levels::ERROR);
+
+                wp_die('Order not found', WP_Http::UNPROCESSABLE_ENTITY);
+                return false;
+            }
+            #endregion
+
+            $callback_qr_status = strval($callback_data_result['qrStatus']);
+            if (strtolower($callback_qr_status) === 'paid') {
+                #region Check order data
+                $callback_amount = floatval($callback_data_result['amount']);
+                $callback_currency = strval($callback_data_result['currency']);
+
+                $order_total = $order->get_total();
+                $order_currency = $order->get_currency();
+
+                if ($order_total !== $callback_amount || $order_currency !== $callback_currency) {
+                    $message = sprintf(esc_html__('Order amount mismatch: Callback %1$f %2$s, Order %3$f %4$s.', 'wc-maib-mia'), $callback_amount, $callback_currency, $order_total, $order_currency);
+                    $this->log($message, WC_Log_Levels::ERROR);
+
+                    wp_die('Order data mismatch', WP_Http::UNPROCESSABLE_ENTITY);
+                    return false;
+                }
+
+                if ($order->is_paid()) {
+                    $message = sprintf(esc_html__('Callback order already fully paid: %1$d.', 'wc-maib-mia'), $callback_order_id);
+                    $this->log($message, WC_Log_Levels::ERROR);
+
+                    wp_die('Order already fully paid', WP_Http::OK);
+                    return false;
+                }
+                #endregion
+
+                #region Complete order payment
+                $callback_pay_id = strval($callback_data_result['payId']);
+                $callback_reference_id = strval($callback_data_result['referenceId']);
+
                 $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
-                $order->add_meta_data(self::MOD_PAY_ID, $pay_id, true);
+                $order->add_meta_data(self::MOD_PAY_ID, $callback_pay_id, true);
                 $order->save();
+
+                $order->payment_complete($callback_reference_id);
                 #endergion
 
-                $message_action = esc_html__('Payment completed via %1$s: %2$s', 'wc-maib-mia');
-                $message = sprintf($message_action, esc_html($this->method_title), esc_html($callback_body));
+                $message = sprintf(esc_html__('Payment completed via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html($callback_body));
                 $message = $this->get_test_message($message);
                 $this->log($message, WC_Log_Levels::INFO);
                 $order->add_order_note($message);
-
-                $order->payment_complete($reference_id);
-                WC()->cart->empty_cart();
-
-                $message = sprintf(esc_html__('Order #%1$s paid successfully via %2$s.', 'wc-maib-mia'), esc_html($order_id), esc_html($this->method_title));
-                $this->log($message, WC_Log_Levels::INFO);
-                wc_add_notice($message, 'success');
-
-                wp_safe_redirect($this->get_return_url($order));
                 return true;
             }
         }
