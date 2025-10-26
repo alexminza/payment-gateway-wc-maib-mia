@@ -2,9 +2,9 @@
 
 /**
  * Plugin Name: maib MIA Payment Gateway for WooCommerce
- * Description: Accept MIA payments directly on your store with the maib MIA Payment Gateway for WooCommerce.
+ * Description: Accept MIA payments directly on your store with the maib MIA payment gateway for WooCommerce.
  * Plugin URI: https://github.com/alexminza/wc-maib-mia
- * Version: 1.0.0-dev
+ * Version: 1.0.0
  * Author: Alexander Minza
  * Author URI: https://profiles.wordpress.org/alexminza
  * Developer: Alexander Minza
@@ -17,7 +17,7 @@
  * Requires at least: 4.8
  * Tested up to: 6.8
  * WC requires at least: 3.3
- * WC tested up to: 10.2.2
+ * WC tested up to: 10.3.3
  * Requires Plugins: woocommerce
  */
 
@@ -38,7 +38,7 @@ function woocommerce_maib_mia_plugins_loaded()
 {
     load_plugin_textdomain('wc-maib-mia', false, dirname(plugin_basename(__FILE__)) . '/languages');
 
-    //https://docs.woocommerce.com/document/query-whether-woocommerce-is-activated/
+    //https://woocommerce.com/document/query-whether-woocommerce-is-activated/
     if (!class_exists('WooCommerce')) {
         add_action('admin_notices', 'woocommerce_maib_mia_missing_wc_notice');
         return;
@@ -49,7 +49,7 @@ function woocommerce_maib_mia_plugins_loaded()
 
 function woocommerce_maib_mia_missing_wc_notice()
 {
-    echo sprintf('<div class="notice notice-error is-dismissible"><p>%1$s</p></div>', esc_html__('maib MIA Payment Gateway requires WooCommerce to be installed and active.', 'wc-maib-mia'));
+    echo sprintf('<div class="notice notice-error is-dismissible"><p>%1$s</p></div>', esc_html__('maib MIA payment gateway requires WooCommerce to be installed and active.', 'wc-maib-mia'));
 }
 
 function woocommerce_maib_mia_init()
@@ -100,8 +100,8 @@ function woocommerce_maib_mia_init()
             $this->order_template       = $this->get_option('order_template', self::ORDER_TEMPLATE);
             $this->transaction_validity = intval($this->get_option('transaction_validity', self::DEFAULT_VALIDITY));
 
-            #https://github.com/alexminza/maib-mia-sdk-php/blob/v1.0.0/src/MaibMia/MaibMiaClient.php
-            $this->maib_mia_base_url  = $this->testmode ? MaibMiaClient::SANDBOX_BASE_URL : MaibMiaClient::DEFAULT_BASE_URL;
+            #https://github.com/alexminza/maib-mia-sdk-php/blob/main/src/MaibMia/MaibMiaClient.php
+            $this->maib_mia_base_url = $this->testmode ? MaibMiaClient::SANDBOX_BASE_URL : MaibMiaClient::DEFAULT_BASE_URL;
             $this->maib_mia_callback_url  = $this->get_option('maib_mia_callback_url', $this->get_callback_url());
 
             $this->maib_mia_client_id     = $this->get_option('maib_mia_client_id');
@@ -169,8 +169,7 @@ function woocommerce_maib_mia_init()
                 'transaction_validity'  => array(
                     'title'       => __('Transaction validity', 'wc-maib-mia'),
                     'type'        => 'decimal',
-                    'description' => __('Transaction validity in minutes', 'wc-maib-mia'),
-                    'desc_tip'    => true,
+                    'description' => __('minutes', 'wc-maib-mia'),
                     'default'     => self::DEFAULT_VALIDITY
                 ),
 
@@ -342,7 +341,7 @@ function woocommerce_maib_mia_init()
 
         /**
          * @param MaibMiaClient $client
-         * @param string $token
+         * @param string $auth_token
          * @param string $order_id
          * @param string $order_name
          * @param float  $total_amount
@@ -351,7 +350,7 @@ function woocommerce_maib_mia_init()
          * @param string $redirect_url
          * @param int    $validity_minutes
          */
-        private function maib_mia_pay($client, $token, $order_id, $order_name, $total_amount, $currency, $callback_url, $redirect_url, $validity_minutes)
+        private function maib_mia_pay($client, $auth_token, $order_id, $order_name, $total_amount, $currency, $callback_url, $redirect_url, $validity_minutes)
         {
             $expires_at = (new DateTime())->modify("+{$validity_minutes} minutes")->format('c');
 
@@ -367,23 +366,23 @@ function woocommerce_maib_mia_init()
                 'redirectUrl' => $redirect_url
             );
 
-            return $client->createQr($qr_data, $token);
+            return $client->createQr($qr_data, $auth_token);
         }
 
         /**
          * @param MaibMiaClient $client
-         * @param string $token
+         * @param string $auth_token
          * @param string $pay_id
          * @param string $reason
          */
-        private function maib_mia_refund($client, $token, $pay_id, $reason)
+        private function maib_mia_refund($client, $auth_token, $pay_id, $reason)
         {
             $refund_data = array(
                 'payId' => $pay_id,
                 'reason' => $reason
             );
 
-            return $client->paymentRefund($refund_data, $token);
+            return $client->paymentRefund($refund_data, $auth_token);
         }
         #endregion
 
@@ -391,18 +390,23 @@ function woocommerce_maib_mia_init()
         public function process_payment($order_id)
         {
             $order = wc_get_order($order_id);
-            $order_total = $order->get_total();
-            $order_currency = $order->get_currency();
-            $order_description = $this->get_order_description($order);
-            $callback_url = $this->maib_mia_callback_url;
-            $redirect_url = $this->get_redirect_url($order);
             $create_qr_response = null;
 
             try {
                 $client = $this->init_maib_mia_client();
-                $token = $this->maib_mia_generate_token($client);
+                $auth_token = $this->maib_mia_generate_token($client);
 
-                $create_qr_response = $this->maib_mia_pay($client, $token, $order_id, $order_description, $order_total, $order_currency, $callback_url, $redirect_url, $this->transaction_validity);
+                $create_qr_response = $this->maib_mia_pay(
+                    $client,
+                    $auth_token,
+                    $order_id,
+                    $this->get_order_description($order),
+                    $order->get_total(),
+                    $order->get_currency(),
+                    $this->maib_mia_callback_url,
+                    $this->get_redirect_url($order),
+                    $this->transaction_validity
+                );
                 $this->log(self::print_var($create_qr_response));
             } catch (Exception $ex) {
                 $this->log($ex, WC_Log_Levels::ERROR);
@@ -416,8 +420,7 @@ function woocommerce_maib_mia_init()
                     $qr_url = $create_qr_response_result['url'];
 
                     #region Update order payment transaction metadata
-                    //https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book#apis-for-gettingsetting-posts-and-postmeta
-                    //https://developer.woocommerce.com/docs/hpos-extension-recipe-book/#2-supporting-high-performance-order-storage-in-your-extension
+                    //https://developer.woocommerce.com/docs/features/high-performance-order-storage/recipe-book/#apis-for-gettingsetting-posts-and-postmeta
                     $order->add_meta_data(self::MOD_QR_ID, $qr_id, true);
                     $order->add_meta_data(self::MOD_QR_URL, $qr_url, true);
                     $order->save();
@@ -435,7 +438,7 @@ function woocommerce_maib_mia_init()
                 }
             }
 
-            $message = sprintf(esc_html__('Payment initiation failed via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html(self::print_response_object($create_qr_response)));
+            $message = sprintf(esc_html__('Order #%1$s payment initiation failed via %2$s: %3$s', 'wc-maib-mia'), esc_html($order_id), esc_html($this->method_title), esc_html(self::print_response_object($create_qr_response)));
             $message = $this->get_test_message($message);
             $order->add_order_note($message);
             $this->log($message, WC_Log_Levels::ERROR);
@@ -460,14 +463,14 @@ function woocommerce_maib_mia_init()
         public function check_response()
         {
             if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $message = sprintf(esc_html__('This %1$s Callback URL works and should not be called directly.', 'wc-maib-mia'), esc_html($this->method_title));
-                wc_add_notice($message, 'notice');
-
-                wp_safe_redirect(wc_get_cart_url());
-                return false;
+                $message = sprintf(esc_html__('%1$s Callback URL', 'wc-maib-mia'), esc_html($this->method_title));
+                return self::return_response(WP_Http::OK, $message);
             }
 
             #region Validate callback
+            $callback_data = null;
+            $validation_result = null;
+
             try {
                 $callback_body = file_get_contents('php://input');
                 $this->log(sprintf(esc_html__('Payment notification callback: %1$s', 'wc-maib-mia'), self::print_var($callback_body)));
@@ -476,21 +479,25 @@ function woocommerce_maib_mia_init()
                 $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
             } catch (Exception $ex) {
                 $this->log($ex, WC_Log_Levels::ERROR);
-                wp_die(get_status_header_desc(WP_Http::INTERNAL_SERVER_ERROR), WP_Http::INTERNAL_SERVER_ERROR);
-                throw $ex;
+                return self::return_response(WP_Http::INTERNAL_SERVER_ERROR);
             }
 
             if (!$validation_result) {
                 $message = sprintf(esc_html__('%1$s callback signature validation failed.', 'wc-maib-mia'), esc_html($this->method_title));
                 $this->log($message, WC_Log_Levels::ERROR);
+                return self::return_response(WP_Http::UNAUTHORIZED, 'Invalid callback signature');
+            }
+            #endregion
 
-                wp_die('Invalid callback signature', WP_Http::UNAUTHORIZED);
-                return false;
+            #region Validate QR status
+            $callback_data_result = $callback_data['result'];
+            $callback_qr_status = strval($callback_data_result['qrStatus']);
+            if (strtolower($callback_qr_status) !== 'paid') {
+                return self::return_response(WP_Http::ACCEPTED);
             }
             #endregion
 
             #region Validate order ID
-            $callback_data_result = $callback_data['result'];
             $callback_order_id = intval($callback_data_result['orderId']);
             $order = wc_get_order($callback_order_id);
 
@@ -498,54 +505,49 @@ function woocommerce_maib_mia_init()
                 $message = sprintf(esc_html__('Order not found by Order ID: %1$d received from %2$s.', 'wc-maib-mia'), $callback_order_id, esc_html($this->method_title));
                 $this->log($message, WC_Log_Levels::ERROR);
 
-                wp_die('Order not found', WP_Http::UNPROCESSABLE_ENTITY);
-                return false;
+                return self::return_response(WP_Http::UNPROCESSABLE_ENTITY, 'Order not found');
             }
             #endregion
 
-            $callback_qr_status = strval($callback_data_result['qrStatus']);
-            if (strtolower($callback_qr_status) === 'paid') {
-                #region Check order data
-                $callback_amount = floatval($callback_data_result['amount']);
-                $callback_currency = strval($callback_data_result['currency']);
+            #region Check order data
+            $callback_amount = floatval($callback_data_result['amount']);
+            $callback_currency = strval($callback_data_result['currency']);
 
-                $order_total = $order->get_total();
-                $order_currency = $order->get_currency();
+            $order_total = $order->get_total();
+            $order_currency = $order->get_currency();
 
-                if ($order_total != $callback_amount || strtoupper($order_currency) !== strtoupper($callback_currency)) {
-                    $message = sprintf(esc_html__('Order amount mismatch: Callback: %1$f %2$s, Order: %3$f %4$s.', 'wc-maib-mia'), $callback_amount, $callback_currency, $order_total, $order_currency);
-                    $this->log($message, WC_Log_Levels::ERROR);
+            if ($order_total != $callback_amount || strtoupper($order_currency) !== strtoupper($callback_currency)) {
+                $message = sprintf(esc_html__('Order amount mismatch: Callback: %1$f %2$s, Order: %3$f %4$s.', 'wc-maib-mia'), $callback_amount, $callback_currency, $order_total, $order_currency);
+                $this->log($message, WC_Log_Levels::ERROR);
 
-                    wp_die('Order data mismatch', WP_Http::UNPROCESSABLE_ENTITY);
-                    return false;
-                }
-
-                if ($order->is_paid()) {
-                    $message = sprintf(esc_html__('Callback order already fully paid: %1$d.', 'wc-maib-mia'), $callback_order_id);
-                    $this->log($message, WC_Log_Levels::ERROR);
-
-                    wp_die('Order already fully paid', WP_Http::OK);
-                    return false;
-                }
-                #endregion
-
-                #region Complete order payment
-                $callback_pay_id = strval($callback_data_result['payId']);
-                $callback_reference_id = strval($callback_data_result['referenceId']);
-
-                $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
-                $order->add_meta_data(self::MOD_PAY_ID, $callback_pay_id, true);
-                $order->save();
-
-                $order->payment_complete($callback_reference_id);
-                #endregion
-
-                $message = sprintf(esc_html__('Payment completed via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html($callback_body));
-                $message = $this->get_test_message($message);
-                $this->log($message, WC_Log_Levels::INFO);
-                $order->add_order_note($message);
-                return true;
+                return self::return_response(WP_Http::UNPROCESSABLE_ENTITY, 'Order data mismatch');
             }
+
+            if ($order->is_paid()) {
+                $message = sprintf(esc_html__('Callback order already fully paid: %1$d.', 'wc-maib-mia'), $callback_order_id);
+                $this->log($message, WC_Log_Levels::ERROR);
+
+                return self::return_response(WP_Http::OK, 'Order already fully paid');
+            }
+            #endregion
+
+            #region Complete order payment
+            $callback_pay_id = strval($callback_data_result['payId']);
+            $callback_reference_id = strval($callback_data_result['referenceId']);
+
+            $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
+            $order->add_meta_data(self::MOD_PAY_ID, $callback_pay_id, true);
+            $order->save();
+
+            $order->payment_complete($callback_reference_id);
+            #endregion
+
+            $message = sprintf(esc_html__('Payment completed via %1$s: %2$s', 'wc-maib-mia'), esc_html($this->method_title), esc_html($callback_body));
+            $message = $this->get_test_message($message);
+            $this->log($message, WC_Log_Levels::INFO);
+            $order->add_order_note($message);
+
+            return self::return_response(WP_Http::OK);
         }
 
         public function process_refund($order_id, $amount = null, $reason = '')
@@ -563,7 +565,7 @@ function woocommerce_maib_mia_init()
 
             #region Validate refund amount
             if (isset($amount) && $amount != $order_total) {
-                $message = esc_html__('Partial refunds are not currently supported by maib MIA.', 'wc-maib-mia');
+                $message = sprintf(esc_html__('Partial refunds are not currently supported by %1$s.', 'wc-maib-mia'), self::MOD_TITLE);
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return new WP_Error($this->id . '_error', $message);
@@ -572,9 +574,9 @@ function woocommerce_maib_mia_init()
 
             try {
                 $client = $this->init_maib_mia_client();
-                $token = $this->maib_mia_generate_token($client);
+                $auth_token = $this->maib_mia_generate_token($client);
 
-                $payment_refund_response = $this->maib_mia_refund($client, $token, $pay_id, $reason);
+                $payment_refund_response = $this->maib_mia_refund($client, $auth_token, $pay_id, $reason);
                 $this->log(self::print_var($payment_refund_response));
             } catch (Exception $ex) {
                 $this->log($ex, WC_Log_Levels::ERROR);
@@ -632,7 +634,7 @@ function woocommerce_maib_mia_init()
 
         protected function get_callback_url()
         {
-            //https://developer.woo.com/docs/woocommerce-plugin-api-callbacks/
+            //https://developer.woocommerce.com/docs/extensions/core-concepts/woocommerce-plugin-api-callback/
             $callbackUrl = WC()->api_request_url("wc_{$this->id}");
             return apply_filters(self::MOD_ID . '_callback_url', $callbackUrl);
         }
@@ -663,7 +665,7 @@ function woocommerce_maib_mia_init()
 
         protected function log($message, $level = WC_Log_Levels::DEBUG)
         {
-            //https://developer.woo.com/docs/logging-in-woocommerce/
+            //https://developer.woocommerce.com/docs/best-practices/data-management/logging/
             //https://stackoverflow.com/questions/1423157/print-php-call-stack
             $log_context = array('source' => self::MOD_ID);
             $this->logger->log($level, $message, $log_context);
@@ -697,34 +699,50 @@ function woocommerce_maib_mia_init()
         {
             return is_null($string) || strlen($string) === 0;
         }
-        #endregion
 
-        #region Admin
-        public static function plugin_links($links)
+        /**
+         * @param int    $status_code
+         * @param string $response_text
+         */
+        protected static function return_response($status_code, $response_text = null)
         {
-            $plugin_links = array(
-                sprintf('<a href="%1$s">%2$s</a>', esc_url(self::get_settings_url()), esc_html__('Settings', 'wc-maib-mia'))
-            );
+            if (empty($response_text))
+                $response_text = get_status_header_desc($status_code);
 
-            return array_merge($plugin_links, $links);
-        }
-        #endregion
-
-        #region WooCommerce
-        public static function add_gateway($methods)
-        {
-            $methods[] = self::class;
-            return $methods;
+            http_response_code($status_code);
+            echo $response_text;
+            exit;
         }
         #endregion
     }
 
-    //Add gateway to WooCommerce
-    add_filter('woocommerce_payment_gateways', array(WC_MAIB_MIA::class, 'add_gateway'));
+    #region Add gateway to WooCommerce
+    //https://developer.woocommerce.com/docs/features/payments/payment-gateway-plugin-base/
+    function woocommerce_maib_mia_add_gateway($methods)
+    {
+        $methods[] = WC_MAIB_MIA::class;
+        return $methods;
+    }
+
+    add_filter('woocommerce_payment_gateways', 'woocommerce_maib_mia_add_gateway');
+    #endregion
 
     #region Admin init
+    function woocommerce_maib_mia_plugin_links($links)
+    {
+        $plugin_links = array(
+            sprintf(
+                '<a href="%1$s">%2$s</a>',
+                esc_url(WC_MAIB_MIA::get_settings_url()),
+                esc_html__('Settings', 'wc-maib-mia')
+            )
+        );
+
+        return array_merge($plugin_links, $links);
+    }
+
     if (is_admin()) {
-        add_filter('plugin_action_links_' . plugin_basename(__FILE__), array(WC_MAIB_MIA::class, 'plugin_links'));
+        add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'woocommerce_maib_mia_plugin_links');
     }
     #endregion
 }
@@ -733,7 +751,7 @@ function woocommerce_maib_mia_init()
 add_action('before_woocommerce_init', function () {
     if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
         //WooCommerce HPOS compatibility
-        //https://github.com/woocommerce/woocommerce/wiki/High-Performance-Order-Storage-Upgrade-Recipe-Book#declaring-extension-incompatibility
+        //https://developer.woocommerce.com/docs/features/high-performance-order-storage/recipe-book/#declaring-extension-incompatibility
         \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
 
         //WooCommerce Cart Checkout Blocks compatibility
