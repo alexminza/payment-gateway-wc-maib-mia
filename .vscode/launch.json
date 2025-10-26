@@ -20,7 +20,7 @@
             "runtimeArgs": [
                 "-dxdebug.start_with_request=yes"
             ],
-            "envFile": "${workspaceFolder}/.env",
+            "envFile": "${workspaceFolder}/test/.env",
             "env": {
                 "XDEBUG_MODE": "debug,develop",
                 "XDEBUG_CONFIG": "client_port=${port}"

@@ -30,6 +30,23 @@
                 "cwd": "${workspaceFolder}"
             }
         },
+       {
+            "label": "wp i18n make-pot",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "command": "wp",
+            "args": [
+                "i18n",
+                "make-pot",
+                "./",
+                "./languages/${workspaceFolderBasename}.pot",
+                "--slug=${workspaceFolderBasename}",
+                "--ignore-domain"
+            ],
+            "problemMatcher": []
+        },
         {
             "label": "zip plugin",
             "type": "shell",
@@ -43,8 +60,8 @@
                 "${workspaceFolderBasename}.zip",
                 "./*",
                 "-x",
-                "composer.phar",
-                "*.log"
+                "\"*.DS_Store*\"",
+                "composer.phar"
             ],
             "problemMatcher": []
         },
