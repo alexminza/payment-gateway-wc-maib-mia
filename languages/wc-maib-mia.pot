@@ -1,0 +1,226 @@
+# Copyright (C) 2025 Alexander Minza
+# This file is distributed under the GPLv3 or later.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: maib MIA Payment Gateway for WooCommerce 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-maib-mia\n"
+"POT-Creation-Date: 2025-10-26 13:59+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+
+#. Description of the plugin
+#: wc-maib-mia.php
+msgid "Accept MIA payments directly on your store with the maib MIA payment gateway for WooCommerce."
+msgstr ""
+
+#: wc-maib-mia.php:52
+msgid "maib MIA payment gateway requires WooCommerce to be installed and active."
+msgstr ""
+
+#: wc-maib-mia.php:125
+msgid "Enable/Disable"
+msgstr ""
+
+#: wc-maib-mia.php:127
+msgid "Enable this gateway"
+msgstr ""
+
+#: wc-maib-mia.php:131
+msgid "Title"
+msgstr ""
+
+#: wc-maib-mia.php:133
+msgid "Payment method title that the customer will see during checkout."
+msgstr ""
+
+#: wc-maib-mia.php:138
+msgid "Description"
+msgstr ""
+
+#: wc-maib-mia.php:140
+msgid "Payment method description that the customer will see during checkout."
+msgstr ""
+
+#: wc-maib-mia.php:146
+msgid "Test mode"
+msgstr ""
+
+#: wc-maib-mia.php:148
+msgid "Enabled"
+msgstr ""
+
+#: wc-maib-mia.php:149
+msgid "Use Test or Live bank gateway to process the payments. Disable when ready to accept live payments."
+msgstr ""
+
+#: wc-maib-mia.php:154
+msgid "Debug mode"
+msgstr ""
+
+#: wc-maib-mia.php:156
+msgid "Enable logging"
+msgstr ""
+
+#: wc-maib-mia.php:158
+msgid "View logs"
+msgstr ""
+
+#: wc-maib-mia.php:159
+msgid "Save debug messages to the WooCommerce System Status logs. Note: this may log personal information. Use this for debugging purposes only and delete the logs when finished."
+msgstr ""
+
+#: wc-maib-mia.php:163
+msgid "Order description"
+msgstr ""
+
+#: wc-maib-mia.php:165
+#, php-format
+msgid "Format: <code>%1$s</code> - Order ID"
+msgstr ""
+
+#: wc-maib-mia.php:166
+msgid "Order description that the customer will see on the bank payment page."
+msgstr ""
+
+#: wc-maib-mia.php:170
+msgid "Transaction validity"
+msgstr ""
+
+#: wc-maib-mia.php:172
+msgid "minutes"
+msgstr ""
+
+#: wc-maib-mia.php:177 wc-maib-mia.php:265
+msgid "Connection Settings"
+msgstr ""
+
+#: wc-maib-mia.php:178
+msgid "Payment gateway connection credentials are provided by the bank."
+msgstr ""
+
+#: wc-maib-mia.php:182
+msgid "Client ID"
+msgstr ""
+
+#: wc-maib-mia.php:186
+msgid "Client Secret"
+msgstr ""
+
+#: wc-maib-mia.php:190
+msgid "Signature Key"
+msgstr ""
+
+#: wc-maib-mia.php:195
+msgid "Payment Notification"
+msgstr ""
+
+#: wc-maib-mia.php:199
+msgid "Callback URL"
+msgstr ""
+
+#: wc-maib-mia.php:254
+msgid "Unsupported store currency"
+msgstr ""
+
+#: wc-maib-mia.php:256
+msgid "Supported currencies"
+msgstr ""
+
+#: wc-maib-mia.php:264
+#, php-format
+msgid "See plugin documentation for <a href=\"%1$s\" target=\"_blank\">installation instructions</a>."
+msgstr ""
+
+#: wc-maib-mia.php:265
+msgid "Not configured"
+msgstr ""
+
+#: wc-maib-mia.php:294
+#, php-format
+msgid "%1$s is not properly configured. Verify plugin <a href=\"%2$s\">Connection Settings</a>."
+msgstr ""
+
+#: wc-maib-mia.php:300
+#, php-format
+msgid "See <a href=\"%2$s\">%1$s settings</a> page for log details and setup instructions."
+msgstr ""
+
+#: wc-maib-mia.php:429
+#, php-format
+msgid "Payment initiated via %1$s: %2$s"
+msgstr ""
+
+#: wc-maib-mia.php:441
+#, php-format
+msgid "Order #%1$s payment initiation failed via %2$s: %3$s"
+msgstr ""
+
+#: wc-maib-mia.php:446
+#, php-format
+msgid "Order #%1$s payment initiation failed via %2$s."
+msgstr ""
+
+#: wc-maib-mia.php:466
+#, php-format
+msgid "%1$s Callback URL"
+msgstr ""
+
+#: wc-maib-mia.php:476
+#, php-format
+msgid "Payment notification callback: %1$s"
+msgstr ""
+
+#: wc-maib-mia.php:486
+#, php-format
+msgid "%1$s callback signature validation failed."
+msgstr ""
+
+#: wc-maib-mia.php:505
+#, php-format
+msgid "Order not found by Order ID: %1$d received from %2$s."
+msgstr ""
+
+#: wc-maib-mia.php:520
+#, php-format
+msgid "Order amount mismatch: Callback: %1$f %2$s, Order: %3$f %4$s."
+msgstr ""
+
+#: wc-maib-mia.php:527
+#, php-format
+msgid "Callback order already fully paid: %1$d."
+msgstr ""
+
+#: wc-maib-mia.php:545
+#, php-format
+msgid "Payment completed via %1$s: %2$s"
+msgstr ""
+
+#: wc-maib-mia.php:568
+#, php-format
+msgid "Partial refunds are not currently supported by %1$s."
+msgstr ""
+
+#: wc-maib-mia.php:593
+#, php-format
+msgid "Refund of %1$s %2$s via %3$s approved: %4$s"
+msgstr ""
+
+#: wc-maib-mia.php:603
+#, php-format
+msgid "Refund of %1$s %2$s via %3$s failed: %4$s"
+msgstr ""
+
+#: wc-maib-mia.php:624
+#, php-format
+msgid "TEST: %1$s"
+msgstr ""
+
+#: wc-maib-mia.php:737
+msgid "Settings"
+msgstr ""
