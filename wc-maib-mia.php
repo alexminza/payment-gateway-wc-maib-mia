@@ -368,22 +368,6 @@ function woocommerce_maib_mia_init()
 
             return $client->createQr($qr_data, $auth_token);
         }
-
-        /**
-         * @param MaibMiaClient $client
-         * @param string $auth_token
-         * @param string $pay_id
-         * @param string $reason
-         */
-        private function maib_mia_refund($client, $auth_token, $pay_id, $reason)
-        {
-            $refund_data = array(
-                'payId' => $pay_id,
-                'reason' => $reason
-            );
-
-            return $client->paymentRefund($refund_data, $auth_token);
-        }
         #endregion
 
         #region Payment
@@ -576,7 +560,7 @@ function woocommerce_maib_mia_init()
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
 
-                $payment_refund_response = $this->maib_mia_refund($client, $auth_token, $pay_id, $reason);
+                $payment_refund_response = $client->paymentRefund($pay_id, $reason, $auth_token);
                 $this->log(self::print_var($payment_refund_response));
             } catch (Exception $ex) {
                 $this->log($ex, WC_Log_Levels::ERROR);
