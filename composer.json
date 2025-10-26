@@ -5,8 +5,8 @@
     "keywords": [
         "WooCommerce",
         "maib",
-        "mia",
-        "qr",
+        "MIA",
+        "QR",
         "bank",
         "payment",
         "gateway"
@@ -25,12 +25,6 @@
         "forum": "https://wordpress.org/support/plugin/wc-maib-mia",
         "source": "https://github.com/alexminza/wc-maib-mia"
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../maib-mia-sdk-php"
-        }
-    ],
     "require": {
         "php": ">=7.2.5",
         "alexminza/maib-mia-sdk": "*",
@@ -41,6 +35,5 @@
             "php": "7.2.5"
         }
     },
-    "minimum-stability": "dev",
     "prefer-stable": true
 }
