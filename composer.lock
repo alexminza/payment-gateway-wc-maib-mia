@@ -4,19 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "92302b62f956b498d0edff746f40fa59",
+    "content-hash": "47e6102773f1af9509f3a41ba5e4d955",
     "packages": [
         {
             "name": "alexminza/maib-mia-sdk",
-            "version": "1.0.0.x-dev",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/alexminza/maib-mia-sdk-php.git",
+                "reference": "39648d72cd857bcd588b88d9e9a11f72748feb57"
+            },
             "dist": {
-                "type": "path",
-                "url": "../maib-mia-sdk-php",
-                "reference": "d8673a7514b0d9d3ae7bee1b7c7ff6c4db5224fd"
+                "type": "zip",
+                "url": "https://api.github.com/repos/alexminza/maib-mia-sdk-php/zipball/39648d72cd857bcd588b88d9e9a11f72748feb57",
+                "reference": "39648d72cd857bcd588b88d9e9a11f72748feb57",
+                "shasum": ""
             },
             "require": {
-                "guzzlehttp/guzzle": "~7.0",
-                "guzzlehttp/guzzle-services": "~1.0",
+                "guzzlehttp/guzzle": "^7.0",
+                "guzzlehttp/guzzle-services": "^1.0",
                 "php": ">=7.2.5"
             },
             "type": "library",
@@ -25,6 +31,7 @@
                     "Maib\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-3.0-or-later"
             ],
@@ -38,24 +45,21 @@
             "description": "PHP SDK for maib MIA API",
             "homepage": "https://github.com/alexminza/maib-mia-sdk-php",
             "keywords": [
+                "Moldova",
                 "api",
                 "maib",
                 "mia",
-                "moldova",
                 "payments",
                 "php",
                 "qr",
-                "rtp",
                 "sdk"
             ],
             "support": {
-                "issues": "https://github.com/alexminza/maib-mia-sdk-php/issues",
                 "forum": "https://github.com/alexminza/maib-mia-sdk-php/discussions",
+                "issues": "https://github.com/alexminza/maib-mia-sdk-php/issues",
                 "source": "https://github.com/alexminza/maib-mia-sdk-php"
             },
-            "transport-options": {
-                "relative": true
-            }
+            "time": "2025-10-26T18:30:57+00:00"
         },
         {
             "name": "guzzlehttp/command",
@@ -1148,7 +1152,7 @@
     ],
     "packages-dev": [],
     "aliases": [],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
