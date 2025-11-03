@@ -36,7 +36,7 @@ add_action('plugins_loaded', 'woocommerce_maib_mia_plugins_loaded', 0);
 
 function woocommerce_maib_mia_plugins_loaded()
 {
-    load_plugin_textdomain('wc-maib-mia', false, dirname(plugin_basename(__FILE__)) . '/languages');
+    //load_plugin_textdomain('wc-maib-mia', false, dirname(plugin_basename(__FILE__)) . '/languages');
 
     //https://woocommerce.com/document/query-whether-woocommerce-is-activated/
     if (!class_exists('WooCommerce')) {
