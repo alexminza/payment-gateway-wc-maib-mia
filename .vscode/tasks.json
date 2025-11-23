@@ -30,7 +30,7 @@
                 "cwd": "${workspaceFolder}"
             }
         },
-       {
+        {
             "label": "wp i18n make-pot",
             "type": "shell",
             "options": {
@@ -61,7 +61,12 @@
                 "./*",
                 "-x",
                 "\"*.DS_Store*\"",
-                "composer.phar"
+                "\".*\"",
+                "\"*/.*\"",
+                "\"*/.*/*\"",
+                "composer.phar",
+                "\"test/*\"",
+                "\"test/\""
             ],
             "problemMatcher": []
         },
