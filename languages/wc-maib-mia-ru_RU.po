@@ -3,10 +3,10 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: maib MIA Payment Gateway for WooCommerce 1.0.0\n"
+"Project-Id-Version: Payment Gateway for maib MIA for WooCommerce 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-maib-mia\n"
-"POT-Creation-Date: 2025-10-26 13:59+0200\n"
-"PO-Revision-Date: 2025-10-26 14:22+0200\n"
+"POT-Creation-Date: 2025-11-26 09:03+0200\n"
+"PO-Revision-Date: 2025-11-26 09:05+0200\n"
 "Last-Translator: Alexander Minza <alex@alexminza.com>\n"
 "Language-Team: \n"
 "Language: ru_RU\n"
@@ -18,8 +18,8 @@ msgstr ""
 #. Description of the plugin
 #: wc-maib-mia.php
 msgid ""
-"Accept MIA payments directly on your store with the maib MIA payment gateway "
-"for WooCommerce."
+"Accept MIA payments directly on your store with the Payment Gateway for maib "
+"MIA for WooCommerce."
 msgstr ""
 "Принимайте оплату MIA прямо в своем магазине с помощью платежного шлюза maib "
 "MIA для WooCommerce."
@@ -115,7 +115,7 @@ msgstr "Действительность транзакции"
 msgid "minutes"
 msgstr "минут"
 
-#: wc-maib-mia.php:177 wc-maib-mia.php:265
+#: wc-maib-mia.php:177 wc-maib-mia.php:266
 msgid "Connection Settings"
 msgstr "Настройки подключения"
 
@@ -144,15 +144,15 @@ msgstr "Уведомление об оплате"
 msgid "Callback URL"
 msgstr "URL обратного вызова (Callback URL)"
 
-#: wc-maib-mia.php:254
+#: wc-maib-mia.php:255
 msgid "Unsupported store currency"
 msgstr "Валюта магазина не поддерживается"
 
-#: wc-maib-mia.php:256
+#: wc-maib-mia.php:257
 msgid "Supported currencies"
 msgstr "Поддерживаемые валюты"
 
-#: wc-maib-mia.php:264
+#: wc-maib-mia.php:265
 #, php-format
 msgid ""
 "See plugin documentation for <a href=\"%1$s\" target=\"_blank\">installation "
@@ -161,11 +161,11 @@ msgstr ""
 "Перейдите на страницу документации плагина для <a href=\"%1$s\" "
 "target=\"_blank\">инструкций по установке</a>."
 
-#: wc-maib-mia.php:265
+#: wc-maib-mia.php:266
 msgid "Not configured"
 msgstr "Не настроено"
 
-#: wc-maib-mia.php:294
+#: wc-maib-mia.php:295
 #, php-format
 msgid ""
 "%1$s is not properly configured. Verify plugin <a href=\"%2$s\">Connection "
@@ -174,7 +174,7 @@ msgstr ""
 "%1$s настроен неправильно. Проверьте <a href=\"%2$s\">Настройки подключения</"
 "a> плагина."
 
-#: wc-maib-mia.php:300
+#: wc-maib-mia.php:301
 #, php-format
 msgid ""
 "See <a href=\"%2$s\">%1$s settings</a> page for log details and setup "
@@ -183,76 +183,76 @@ msgstr ""
 "Перейдите на страницу <a href=\"%2$s\">настроек %1$s</a> для просмотра "
 "сведений журнала и инструкций по установке."
 
-#: wc-maib-mia.php:429
+#: wc-maib-mia.php:414
 #, php-format
 msgid "Payment initiated via %1$s: %2$s"
 msgstr "Платеж инициирован через %1$s: %2$s"
 
-#: wc-maib-mia.php:441
+#: wc-maib-mia.php:426
 #, php-format
 msgid "Order #%1$s payment initiation failed via %2$s: %3$s"
 msgstr "Ошибка инициирования оплаты заказа #%1$s через %2$s: %3$s"
 
-#: wc-maib-mia.php:446
+#: wc-maib-mia.php:431
 #, php-format
 msgid "Order #%1$s payment initiation failed via %2$s."
 msgstr "Ошибка инициирования оплаты заказа #%1$s через %2$s."
 
-#: wc-maib-mia.php:466
+#: wc-maib-mia.php:451
 #, php-format
 msgid "%1$s Callback URL"
 msgstr "%1$s Callback URL"
 
-#: wc-maib-mia.php:476
+#: wc-maib-mia.php:461
 #, php-format
 msgid "Payment notification callback: %1$s"
 msgstr "Уведомление об оплате: %1$s"
 
-#: wc-maib-mia.php:486
+#: wc-maib-mia.php:471
 #, php-format
 msgid "%1$s callback signature validation failed."
 msgstr "Ошибка проверки подписи обратного вызова %1$s."
 
-#: wc-maib-mia.php:505
+#: wc-maib-mia.php:490
 #, php-format
 msgid "Order not found by Order ID: %1$d received from %2$s."
 msgstr "Заказ не найден по Order ID: %1$d полученному от %2$s."
 
-#: wc-maib-mia.php:520
+#: wc-maib-mia.php:505
 #, php-format
 msgid "Order amount mismatch: Callback: %1$f %2$s, Order: %3$f %4$s."
 msgstr "Несоответствие суммы заказа: Уведомление: %1$f %2$s, Заказ: %3$f %4$s."
 
-#: wc-maib-mia.php:527
+#: wc-maib-mia.php:512
 #, php-format
 msgid "Callback order already fully paid: %1$d."
 msgstr "Заказ уже полностью оплачен: %1$d."
 
-#: wc-maib-mia.php:545
+#: wc-maib-mia.php:530
 #, php-format
 msgid "Payment completed via %1$s: %2$s"
 msgstr "Платеж проведен через %1$s: %2$s"
 
-#: wc-maib-mia.php:568
+#: wc-maib-mia.php:553
 #, php-format
 msgid "Partial refunds are not currently supported by %1$s."
 msgstr "Частичный возврат средств в настоящее время не поддерживается %1$s."
 
-#: wc-maib-mia.php:593
+#: wc-maib-mia.php:578
 #, php-format
 msgid "Refund of %1$s %2$s via %3$s approved: %4$s"
 msgstr "Возврат %1$s %2$s через %3$s подтвержден: %4$s"
 
-#: wc-maib-mia.php:603
+#: wc-maib-mia.php:588
 #, php-format
 msgid "Refund of %1$s %2$s via %3$s failed: %4$s"
 msgstr "Ошибка возврата %1$s %2$s через %3$s: %4$s"
 
-#: wc-maib-mia.php:624
+#: wc-maib-mia.php:612
 #, php-format
 msgid "TEST: %1$s"
 msgstr "ТЕСТ: %1$s"
 
-#: wc-maib-mia.php:737
+#: wc-maib-mia.php:740
 msgid "Settings"
 msgstr "Настройки"
