@@ -1,4 +1,4 @@
-=== maib MIA Payment Gateway for WooCommerce ===
+=== Payment Gateway for maib MIA for WooCommerce ===
 Contributors: alexminza
 Tags: WooCommerce, Moldova, maib, MIA, QR, payment gateway
 Requires at least: 4.8
@@ -8,11 +8,11 @@ Requires PHP: 7.2.5
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Accept MIA payments directly on your store with the maib MIA payment gateway for WooCommerce.
+Accept MIA payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
 
 == Description ==
 
-Accept MIA payments directly on your store with the maib MIA payment gateway for WooCommerce.
+Accept MIA payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
 
 = Features =
 

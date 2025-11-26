@@ -1,6 +1,6 @@
 {
     "name": "alexminza/wc-maib-mia",
-    "description": "maib MIA Payment Gateway for WooCommerce",
+    "description": "Payment Gateway for maib MIA for WooCommerce",
     "type": "wordpress-plugin",
     "keywords": [
         "WooCommerce",

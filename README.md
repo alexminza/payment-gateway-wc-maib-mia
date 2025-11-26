@@ -1,4 +1,4 @@
-# maib MIA Payment Gateway for WooCommerce
+# Payment Gateway for maib MIA for WooCommerce
 
 [![WordPress Plugin Version](https://img.shields.io/wordpress/plugin/v/wc-maib-mia?logo=wordpress)](https://wordpress.org/plugins/wc-maib-mia/)
 [![WordPress Plugin Downloads](https://img.shields.io/wordpress/plugin/dt/wc-maib-mia?logo=wordpress)](https://wordpress.org/plugins/wc-maib-mia/advanced/)
@@ -7,7 +7,7 @@
 
 ![maib MIA](./.wordpress-org/banner-1544x500.png)
 
-_Accept MIA payments directly on your store with the maib MIA payment gateway for WooCommerce._
+_Accept MIA payments directly on your store with the Payment Gateway for maib MIA for WooCommerce._
 
 WordPress plugin: https://wordpress.org/plugins/wc-maib-mia/
 
