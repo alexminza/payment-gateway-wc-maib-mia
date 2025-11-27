@@ -510,8 +510,12 @@ function woocommerce_maib_mia_init()
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
 
-            if ($order_total != $callback_amount || strtoupper($order_currency) !== strtoupper($callback_currency)) {
-                $message = sprintf(__('Order amount mismatch: Callback: %1$f %2$s, Order: %3$f %4$s.', 'wc-maib-mia'), $callback_amount, $callback_currency, $order_total, $order_currency);
+            $order_price = $this->format_price($order_total, $order_currency);
+            $callback_price = $this->format_price($callback_amount, $callback_currency);
+
+            if ($order_price !== $callback_price) {
+                /* translators: 1: Callback notification price, 2: Order total price */
+                $message = sprintf(__('Order amount mismatch: Callback: %1$s, Order: %2$s.', 'wc-maib-mia'), $callback_price, $order_price);
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return self::return_response(WP_Http::UNPROCESSABLE_ENTITY, 'Order data mismatch');
@@ -587,7 +591,8 @@ function woocommerce_maib_mia_init()
 
                     $refund_status = $payment_refund_response_result['status'];
                     if (strtolower($refund_status) === 'refunded') {
-                        $message = esc_html(sprintf(__('Refund of %1$s %2$s via %3$s approved: %4$s', 'wc-maib-mia'), $order_total, $order_currency, $this->method_title, self::print_response_object($payment_refund_response)));
+                        /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details */
+                        $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s approved: %4$s', 'wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title, self::print_response_object($payment_refund_response)));
                         $message = $this->get_test_message($message);
                         $this->log($message, WC_Log_Levels::INFO);
                         $order->add_order_note($message);
@@ -597,7 +602,8 @@ function woocommerce_maib_mia_init()
                 }
             }
 
-            $message = esc_html(sprintf(__('Refund of %1$s %2$s via %3$s failed: %4$s', 'wc-maib-mia'), $order_total, $order_currency, $this->method_title, self::print_response_object($payment_refund_response)));
+            /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details */
+            $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s failed: %4$s', 'wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title, self::print_response_object($payment_refund_response)));
             $message = $this->get_test_message($message);
             $order->add_order_note($message);
             $this->log($message, WC_Log_Levels::ERROR);
@@ -609,6 +615,20 @@ function woocommerce_maib_mia_init()
         #endregion
 
         #region Utility
+        /**
+         * @param float  $price
+         * @param string $currency
+         */
+        protected function format_price($price, $currency)
+        {
+            $args = array(
+                'currency' => $currency,
+                'in_span' => false,
+            );
+
+            return wc_price($price, $args);
+        }
+
         protected function get_order_description($order)
         {
             $description = sprintf($this->order_template, $order->get_id());
