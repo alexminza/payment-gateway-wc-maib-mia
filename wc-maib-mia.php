@@ -368,7 +368,7 @@ function woocommerce_maib_mia_init()
                 'description' => $order_name,
                 'orderId' => strval($order_id),
                 'callbackUrl' => $callback_url,
-                'redirectUrl' => $redirect_url
+                'redirectUrl' => $redirect_url,
             );
 
             return $client->createQr($qr_data, $auth_token);
@@ -430,7 +430,7 @@ function woocommerce_maib_mia_init()
 
                     return array(
                         'result'   => 'success',
-                        'redirect' => $qr_url
+                        'redirect' => $qr_url,
                     );
                 }
             }
@@ -441,6 +441,7 @@ function woocommerce_maib_mia_init()
             $order->add_order_note($message);
             $this->log($message, WC_Log_Levels::ERROR);
 
+            /* translators: 1: Order ID, 2: Payment method title */
             $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s.', 'wc-maib-mia'), $order_id, $this->method_title));
 
             // https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
@@ -801,7 +802,7 @@ function woocommerce_maib_mia_init()
                 '<a href="%1$s">%2$s</a>',
                 esc_url(WC_MAIB_MIA::get_settings_url()),
                 esc_html__('Settings', 'wc-maib-mia')
-            )
+            ),
         );
 
         return array_merge($plugin_links, $links);
