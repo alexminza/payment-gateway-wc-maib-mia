@@ -36,32 +36,27 @@ add_action('plugins_loaded', 'woocommerce_maib_mia_plugins_loaded', 0);
 
 function woocommerce_maib_mia_plugins_loaded()
 {
-    //load_plugin_textdomain('wc-maib-mia', false, dirname(plugin_basename(__FILE__)) . '/languages');
+    // load_plugin_textdomain('wc-maib-mia', false, dirname(plugin_basename(__FILE__)) . '/languages');
 
-    //https://woocommerce.com/document/query-whether-woocommerce-is-activated/
+    // https://woocommerce.com/document/query-whether-woocommerce-is-activated/
     if (!class_exists('WooCommerce')) {
-        add_action('admin_notices', 'woocommerce_maib_mia_missing_wc_notice');
         return;
     }
 
     woocommerce_maib_mia_init();
 }
 
-function woocommerce_maib_mia_missing_wc_notice()
-{
-    echo sprintf('<div class="notice notice-error is-dismissible"><p>%1$s</p></div>', esc_html__('maib MIA payment gateway requires WooCommerce to be installed and active.', 'wc-maib-mia'));
-}
-
 function woocommerce_maib_mia_init()
 {
     class WC_MAIB_MIA extends WC_Payment_Gateway
     {
-        #region Constants
+        //region Constants
         const MOD_ID             = 'maib_mia';
         const MOD_TITLE          = 'maib MIA';
         const MOD_PREFIX         = 'maib_mia_';
+        const MOD_VERSION        = '1.0.0';
 
-        const SUPPORTED_CURRENCIES = ['MDL'];
+        const SUPPORTED_CURRENCIES = array('MDL');
         const ORDER_TEMPLATE       = 'Order #%1$s';
 
         const MOD_QR_ID            =  self::MOD_PREFIX . 'qr_id';
@@ -69,11 +64,11 @@ function woocommerce_maib_mia_init()
         const MOD_PAY_ID           =  self::MOD_PREFIX . 'pay_id';
         const MOD_CALLBACK         =  self::MOD_PREFIX . 'callback';
 
-        const DEFAULT_TIMEOUT  = 15; //seconds
-        const DEFAULT_VALIDITY = 15; //minutes
-        #endregion
+        const DEFAULT_TIMEOUT  = 30; // seconds
+        const DEFAULT_VALIDITY = 15; // minutes
+        //endregion
 
-        protected $testmode, $debug, $logger, $transaction_type, $order_template, $transaction_validity;
+        protected $testmode, $debug, $logger, $order_template, $transaction_validity;
         protected $maib_mia_base_url, $maib_mia_callback_url, $maib_mia_client_id, $maib_mia_client_secret, $maib_mia_signature_key;
 
         public function __construct()
@@ -84,36 +79,37 @@ function woocommerce_maib_mia_init()
             $this->has_fields         = false;
             $this->supports           = array('products', 'refunds');
 
-            #region Initialize user set variables
+            //region Initialize user set variables
             $this->enabled            = $this->get_option('enabled', 'no');
             $this->title              = $this->get_option('title', $this->method_title);
             $this->description        = $this->get_option('description');
-            $this->icon               = apply_filters('woocommerce_maib_mia_icon', plugin_dir_url(__FILE__) . 'assets/img/mia.svg');
+            $this->icon               = apply_filters("woocommerce_{$this->id}_icon", plugins_url('/assets/img/mia.svg', __FILE__));
 
             $this->testmode           = wc_string_to_bool($this->get_option('testmode', 'no'));
             $this->debug              = wc_string_to_bool($this->get_option('debug', 'no'));
             $this->logger             = new WC_Logger(null, $this->debug ? WC_Log_Levels::DEBUG : WC_Log_Levels::INFO);
 
-            if ($this->testmode)
+            if ($this->testmode) {
                 $this->description = $this->get_test_message($this->description);
+            }
 
             $this->order_template       = $this->get_option('order_template', self::ORDER_TEMPLATE);
             $this->transaction_validity = intval($this->get_option('transaction_validity', self::DEFAULT_VALIDITY));
 
-            #https://github.com/alexminza/maib-mia-sdk-php/blob/main/src/MaibMia/MaibMiaClient.php
+            // https://github.com/alexminza/maib-mia-sdk-php/blob/main/src/MaibMia/MaibMiaClient.php
             $this->maib_mia_base_url = $this->testmode ? MaibMiaClient::SANDBOX_BASE_URL : MaibMiaClient::DEFAULT_BASE_URL;
             $this->maib_mia_callback_url  = $this->get_option('maib_mia_callback_url', $this->get_callback_url());
-
             $this->maib_mia_client_id     = $this->get_option('maib_mia_client_id');
             $this->maib_mia_client_secret = $this->get_option('maib_mia_client_secret');
             $this->maib_mia_signature_key = $this->get_option('maib_mia_signature_key');
 
             $this->init_form_fields();
             $this->init_settings();
-            #endregion
+            //endregion
 
-            if (is_admin())
+            if (is_admin()) {
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
+            }
 
             add_action("woocommerce_api_wc_{$this->id}", array($this, 'check_response'));
         }
@@ -125,21 +121,21 @@ function woocommerce_maib_mia_init()
                     'title'       => __('Enable/Disable', 'wc-maib-mia'),
                     'type'        => 'checkbox',
                     'label'       => __('Enable this gateway', 'wc-maib-mia'),
-                    'default'     => 'yes'
+                    'default'     => 'yes',
                 ),
                 'title'           => array(
                     'title'       => __('Title', 'wc-maib-mia'),
                     'type'        => 'text',
                     'description' => __('Payment method title that the customer will see during checkout.', 'wc-maib-mia'),
                     'desc_tip'    => true,
-                    'default'     => self::MOD_TITLE
+                    'default'     => self::MOD_TITLE,
                 ),
                 'description'     => array(
                     'title'       => __('Description', 'wc-maib-mia'),
                     'type'        => 'textarea',
                     'description' => __('Payment method description that the customer will see during checkout.', 'wc-maib-mia'),
                     'desc_tip'    => true,
-                    'default'     => ''
+                    'default'     => '',
                 ),
 
                 'testmode'        => array(
@@ -148,7 +144,7 @@ function woocommerce_maib_mia_init()
                     'label'       => __('Enabled', 'wc-maib-mia'),
                     'description' => __('Use Test or Live bank gateway to process the payments. Disable when ready to accept live payments.', 'wc-maib-mia'),
                     'desc_tip'    => true,
-                    'default'     => 'no'
+                    'default'     => 'no',
                 ),
                 'debug'           => array(
                     'title'       => __('Debug mode', 'wc-maib-mia'),
@@ -156,7 +152,7 @@ function woocommerce_maib_mia_init()
                     'label'       => __('Enable logging', 'wc-maib-mia'),
                     'default'     => 'no',
                     'description' => sprintf('<a href="%2$s">%1$s</a>', esc_html__('View logs', 'wc-maib-mia'), esc_url(self::get_logs_url())),
-                    'desc_tip'    => __('Save debug messages to the WooCommerce System Status logs. Note: this may log personal information. Use this for debugging purposes only and delete the logs when finished.', 'wc-maib-mia')
+                    'desc_tip'    => __('Save debug messages to the WooCommerce System Status logs. Note: this may log personal information. Use this for debugging purposes only and delete the logs when finished.', 'wc-maib-mia'),
                 ),
 
                 'order_template'  => array(
@@ -165,19 +161,19 @@ function woocommerce_maib_mia_init()
                     /* translators: 1: Example placeholder shown to user, represents Order ID */
                     'description' => __('Format: <code>%1$s</code> - Order ID', 'wc-maib-mia'),
                     'desc_tip'    => __('Order description that the customer will see on the bank payment page.', 'wc-maib-mia'),
-                    'default'     => self::ORDER_TEMPLATE
+                    'default'     => self::ORDER_TEMPLATE,
                 ),
                 'transaction_validity'  => array(
                     'title'       => __('Transaction validity', 'wc-maib-mia'),
                     'type'        => 'decimal',
                     'description' => __('minutes', 'wc-maib-mia'),
-                    'default'     => self::DEFAULT_VALIDITY
+                    'default'     => self::DEFAULT_VALIDITY,
                 ),
 
                 'connection_settings' => array(
                     'title'       => __('Connection Settings', 'wc-maib-mia'),
                     'description' => __('Payment gateway connection credentials are provided by the bank.', 'wc-maib-mia'),
-                    'type'        => 'title'
+                    'type'        => 'title',
                 ),
                 'maib_mia_client_id' => array(
                     'title'       => __('Client ID', 'wc-maib-mia'),
@@ -194,20 +190,20 @@ function woocommerce_maib_mia_init()
 
                 'payment_notification' => array(
                     'title'       => __('Payment Notification', 'wc-maib-mia'),
-                    'type'        => 'title'
+                    'type'        => 'title',
                 ),
                 'maib_mia_callback_url' => array(
                     'title'       => __('Callback URL', 'wc-maib-mia'),
                     'type'        => 'text',
                     'description' => sprintf('<code>%1$s</code>', esc_url($this->get_callback_url())),
-                    'default'     => $this->get_callback_url()
+                    'default'     => $this->get_callback_url(),
                 ),
             );
         }
 
         public function is_valid_for_use()
         {
-            if (!in_array(get_woocommerce_currency(), self::SUPPORTED_CURRENCIES)) {
+            if (!in_array(get_woocommerce_currency(), self::SUPPORTED_CURRENCIES, true)) {
                 return false;
             }
 
@@ -216,11 +212,13 @@ function woocommerce_maib_mia_init()
 
         public function is_available()
         {
-            if (!$this->is_valid_for_use())
+            if (!$this->is_valid_for_use()) {
                 return false;
+            }
 
-            if (!$this->check_settings())
+            if (!$this->check_settings()) {
                 return false;
+            }
 
             return parent::is_available();
         }
@@ -240,10 +238,10 @@ function woocommerce_maib_mia_init()
 
         protected function check_settings()
         {
-            return !self::string_empty($this->maib_mia_client_id)
-                && !self::string_empty($this->maib_mia_client_secret)
-                && !self::string_empty($this->maib_mia_signature_key)
-                && !self::string_empty($this->maib_mia_callback_url);
+            return !empty($this->maib_mia_client_id)
+                && !empty($this->maib_mia_client_secret)
+                && !empty($this->maib_mia_signature_key)
+                && !empty($this->maib_mia_callback_url);
         }
 
         protected function validate_settings()
@@ -251,13 +249,15 @@ function woocommerce_maib_mia_init()
             $validate_result = true;
 
             if (!$this->is_valid_for_use()) {
-                $this->add_error(sprintf(
-                    '<strong>%1$s: %2$s</strong>. %3$s: %4$s',
-                    esc_html__('Unsupported store currency', 'wc-maib-mia'),
-                    esc_html(get_woocommerce_currency()),
-                    esc_html__('Supported currencies', 'wc-maib-mia'),
-                    esc_html(join(', ', self::SUPPORTED_CURRENCIES))
-                ));
+                $this->add_error(
+                    sprintf(
+                        '<strong>%1$s: %2$s</strong>. %3$s: %4$s',
+                        esc_html__('Unsupported store currency', 'wc-maib-mia'),
+                        esc_html(get_woocommerce_currency()),
+                        esc_html__('Supported currencies', 'wc-maib-mia'),
+                        esc_html(join(', ', self::SUPPORTED_CURRENCIES))
+                    )
+                );
 
                 $validate_result = false;
             }
@@ -283,13 +283,13 @@ function woocommerce_maib_mia_init()
         protected function logs_admin_notice()
         {
             $message = $this->get_logs_admin_message();
-            WC_Admin_Notices::add_custom_notice(self::MOD_ID . '_logs_admin_notice', $message);
+            WC_Admin_Notices::add_custom_notice("{$this->id}_logs_admin_notice", $message);
         }
 
         protected function settings_admin_notice()
         {
             $message = $this->get_settings_admin_message();
-            WC_Admin_Notices::add_custom_notice(self::MOD_ID . '_settings_admin_notice', $message);
+            WC_Admin_Notices::add_custom_notice("{$this->id}_settings_admin_notice", $message);
         }
 
         protected function get_settings_admin_message()
@@ -309,17 +309,17 @@ function woocommerce_maib_mia_init()
         #region maib MIA
         protected function init_maib_mia_client()
         {
-            $options = [
+            $options = array(
                 'base_uri' => $this->maib_mia_base_url,
-                'timeout' => self::DEFAULT_TIMEOUT
-            ];
+                'timeout' => self::DEFAULT_TIMEOUT,
+            );
 
             if ($this->debug) {
-                $logName = self::MOD_ID . '_guzzle';
-                $logFileName = WC_Log_Handler_File::get_log_file_path($logName);
+                $log_name = "{$this->id}_guzzle";
+                $log_file_name = WC_Log_Handler_File::get_log_file_path($log_name);
 
-                $log = new \Monolog\Logger($logName);
-                $log->pushHandler(new \Monolog\Handler\StreamHandler($logFileName, \Monolog\Logger::DEBUG));
+                $log = new \Monolog\Logger($log_name);
+                $log->pushHandler(new \Monolog\Handler\StreamHandler($log_file_name, \Monolog\Logger::DEBUG));
 
                 $stack = \GuzzleHttp\HandlerStack::create();
                 $stack->push(\GuzzleHttp\Middleware::log($log, new \GuzzleHttp\MessageFormatter(\GuzzleHttp\MessageFormatter::DEBUG)));
@@ -327,8 +327,8 @@ function woocommerce_maib_mia_init()
                 $options['handler'] = $stack;
             }
 
-            $guzzleClient = new \GuzzleHttp\Client($options);
-            $client = new MaibMiaClient($guzzleClient);
+            $guzzle_client = new \GuzzleHttp\Client($options);
+            $client = new MaibMiaClient($guzzle_client);
 
             return $client;
         }
@@ -339,7 +339,7 @@ function woocommerce_maib_mia_init()
         private function maib_mia_generate_token($client)
         {
             $get_token_response = $client->getToken($this->maib_mia_client_id, $this->maib_mia_client_secret);
-            $access_token = $get_token_response['result']['accessToken'];
+            $access_token = strval($get_token_response['result']['accessToken']);
 
             return $access_token;
         }
@@ -728,11 +728,6 @@ function woocommerce_maib_mia_init()
                 return json_encode($response->toArray());
 
             return '';
-        }
-
-        protected static function string_empty($string)
-        {
-            return is_null($string) || strlen($string) === 0;
         }
 
         /**
