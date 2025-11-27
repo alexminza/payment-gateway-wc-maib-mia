@@ -306,7 +306,7 @@ function woocommerce_maib_mia_init()
             return $message;
         }
 
-        #region maib MIA
+        //region maib MIA
         protected function init_maib_mia_client()
         {
             $options = array(
@@ -373,9 +373,9 @@ function woocommerce_maib_mia_init()
 
             return $client->createQr($qr_data, $auth_token);
         }
-        #endregion
+        //endregion
 
-        #region Payment
+        //region Payment
         public function process_payment($order_id)
         {
             $order = wc_get_order($order_id);
@@ -398,22 +398,29 @@ function woocommerce_maib_mia_init()
                 );
                 $this->log(self::print_var($create_qr_response));
             } catch (Exception $ex) {
-                $this->log($ex, WC_Log_Levels::ERROR);
+                $this->log(
+                    $ex->getMessage(),
+                    WC_Log_Levels::ERROR,
+                    array(
+                        'order_id' => $order_id,
+                        'exception' => $ex,
+                    )
+                );
             }
 
             if (!empty($create_qr_response)) {
-                $create_qr_response_ok = $create_qr_response['ok'];
+                $create_qr_response_ok = boolval($create_qr_response['ok']);
                 if ($create_qr_response_ok) {
-                    $create_qr_response_result = $create_qr_response['result'];
-                    $qr_id = $create_qr_response_result['qrId'];
-                    $qr_url = $create_qr_response_result['url'];
+                    $create_qr_response_result = (array) $create_qr_response['result'];
+                    $qr_id = strval($create_qr_response_result['qrId']);
+                    $qr_url = strval($create_qr_response_result['url']);
 
-                    #region Update order payment transaction metadata
-                    //https://developer.woocommerce.com/docs/features/high-performance-order-storage/recipe-book/#apis-for-gettingsetting-posts-and-postmeta
+                    //region Update order payment transaction metadata
+                    // https://developer.woocommerce.com/docs/features/high-performance-order-storage/recipe-book/#apis-for-gettingsetting-posts-and-postmeta
                     $order->add_meta_data(self::MOD_QR_ID, $qr_id, true);
                     $order->add_meta_data(self::MOD_QR_URL, $qr_url, true);
                     $order->save();
-                    #endregion
+                    //endregion
 
                     /* translators: 1: Order ID, 2: Payment method title, 3: API response details */
                     $message = esc_html(sprintf(__('Order #%1$s payment initiated via %2$s: %3$s', 'wc-maib-mia'), $order_id, $this->method_title, self::print_response_object($create_qr_response)));
@@ -436,7 +443,7 @@ function woocommerce_maib_mia_init()
 
             $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s.', 'wc-maib-mia'), $order_id, $this->method_title));
 
-            //https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
+            // https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
             if (WC()->is_store_api_request()) {
                 throw new Exception(esc_html($message));
             }
@@ -446,19 +453,20 @@ function woocommerce_maib_mia_init()
 
             return array(
                 'result'   => 'failure',
-                'messages' => $message
+                'messages' => $message,
             );
         }
 
         public function check_response()
         {
-            if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
+            $request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
+            if (strtoupper($request_method) === 'GET') {
                 /* translators: 1: Payment method title */
                 $message = sprintf(__('%1$s Callback URL', 'wc-maib-mia'), $this->method_title);
                 return self::return_response(WP_Http::OK, $message);
             }
 
-            #region Validate callback
+            //region Validate callback
             $callback_data = null;
             $validation_result = null;
 
@@ -470,39 +478,45 @@ function woocommerce_maib_mia_init()
                 $callback_data = json_decode($callback_body, true);
                 $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
             } catch (Exception $ex) {
-                $this->log($ex, WC_Log_Levels::ERROR);
+                $this->log(
+                    $ex->getMessage(),
+                    WC_Log_Levels::ERROR,
+                    array('exception' => $ex)
+                );
+
                 return self::return_response(WP_Http::INTERNAL_SERVER_ERROR);
             }
 
             if (!$validation_result) {
+                /* translators: 1: Payment method title */
                 $message = esc_html(sprintf(__('%1$s callback signature validation failed.', 'wc-maib-mia'), $this->method_title));
                 $this->log($message, WC_Log_Levels::ERROR);
                 return self::return_response(WP_Http::UNAUTHORIZED, 'Invalid callback signature');
             }
-            #endregion
+            //endregion
 
-            #region Validate QR status
-            $callback_data_result = $callback_data['result'];
+            //region Validate QR status
+            $callback_data_result = (array) $callback_data['result'];
             $callback_qr_status = strval($callback_data_result['qrStatus']);
             if (strtolower($callback_qr_status) !== 'paid') {
                 return self::return_response(WP_Http::ACCEPTED);
             }
-            #endregion
+            //endregion
 
-            #region Validate order ID
+            //region Validate order ID
             $callback_order_id = intval($callback_data_result['orderId']);
             $order = wc_get_order($callback_order_id);
 
-            if (!$order) {
+            if (empty($order)) {
                 /* translators: 1: Order ID, 2: Payment method title */
                 $message = sprintf(__('Order not found by Order ID: %1$d received from %2$s.', 'wc-maib-mia'), $callback_order_id, $this->method_title);
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return self::return_response(WP_Http::UNPROCESSABLE_ENTITY, 'Order not found');
             }
-            #endregion
+            //endregion
 
-            #region Check order data
+            //region Check order data
             $callback_amount = floatval($callback_data_result['amount']);
             $callback_currency = strval($callback_data_result['currency']);
 
@@ -527,9 +541,9 @@ function woocommerce_maib_mia_init()
 
                 return self::return_response(WP_Http::OK, 'Order already fully paid');
             }
-            #endregion
+            //endregion
 
-            #region Complete order payment
+            //region Complete order payment
             $callback_pay_id = strval($callback_data_result['payId']);
             $callback_reference_id = strval($callback_data_result['referenceId']);
 
@@ -538,7 +552,7 @@ function woocommerce_maib_mia_init()
             $order->save();
 
             $order->payment_complete($callback_reference_id);
-            #endregion
+            //endregion
 
             /* translators: 1: Order ID, 2: Payment method title, 3: Payment notification callback data */
             $message = esc_html(sprintf(__('Order #%1$s payment completed via %2$s: %3$s', 'wc-maib-mia'), $callback_order_id, $this->method_title, $callback_body));
@@ -553,7 +567,7 @@ function woocommerce_maib_mia_init()
         {
             if (!$this->check_settings()) {
                 $message = $this->get_settings_admin_message();
-                return new WP_Error($this->id . '_error', $message);
+                return new WP_Error('check_settings', $message);
             }
 
             $order = wc_get_order($order_id);
@@ -562,15 +576,15 @@ function woocommerce_maib_mia_init()
             $order_currency = $order->get_currency();
             $payment_refund_response = null;
 
-            #region Validate refund amount
-            if (isset($amount) && $amount != $order_total) {
+            //region Validate refund amount
+            if (isset($amount) && $amount !== $order_total) {
                 /* translators: 1: Payment method title */
-                $message = esc_html(sprintf(__('Partial refunds are not currently supported by %1$s.', 'wc-maib-mia'), self::MOD_TITLE));
+                $message = esc_html(sprintf(__('Partial refunds are not currently supported by %1$s.', 'wc-maib-mia'), $this->method_title));
                 $this->log($message, WC_Log_Levels::ERROR);
 
-                return new WP_Error($this->id . '_error', $message);
+                return new WP_Error('partial_refund', $message);
             }
-            #endregion
+            //endregion
 
             try {
                 $client = $this->init_maib_mia_client();
@@ -579,16 +593,26 @@ function woocommerce_maib_mia_init()
                 $payment_refund_response = $client->paymentRefund($pay_id, $reason, $auth_token);
                 $this->log(self::print_var($payment_refund_response));
             } catch (Exception $ex) {
-                $this->log($ex, WC_Log_Levels::ERROR);
-                return new WP_Error($this->id . '_error', $ex->getMessage());
+                $this->log(
+                    $ex->getMessage(),
+                    WC_Log_Levels::ERROR,
+                    array(
+                        'order_id' => $order_id,
+                        'amount' => $amount,
+                        'reason' => $reason,
+                        'exception' => $ex,
+                    )
+                );
+
+                return new WP_Error('process_refund', $ex->getMessage());
             }
 
             if (!empty($payment_refund_response)) {
-                $payment_refund_response_ok = $payment_refund_response['ok'];
+                $payment_refund_response_ok = boolval($payment_refund_response['ok']);
                 if ($payment_refund_response_ok) {
-                    $payment_refund_response_result = $payment_refund_response['result'];
+                    $payment_refund_response_result = (array) $payment_refund_response['result'];
 
-                    $refund_status = $payment_refund_response_result['status'];
+                    $refund_status = strval($payment_refund_response_result['status']);
                     if (strtolower($refund_status) === 'refunded') {
                         /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details */
                         $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s approved: %4$s', 'wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title, self::print_response_object($payment_refund_response)));
@@ -609,11 +633,11 @@ function woocommerce_maib_mia_init()
 
             $this->logs_admin_notice();
 
-            return new WP_Error($this->id . '_error', $message);
+            return new WP_Error('process_refund', $message);
         }
-        #endregion
+        //endregion
 
-        #region Utility
+        //region Utility
         /**
          * @param float  $price
          * @param string $currency
@@ -628,10 +652,13 @@ function woocommerce_maib_mia_init()
             return wc_price($price, $args);
         }
 
+        /**
+         * @param \WC_Order $order
+         */
         protected function get_order_description($order)
         {
             $description = sprintf($this->order_template, $order->get_id());
-            return apply_filters(self::MOD_ID . '_order_description', $description, $order);
+            return apply_filters("{$this->id}_order_description", $description, $order); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
         }
 
         /**
@@ -639,9 +666,10 @@ function woocommerce_maib_mia_init()
          */
         protected function get_test_message($message)
         {
-            if ($this->testmode)
+            if ($this->testmode) {
                 /* translators: 1: Original message */
                 $message = esc_html(sprintf(__('TEST: %1$s', 'wc-maib-mia'), $message));
+            }
 
             return $message;
         }
@@ -651,15 +679,15 @@ function woocommerce_maib_mia_init()
          */
         protected function get_redirect_url($order)
         {
-            $redirectUrl = $this->get_return_url($order);
-            return apply_filters(self::MOD_ID . '_redirect_url', $redirectUrl);
+            $redirect_url = $this->get_return_url($order);
+            return apply_filters("{$this->id}_redirect_url", $redirect_url); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
         }
 
         protected function get_callback_url()
         {
-            //https://developer.woocommerce.com/docs/extensions/core-concepts/woocommerce-plugin-api-callback/
-            $callbackUrl = WC()->api_request_url("wc_{$this->id}");
-            return apply_filters(self::MOD_ID . '_callback_url', $callbackUrl);
+            // https://developer.woocommerce.com/docs/extensions/core-concepts/woocommerce-plugin-api-callback/
+            $callback_url = WC()->api_request_url("wc_{$this->id}");
+            return apply_filters("{$this->id}_callback_url", $callback_url); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
         }
 
         protected static function get_logs_url()
@@ -668,7 +696,7 @@ function woocommerce_maib_mia_init()
                 array(
                     'page'   => 'wc-status',
                     'tab'    => 'logs',
-                    'source' => self::MOD_ID
+                    'source' => self::MOD_ID,
                 ),
                 admin_url('admin.php')
             );
@@ -680,7 +708,7 @@ function woocommerce_maib_mia_init()
                 array(
                     'page'    => 'wc-settings',
                     'tab'     => 'checkout',
-                    'section' => self::MOD_ID
+                    'section' => self::MOD_ID,
                 ),
                 admin_url('admin.php')
             );
@@ -689,12 +717,17 @@ function woocommerce_maib_mia_init()
         /**
          * @param string $message
          * @param string $level
+         * @param array  $additional_context
          */
-        protected function log($message, $level = WC_Log_Levels::DEBUG)
+        protected function log($message, $level = WC_Log_Levels::DEBUG, $additional_context = null)
         {
-            //https://developer.woocommerce.com/docs/best-practices/data-management/logging/
-            //https://stackoverflow.com/questions/1423157/print-php-call-stack
-            $log_context = array('source' => self::MOD_ID);
+            // https://developer.woocommerce.com/docs/best-practices/data-management/logging/
+            // https://stackoverflow.com/questions/1423157/print-php-call-stack
+            $log_context = array('source' => $this->id);
+            if (!empty($additional_context)) {
+                $log_context = array_merge($log_context, $additional_context);
+            }
+
             $this->logger->log($level, $message, $log_context);
         }
 
@@ -706,17 +739,18 @@ function woocommerce_maib_mia_init()
         protected static function static_log($message, $level = WC_Log_Levels::DEBUG, $additional_context = null)
         {
             $log_context = array('source' => self::MOD_ID);
-            if ($additional_context)
+            if (!empty($additional_context)) {
                 $log_context = array_merge($log_context, $additional_context);
+            }
 
             $logger = wc_get_logger();
             $logger->log($level, $message, $log_context);
         }
 
-        protected static function print_var($var)
+        protected static function print_var($expression)
         {
-            //https://woocommerce.github.io/code-reference/namespaces/default.html#function_wc_print_r
-            return wc_print_r($var, true);
+            // https://woocommerce.github.io/code-reference/namespaces/default.html#function_wc_print_r
+            return wc_print_r($expression, true);
         }
 
         /**
@@ -724,8 +758,9 @@ function woocommerce_maib_mia_init()
          */
         protected static function print_response_object($response)
         {
-            if ($response)
-                return json_encode($response->toArray());
+            if (!empty($response)) {
+                return wp_json_encode($response->toArray());
+            }
 
             return '';
         }
@@ -736,18 +771,19 @@ function woocommerce_maib_mia_init()
          */
         protected static function return_response($status_code, $response_text = null)
         {
-            if (empty($response_text))
+            if (empty($response_text)) {
                 $response_text = get_status_header_desc($status_code);
+            }
 
             http_response_code($status_code);
             echo esc_html($response_text);
             exit;
         }
-        #endregion
+        //endregion
     }
 
-    #region Add gateway to WooCommerce
-    //https://developer.woocommerce.com/docs/features/payments/payment-gateway-plugin-base/
+    //region Add gateway to WooCommerce
+    // https://developer.woocommerce.com/docs/features/payments/payment-gateway-plugin-base/
     function woocommerce_maib_mia_add_gateway($methods)
     {
         $methods[] = WC_MAIB_MIA::class;
@@ -755,9 +791,9 @@ function woocommerce_maib_mia_init()
     }
 
     add_filter('woocommerce_payment_gateways', 'woocommerce_maib_mia_add_gateway');
-    #endregion
+    //endregion
 
-    #region Admin init
+    //region Admin init
     function woocommerce_maib_mia_plugin_links($links)
     {
         $plugin_links = array(
@@ -774,34 +810,40 @@ function woocommerce_maib_mia_init()
     if (is_admin()) {
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'woocommerce_maib_mia_plugin_links');
     }
-    #endregion
+    //endregion
 }
 
-#region Declare WooCommerce compatibility
-add_action('before_woocommerce_init', function () {
-    if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
-        //WooCommerce HPOS compatibility
-        //https://developer.woocommerce.com/docs/features/high-performance-order-storage/recipe-book/#declaring-extension-incompatibility
-        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+//region Declare WooCommerce compatibility
+add_action(
+    'before_woocommerce_init',
+    function () {
+        if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+            // WooCommerce HPOS compatibility
+            // https://developer.woocommerce.com/docs/features/high-performance-order-storage/recipe-book/#declaring-extension-incompatibility
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
 
-        //WooCommerce Cart Checkout Blocks compatibility
-        //https://github.com/woocommerce/woocommerce/pull/36426
-        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
+            // WooCommerce Cart Checkout Blocks compatibility
+            // https://github.com/woocommerce/woocommerce/pull/36426
+            \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
+        }
     }
-});
-#endregion
+);
+//endregion
 
-#region Register WooCommerce Blocks payment method type
-add_action('woocommerce_blocks_loaded', function () {
-    if (class_exists(\Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType::class)) {
-        require_once plugin_dir_path(__FILE__) . 'wc-maib-mia-wbc.php';
+//region Register WooCommerce Blocks payment method type
+add_action(
+    'woocommerce_blocks_loaded',
+    function () {
+        if (class_exists(\Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType::class)) {
+            require_once plugin_dir_path(__FILE__) . 'wc-maib-mia-wbc.php';
 
-        add_action(
-            'woocommerce_blocks_payment_method_type_registration',
-            function (\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) {
-                $payment_method_registry->register(new WC_MAIB_MIA_WBC());
-            }
-        );
+            add_action(
+                'woocommerce_blocks_payment_method_type_registration',
+                function (\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) {
+                    $payment_method_registry->register(new WC_MAIB_MIA_WBC());
+                }
+            );
+        }
     }
-});
-#endregion
+);
+//endregion
