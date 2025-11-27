@@ -437,8 +437,7 @@ function woocommerce_maib_mia_init()
             $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s.', 'wc-maib-mia'), $order_id, $this->method_title));
 
             //https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
-            $is_store_api_request = method_exists(WC(), 'is_store_api_request') && WC()->is_store_api_request();
-            if ($is_store_api_request) {
+            if (WC()->is_store_api_request()) {
                 throw new Exception(esc_html($message));
             }
 
