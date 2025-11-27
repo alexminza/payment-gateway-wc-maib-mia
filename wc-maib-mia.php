@@ -527,7 +527,8 @@ function woocommerce_maib_mia_init()
             $order->payment_complete($callback_reference_id);
             #endregion
 
-            $message = esc_html(sprintf(__('Payment completed via %1$s: %2$s', 'wc-maib-mia'), $this->method_title, $callback_body));
+            /* translators: 1: Order ID, 2: Payment method title, 3: Payment notification callback data */
+            $message = esc_html(sprintf(__('Order #%1$s payment completed via %2$s: %3$s', 'wc-maib-mia'), $callback_order_id, $this->method_title, $callback_body));
             $message = $this->get_test_message($message);
             $this->log($message, WC_Log_Levels::INFO);
             $order->add_order_note($message);
