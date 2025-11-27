@@ -75,7 +75,7 @@ function woocommerce_maib_mia_init()
         {
             $this->id                 = self::MOD_ID;
             $this->method_title       = self::MOD_TITLE;
-            $this->method_description = 'Payment Gateway for maib MIA for WooCommerce';
+            $this->method_description = 'Payment Gateway for maib MIA';
             $this->has_fields         = false;
             $this->supports           = array('products', 'refunds');
 
