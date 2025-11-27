@@ -522,7 +522,7 @@ function woocommerce_maib_mia_init()
 
             if ($order->is_paid()) {
                 /* translators: 1: Order ID */
-                $message = sprintf(__('Callback order already fully paid: %1$d.', 'wc-maib-mia'), $callback_order_id);
+                $message = sprintf(__('Callback order #%1$s already fully paid.', 'wc-maib-mia'), $callback_order_id);
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return self::return_response(WP_Http::OK, 'Order already fully paid');
