@@ -33,7 +33,13 @@
     "config": {
         "platform": {
             "php": "7.2.5"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
-    "prefer-stable": true
+    "prefer-stable": true,
+    "require-dev": {
+        "woocommerce/woocommerce-sniffs": "^1.0"
+    }
 }
