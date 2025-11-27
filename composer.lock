@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "alexminza/maib-mia-sdk",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alexminza/maib-mia-sdk-php.git",
-                "reference": "39648d72cd857bcd588b88d9e9a11f72748feb57"
+                "reference": "869dc3b12713b32f29f1fbc4c6154caf321a0f6d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alexminza/maib-mia-sdk-php/zipball/39648d72cd857bcd588b88d9e9a11f72748feb57",
-                "reference": "39648d72cd857bcd588b88d9e9a11f72748feb57",
+                "url": "https://api.github.com/repos/alexminza/maib-mia-sdk-php/zipball/869dc3b12713b32f29f1fbc4c6154caf321a0f6d",
+                "reference": "869dc3b12713b32f29f1fbc4c6154caf321a0f6d",
                 "shasum": ""
             },
             "require": {
@@ -59,7 +59,7 @@
                 "issues": "https://github.com/alexminza/maib-mia-sdk-php/issues",
                 "source": "https://github.com/alexminza/maib-mia-sdk-php"
             },
-            "time": "2025-10-26T18:30:57+00:00"
+            "time": "2025-11-07T12:23:00+00:00"
         },
         {
             "name": "guzzlehttp/command",
@@ -1163,5 +1163,5 @@
     "platform-overrides": {
         "php": "7.2.5"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
