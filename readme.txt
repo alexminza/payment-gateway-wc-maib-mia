@@ -8,15 +8,15 @@ Requires PHP: 7.2.5
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Accept MIA payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
+Accept MIA Instant Payments directly on your store with the maib MIA payment gateway for WooCommerce.
 
 == Description ==
 
-Accept MIA payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
+Accept MIA Instant Payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
 
 = Features =
 
-* Online payments with [BNM MIA QR](https://mia.bnm.md/en)
+* Online payments with [MIA Instant Payments](https://mia.bnm.md/en)
 * Reverse transactions – complete refunds[^1]
 * Supports WooCommerce [block-based checkout experience](https://woocommerce.com/checkout-blocks/)
 * Free to use – [Open-source GPL-3.0 license on GitHub](https://github.com/alexminza/wc-maib-mia)
