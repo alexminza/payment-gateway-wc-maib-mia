@@ -7,13 +7,13 @@
 
 ![maib MIA](./.wordpress-org/banner-1544x500.png)
 
-_Accept MIA payments directly on your store with the Payment Gateway for maib MIA for WooCommerce._
+_Accept MIA Instant Payments directly on your store with the Payment Gateway for maib MIA for WooCommerce._
 
 WordPress plugin: https://wordpress.org/plugins/wc-maib-mia/
 
 ## Features
 
-* Online payments with [BNM MIA QR](https://mia.bnm.md/en)
+* Online payments with [MIA Instant Payments](https://mia.bnm.md/en)
 * Reverse transactions – complete refunds[^1]
 * Supports WooCommerce [block-based checkout experience](https://woocommerce.com/checkout-blocks/)
 * Free to use – [Open-source GPL-3.0 license on GitHub](https://github.com/alexminza/wc-maib-mia)
