@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Payment Gateway for maib MIA for WooCommerce 1.0.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-maib-mia\n"
-"POT-Creation-Date: 2025-11-27 17:23+0200\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/payment-gateway-wc-maib-mia\n"
+"POT-Creation-Date: 2025-12-09 17:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,228 +15,226 @@ msgstr ""
 "X-Generator: Poedit 3.8\n"
 
 #. Description of the plugin
-#: wc-maib-mia.php
+#: payment-gateway-wc-maib-mia.php
 msgid "Accept MIA payments directly on your store with the Payment Gateway for maib MIA for WooCommerce."
 msgstr ""
 
-#: wc-maib-mia.php:52
-msgid "maib MIA payment gateway requires WooCommerce to be installed and active."
-msgstr ""
-
-#: wc-maib-mia.php:125
+#: payment-gateway-wc-maib-mia.php:121
 msgid "Enable/Disable"
 msgstr ""
 
-#: wc-maib-mia.php:127
+#: payment-gateway-wc-maib-mia.php:123
 msgid "Enable this gateway"
 msgstr ""
 
-#: wc-maib-mia.php:131
+#: payment-gateway-wc-maib-mia.php:127
 msgid "Title"
 msgstr ""
 
-#: wc-maib-mia.php:133
+#: payment-gateway-wc-maib-mia.php:129
 msgid "Payment method title that the customer will see during checkout."
 msgstr ""
 
-#: wc-maib-mia.php:138
+#: payment-gateway-wc-maib-mia.php:134
 msgid "Description"
 msgstr ""
 
-#: wc-maib-mia.php:140
+#: payment-gateway-wc-maib-mia.php:136
 msgid "Payment method description that the customer will see during checkout."
 msgstr ""
 
-#: wc-maib-mia.php:146
+#: payment-gateway-wc-maib-mia.php:142
 msgid "Test mode"
 msgstr ""
 
-#: wc-maib-mia.php:148
+#: payment-gateway-wc-maib-mia.php:144
 msgid "Enabled"
 msgstr ""
 
-#: wc-maib-mia.php:149
+#: payment-gateway-wc-maib-mia.php:145
 msgid "Use Test or Live bank gateway to process the payments. Disable when ready to accept live payments."
 msgstr ""
 
-#: wc-maib-mia.php:154
+#: payment-gateway-wc-maib-mia.php:150
 msgid "Debug mode"
 msgstr ""
 
-#: wc-maib-mia.php:156
+#: payment-gateway-wc-maib-mia.php:152
 msgid "Enable logging"
 msgstr ""
 
-#: wc-maib-mia.php:158
+#: payment-gateway-wc-maib-mia.php:154
 msgid "View logs"
 msgstr ""
 
-#: wc-maib-mia.php:159
+#: payment-gateway-wc-maib-mia.php:155
 msgid "Save debug messages to the WooCommerce System Status logs. Note: this may log personal information. Use this for debugging purposes only and delete the logs when finished."
 msgstr ""
 
-#: wc-maib-mia.php:163
+#: payment-gateway-wc-maib-mia.php:159
 msgid "Order description"
 msgstr ""
 
 #. translators: 1: Example placeholder shown to user, represents Order ID
-#: wc-maib-mia.php:166
+#: payment-gateway-wc-maib-mia.php:162
 #, php-format
 msgid "Format: <code>%1$s</code> - Order ID"
 msgstr ""
 
-#: wc-maib-mia.php:167
+#: payment-gateway-wc-maib-mia.php:163
 msgid "Order description that the customer will see on the bank payment page."
 msgstr ""
 
-#: wc-maib-mia.php:171
+#: payment-gateway-wc-maib-mia.php:167
 msgid "Transaction validity"
 msgstr ""
 
-#: wc-maib-mia.php:173
+#: payment-gateway-wc-maib-mia.php:169
 msgid "minutes"
 msgstr ""
 
-#: wc-maib-mia.php:178 wc-maib-mia.php:268
+#: payment-gateway-wc-maib-mia.php:174 payment-gateway-wc-maib-mia.php:268
 msgid "Connection Settings"
 msgstr ""
 
-#: wc-maib-mia.php:179
+#: payment-gateway-wc-maib-mia.php:175
 msgid "Payment gateway connection credentials are provided by the bank."
 msgstr ""
 
-#: wc-maib-mia.php:183
+#: payment-gateway-wc-maib-mia.php:179
 msgid "Client ID"
 msgstr ""
 
-#: wc-maib-mia.php:187
+#: payment-gateway-wc-maib-mia.php:183
 msgid "Client Secret"
 msgstr ""
 
-#: wc-maib-mia.php:191
+#: payment-gateway-wc-maib-mia.php:187
 msgid "Signature Key"
 msgstr ""
 
-#: wc-maib-mia.php:196
+#: payment-gateway-wc-maib-mia.php:192
 msgid "Payment Notification"
 msgstr ""
 
-#: wc-maib-mia.php:200
+#: payment-gateway-wc-maib-mia.php:196
 msgid "Callback URL"
 msgstr ""
 
-#: wc-maib-mia.php:256
+#: payment-gateway-wc-maib-mia.php:255
 msgid "Unsupported store currency"
 msgstr ""
 
-#: wc-maib-mia.php:258
+#: payment-gateway-wc-maib-mia.php:257
 msgid "Supported currencies"
 msgstr ""
 
 #. translators: 1: Plugin installation instructions URL
-#: wc-maib-mia.php:267
+#: payment-gateway-wc-maib-mia.php:267
 #, php-format
 msgid "See plugin documentation for <a href=\"%1$s\" target=\"_blank\">installation instructions</a>."
 msgstr ""
 
-#: wc-maib-mia.php:268
+#: payment-gateway-wc-maib-mia.php:268
 msgid "Not configured"
 msgstr ""
 
 #. translators: 1: Payment method title, 2: Plugin settings URL
-#: wc-maib-mia.php:298
+#: payment-gateway-wc-maib-mia.php:298
 #, php-format
 msgid "%1$s is not properly configured. Verify plugin <a href=\"%2$s\">Connection Settings</a>."
 msgstr ""
 
 #. translators: 1: Payment method title, 2: Plugin settings URL
-#: wc-maib-mia.php:305
+#: payment-gateway-wc-maib-mia.php:305
 #, php-format
 msgid "See <a href=\"%2$s\">%1$s settings</a> page for log details and setup instructions."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title, 3: API response details
-#: wc-maib-mia.php:419
+#: payment-gateway-wc-maib-mia.php:426
 #, php-format
 msgid "Order #%1$s payment initiated via %2$s: %3$s"
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title, 3: API response details
-#: wc-maib-mia.php:432
+#: payment-gateway-wc-maib-mia.php:439
 #, php-format
 msgid "Order #%1$s payment initiation failed via %2$s: %3$s"
 msgstr ""
 
-#: wc-maib-mia.php:437
+#. translators: 1: Order ID, 2: Payment method title
+#: payment-gateway-wc-maib-mia.php:445
 #, php-format
 msgid "Order #%1$s payment initiation failed via %2$s."
 msgstr ""
 
 #. translators: 1: Payment method title
-#: wc-maib-mia.php:457
+#: payment-gateway-wc-maib-mia.php:466
 #, php-format
 msgid "%1$s Callback URL"
 msgstr ""
 
 #. translators: 1: Payment notification callback body
-#: wc-maib-mia.php:468
+#: payment-gateway-wc-maib-mia.php:477
 #, php-format
 msgid "Payment notification callback: %1$s"
 msgstr ""
 
-#: wc-maib-mia.php:478
+#. translators: 1: Payment method title
+#: payment-gateway-wc-maib-mia.php:493
 #, php-format
 msgid "%1$s callback signature validation failed."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title
-#: wc-maib-mia.php:498
+#: payment-gateway-wc-maib-mia.php:513
 #, php-format
 msgid "Order not found by Order ID: %1$d received from %2$s."
 msgstr ""
 
 #. translators: 1: Callback notification price, 2: Order total price
-#: wc-maib-mia.php:517
+#: payment-gateway-wc-maib-mia.php:532
 #, php-format
 msgid "Order amount mismatch: Callback: %1$s, Order: %2$s."
 msgstr ""
 
 #. translators: 1: Order ID
-#: wc-maib-mia.php:525
+#: payment-gateway-wc-maib-mia.php:540
 #, php-format
 msgid "Callback order already fully paid: %1$d."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title, 3: Payment notification callback data
-#: wc-maib-mia.php:544
+#: payment-gateway-wc-maib-mia.php:559
 #, php-format
 msgid "Order #%1$s payment completed via %2$s: %3$s"
 msgstr ""
 
 #. translators: 1: Payment method title
-#: wc-maib-mia.php:568
+#: payment-gateway-wc-maib-mia.php:583
 #, php-format
 msgid "Partial refunds are not currently supported by %1$s."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details
-#: wc-maib-mia.php:594
+#: payment-gateway-wc-maib-mia.php:619
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s approved: %4$s"
 msgstr ""
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details
-#: wc-maib-mia.php:605
+#: payment-gateway-wc-maib-mia.php:630
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s failed: %4$s"
 msgstr ""
 
 #. translators: 1: Original message
-#: wc-maib-mia.php:644
+#: payment-gateway-wc-maib-mia.php:672
 #, php-format
 msgid "TEST: %1$s"
 msgstr ""
 
-#: wc-maib-mia.php:772
+#: payment-gateway-wc-maib-mia.php:804
 msgid "Settings"
 msgstr ""
