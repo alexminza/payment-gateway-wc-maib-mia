@@ -1,9 +1,9 @@
 name: Deploy to WordPress.org
 
 on:
-  workflow_dispatch:
-  # release:
-  #   types: [published]
+  # workflow_dispatch:
+  release:
+    types: [released]
 
 jobs:
   publish-to-wporg:
