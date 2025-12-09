@@ -1,5 +1,5 @@
 {
-    "name": "alexminza/wc-maib-mia",
+    "name": "alexminza/payment-gateway-wc-maib-mia",
     "description": "Payment Gateway for maib MIA for WooCommerce",
     "type": "wordpress-plugin",
     "keywords": [
@@ -11,7 +11,7 @@
         "payment",
         "gateway"
     ],
-    "homepage": "https://github.com/alexminza/wc-maib-mia",
+    "homepage": "https://github.com/alexminza/payment-gateway-wc-maib-mia",
     "license": "GPL-3.0-or-later",
     "authors": [
         {
@@ -21,9 +21,9 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/alexminza/wc-maib-mia/issues",
-        "forum": "https://wordpress.org/support/plugin/wc-maib-mia",
-        "source": "https://github.com/alexminza/wc-maib-mia"
+        "issues": "https://github.com/alexminza/payment-gateway-wc-maib-mia/issues",
+        "forum": "https://wordpress.org/support/plugin/payment-gateway-wc-maib-mia",
+        "source": "https://github.com/alexminza/payment-gateway-wc-maib-mia"
     },
     "require": {
         "php": ">=7.2.5",

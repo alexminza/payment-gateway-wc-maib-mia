@@ -19,7 +19,7 @@ Accept MIA Instant Payments directly on your store with the Payment Gateway for 
 * Online payments with [MIA Instant Payments](https://mia.bnm.md/en)
 * Reverse transactions – complete refunds[^1]
 * Supports WooCommerce [block-based checkout experience](https://woocommerce.com/checkout-blocks/)
-* Free to use – [Open-source GPL-3.0 license on GitHub](https://github.com/alexminza/wc-maib-mia)
+* Free to use – [Open-source GPL-3.0 license on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia)
 
 [^1]: Partial refunds are not currently supported by maib MIA.
 
@@ -54,9 +54,9 @@ maib MIA currently supports transactions in MDL (Moldovan Leu).
 
 = How can I contribute to the plugin? =
 
-If you're a developer and you have some ideas to improve the plugin or to solve a bug, feel free to raise an issue or submit a pull request in the [Github repository for the plugin](https://github.com/alexminza/wc-maib-mia).
+If you're a developer and you have some ideas to improve the plugin or to solve a bug, feel free to raise an issue or submit a pull request in the [Github repository for the plugin](https://github.com/alexminza/payment-gateway-wc-maib-mia).
 
-You can also contribute to the plugin by translating it. Simply visit [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/wc-maib-mia) to get started.
+You can also contribute to the plugin by translating it. Simply visit [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/payment-gateway-wc-maib-mia) to get started.
 
 == Screenshots ==
 
@@ -66,7 +66,7 @@ You can also contribute to the plugin by translating it. Simply visit [translate
 
 == Changelog ==
 
-See [wc-maib-mia project releases on GitHub](https://github.com/alexminza/wc-maib-mia/releases) for details.
+See [payment-gateway-wc-maib-mia project releases on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia/releases) for details.
 
 = 1.0.0 =
 Initial version release.

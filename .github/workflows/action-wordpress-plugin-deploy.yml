@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: wporg
-      url: https://wordpress.org/plugins/wc-maib-mia/
+      url: https://wordpress.org/plugins/payment-gateway-wc-maib-mia/
     steps:
     - uses: actions/checkout@master
     - name: WordPress Plugin Deploy

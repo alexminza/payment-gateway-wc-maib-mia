@@ -3,13 +3,13 @@
 /**
  * Plugin Name: Payment Gateway for maib MIA for WooCommerce
  * Description: Accept MIA payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
- * Plugin URI: https://github.com/alexminza/wc-maib-mia
+ * Plugin URI: https://github.com/alexminza/payment-gateway-wc-maib-mia
  * Version: 1.0.0
  * Author: Alexander Minza
  * Author URI: https://profiles.wordpress.org/alexminza
  * Developer: Alexander Minza
  * Developer URI: https://profiles.wordpress.org/alexminza
- * Text Domain: wc-maib-mia
+ * Text Domain: payment-gateway-wc-maib-mia
  * Domain Path: /languages
  * License: GPLv3 or later
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -21,7 +21,7 @@
  * Requires Plugins: woocommerce
  */
 
-//Looking to contribute code to this plugin? Go ahead and fork the repository over at GitHub https://github.com/alexminza/wc-maib-mia
+//Looking to contribute code to this plugin? Go ahead and fork the repository over at GitHub https://github.com/alexminza/payment-gateway-wc-maib-mia
 //This plugin is based on PHP SDK for maib MIA API https://github.com/alexminza/maib-mia-sdk-php (https://packagist.org/packages/alexminza/maib-mia-sdk)
 
 if (!defined('ABSPATH')) {
@@ -36,7 +36,7 @@ add_action('plugins_loaded', 'woocommerce_maib_mia_plugins_loaded', 0);
 
 function woocommerce_maib_mia_plugins_loaded()
 {
-    // load_plugin_textdomain('wc-maib-mia', false, dirname(plugin_basename(__FILE__)) . '/languages');
+    // load_plugin_textdomain('payment-gateway-wc-maib-mia', false, dirname(plugin_basename(__FILE__)) . '/languages');
 
     // https://woocommerce.com/document/query-whether-woocommerce-is-activated/
     if (!class_exists('WooCommerce')) {
@@ -118,82 +118,82 @@ function woocommerce_maib_mia_init()
         {
             $this->form_fields = array(
                 'enabled'         => array(
-                    'title'       => __('Enable/Disable', 'wc-maib-mia'),
+                    'title'       => __('Enable/Disable', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'checkbox',
-                    'label'       => __('Enable this gateway', 'wc-maib-mia'),
+                    'label'       => __('Enable this gateway', 'payment-gateway-wc-maib-mia'),
                     'default'     => 'yes',
                 ),
                 'title'           => array(
-                    'title'       => __('Title', 'wc-maib-mia'),
+                    'title'       => __('Title', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'text',
-                    'description' => __('Payment method title that the customer will see during checkout.', 'wc-maib-mia'),
+                    'description' => __('Payment method title that the customer will see during checkout.', 'payment-gateway-wc-maib-mia'),
                     'desc_tip'    => true,
                     'default'     => self::MOD_TITLE,
                 ),
                 'description'     => array(
-                    'title'       => __('Description', 'wc-maib-mia'),
+                    'title'       => __('Description', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'textarea',
-                    'description' => __('Payment method description that the customer will see during checkout.', 'wc-maib-mia'),
+                    'description' => __('Payment method description that the customer will see during checkout.', 'payment-gateway-wc-maib-mia'),
                     'desc_tip'    => true,
                     'default'     => '',
                 ),
 
                 'testmode'        => array(
-                    'title'       => __('Test mode', 'wc-maib-mia'),
+                    'title'       => __('Test mode', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'checkbox',
-                    'label'       => __('Enabled', 'wc-maib-mia'),
-                    'description' => __('Use Test or Live bank gateway to process the payments. Disable when ready to accept live payments.', 'wc-maib-mia'),
+                    'label'       => __('Enabled', 'payment-gateway-wc-maib-mia'),
+                    'description' => __('Use Test or Live bank gateway to process the payments. Disable when ready to accept live payments.', 'payment-gateway-wc-maib-mia'),
                     'desc_tip'    => true,
                     'default'     => 'no',
                 ),
                 'debug'           => array(
-                    'title'       => __('Debug mode', 'wc-maib-mia'),
+                    'title'       => __('Debug mode', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'checkbox',
-                    'label'       => __('Enable logging', 'wc-maib-mia'),
+                    'label'       => __('Enable logging', 'payment-gateway-wc-maib-mia'),
                     'default'     => 'no',
-                    'description' => sprintf('<a href="%2$s">%1$s</a>', esc_html__('View logs', 'wc-maib-mia'), esc_url(self::get_logs_url())),
-                    'desc_tip'    => __('Save debug messages to the WooCommerce System Status logs. Note: this may log personal information. Use this for debugging purposes only and delete the logs when finished.', 'wc-maib-mia'),
+                    'description' => sprintf('<a href="%2$s">%1$s</a>', esc_html__('View logs', 'payment-gateway-wc-maib-mia'), esc_url(self::get_logs_url())),
+                    'desc_tip'    => __('Save debug messages to the WooCommerce System Status logs. Note: this may log personal information. Use this for debugging purposes only and delete the logs when finished.', 'payment-gateway-wc-maib-mia'),
                 ),
 
                 'order_template'  => array(
-                    'title'       => __('Order description', 'wc-maib-mia'),
+                    'title'       => __('Order description', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'text',
                     /* translators: 1: Example placeholder shown to user, represents Order ID */
-                    'description' => __('Format: <code>%1$s</code> - Order ID', 'wc-maib-mia'),
-                    'desc_tip'    => __('Order description that the customer will see on the bank payment page.', 'wc-maib-mia'),
+                    'description' => __('Format: <code>%1$s</code> - Order ID', 'payment-gateway-wc-maib-mia'),
+                    'desc_tip'    => __('Order description that the customer will see on the bank payment page.', 'payment-gateway-wc-maib-mia'),
                     'default'     => self::ORDER_TEMPLATE,
                 ),
                 'transaction_validity'  => array(
-                    'title'       => __('Transaction validity', 'wc-maib-mia'),
+                    'title'       => __('Transaction validity', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'decimal',
-                    'description' => __('minutes', 'wc-maib-mia'),
+                    'description' => __('minutes', 'payment-gateway-wc-maib-mia'),
                     'default'     => self::DEFAULT_VALIDITY,
                 ),
 
                 'connection_settings' => array(
-                    'title'       => __('Connection Settings', 'wc-maib-mia'),
-                    'description' => __('Payment gateway connection credentials are provided by the bank.', 'wc-maib-mia'),
+                    'title'       => __('Connection Settings', 'payment-gateway-wc-maib-mia'),
+                    'description' => __('Payment gateway connection credentials are provided by the bank.', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'title',
                 ),
                 'maib_mia_client_id' => array(
-                    'title'       => __('Client ID', 'wc-maib-mia'),
+                    'title'       => __('Client ID', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'text',
                 ),
                 'maib_mia_client_secret' => array(
-                    'title'       => __('Client Secret', 'wc-maib-mia'),
+                    'title'       => __('Client Secret', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'password',
                 ),
                 'maib_mia_signature_key' => array(
-                    'title'       => __('Signature Key', 'wc-maib-mia'),
+                    'title'       => __('Signature Key', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'password',
                 ),
 
                 'payment_notification' => array(
-                    'title'       => __('Payment Notification', 'wc-maib-mia'),
+                    'title'       => __('Payment Notification', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'title',
                 ),
                 'maib_mia_callback_url' => array(
-                    'title'       => __('Callback URL', 'wc-maib-mia'),
+                    'title'       => __('Callback URL', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'text',
                     'description' => sprintf('<code>%1$s</code>', esc_url($this->get_callback_url())),
                     'default'     => $this->get_callback_url(),
@@ -252,9 +252,9 @@ function woocommerce_maib_mia_init()
                 $this->add_error(
                     sprintf(
                         '<strong>%1$s: %2$s</strong>. %3$s: %4$s',
-                        esc_html__('Unsupported store currency', 'wc-maib-mia'),
+                        esc_html__('Unsupported store currency', 'payment-gateway-wc-maib-mia'),
                         esc_html(get_woocommerce_currency()),
-                        esc_html__('Supported currencies', 'wc-maib-mia'),
+                        esc_html__('Supported currencies', 'payment-gateway-wc-maib-mia'),
                         esc_html(join(', ', self::SUPPORTED_CURRENCIES))
                     )
                 );
@@ -264,8 +264,8 @@ function woocommerce_maib_mia_init()
 
             if (!$this->check_settings()) {
                 /* translators: 1: Plugin installation instructions URL */
-                $message_instructions = sprintf(__('See plugin documentation for <a href="%1$s" target="_blank">installation instructions</a>.', 'wc-maib-mia'), 'https://wordpress.org/plugins/wc-maib-mia/#installation');
-                $this->add_error(sprintf('<strong>%1$s</strong>: %2$s. %3$s', esc_html__('Connection Settings', 'wc-maib-mia'), esc_html__('Not configured', 'wc-maib-mia'), wp_kses_post($message_instructions)));
+                $message_instructions = sprintf(__('See plugin documentation for <a href="%1$s" target="_blank">installation instructions</a>.', 'payment-gateway-wc-maib-mia'), 'https://wordpress.org/plugins/payment-gateway-wc-maib-mia/#installation');
+                $this->add_error(sprintf('<strong>%1$s</strong>: %2$s. %3$s', esc_html__('Connection Settings', 'payment-gateway-wc-maib-mia'), esc_html__('Not configured', 'payment-gateway-wc-maib-mia'), wp_kses_post($message_instructions)));
                 $validate_result = false;
             }
 
@@ -295,14 +295,14 @@ function woocommerce_maib_mia_init()
         protected function get_settings_admin_message()
         {
             /* translators: 1: Payment method title, 2: Plugin settings URL */
-            $message = sprintf(wp_kses_post(__('%1$s is not properly configured. Verify plugin <a href="%2$s">Connection Settings</a>.', 'wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
+            $message = sprintf(wp_kses_post(__('%1$s is not properly configured. Verify plugin <a href="%2$s">Connection Settings</a>.', 'payment-gateway-wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
             return $message;
         }
 
         protected function get_logs_admin_message()
         {
             /* translators: 1: Payment method title, 2: Plugin settings URL */
-            $message = sprintf(wp_kses_post(__('See <a href="%2$s">%1$s settings</a> page for log details and setup instructions.', 'wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
+            $message = sprintf(wp_kses_post(__('See <a href="%2$s">%1$s settings</a> page for log details and setup instructions.', 'payment-gateway-wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
             return $message;
         }
 
@@ -423,7 +423,7 @@ function woocommerce_maib_mia_init()
                     //endregion
 
                     /* translators: 1: Order ID, 2: Payment method title, 3: API response details */
-                    $message = esc_html(sprintf(__('Order #%1$s payment initiated via %2$s: %3$s', 'wc-maib-mia'), $order_id, $this->method_title, self::print_response_object($create_qr_response)));
+                    $message = esc_html(sprintf(__('Order #%1$s payment initiated via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, self::print_response_object($create_qr_response)));
                     $message = $this->get_test_message($message);
                     $this->log($message, WC_Log_Levels::INFO);
                     $order->add_order_note($message);
@@ -436,13 +436,13 @@ function woocommerce_maib_mia_init()
             }
 
             /* translators: 1: Order ID, 2: Payment method title, 3: API response details */
-            $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s: %3$s', 'wc-maib-mia'), $order_id, $this->method_title, self::print_response_object($create_qr_response)));
+            $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, self::print_response_object($create_qr_response)));
             $message = $this->get_test_message($message);
             $order->add_order_note($message);
             $this->log($message, WC_Log_Levels::ERROR);
 
             /* translators: 1: Order ID, 2: Payment method title */
-            $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s.', 'wc-maib-mia'), $order_id, $this->method_title));
+            $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s.', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title));
 
             // https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
             if (WC()->is_store_api_request()) {
@@ -463,7 +463,7 @@ function woocommerce_maib_mia_init()
             $request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
             if (strtoupper($request_method) === 'GET') {
                 /* translators: 1: Payment method title */
-                $message = sprintf(__('%1$s Callback URL', 'wc-maib-mia'), $this->method_title);
+                $message = sprintf(__('%1$s Callback URL', 'payment-gateway-wc-maib-mia'), $this->method_title);
                 return self::return_response(WP_Http::OK, $message);
             }
 
@@ -474,7 +474,7 @@ function woocommerce_maib_mia_init()
             try {
                 $callback_body = file_get_contents('php://input');
                 /* translators: 1: Payment notification callback body */
-                $this->log(sprintf(__('Payment notification callback: %1$s', 'wc-maib-mia'), self::print_var($callback_body)));
+                $this->log(sprintf(__('Payment notification callback: %1$s', 'payment-gateway-wc-maib-mia'), self::print_var($callback_body)));
 
                 $callback_data = json_decode($callback_body, true);
                 $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
@@ -490,7 +490,7 @@ function woocommerce_maib_mia_init()
 
             if (!$validation_result) {
                 /* translators: 1: Payment method title */
-                $message = esc_html(sprintf(__('%1$s callback signature validation failed.', 'wc-maib-mia'), $this->method_title));
+                $message = esc_html(sprintf(__('%1$s callback signature validation failed.', 'payment-gateway-wc-maib-mia'), $this->method_title));
                 $this->log($message, WC_Log_Levels::ERROR);
                 return self::return_response(WP_Http::UNAUTHORIZED, 'Invalid callback signature');
             }
@@ -510,7 +510,7 @@ function woocommerce_maib_mia_init()
 
             if (empty($order)) {
                 /* translators: 1: Order ID, 2: Payment method title */
-                $message = sprintf(__('Order not found by Order ID: %1$d received from %2$s.', 'wc-maib-mia'), $callback_order_id, $this->method_title);
+                $message = sprintf(__('Order not found by Order ID: %1$d received from %2$s.', 'payment-gateway-wc-maib-mia'), $callback_order_id, $this->method_title);
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return self::return_response(WP_Http::UNPROCESSABLE_ENTITY, 'Order not found');
@@ -529,7 +529,7 @@ function woocommerce_maib_mia_init()
 
             if ($order_price !== $callback_price) {
                 /* translators: 1: Callback notification price, 2: Order total price */
-                $message = sprintf(__('Order amount mismatch: Callback: %1$s, Order: %2$s.', 'wc-maib-mia'), $callback_price, $order_price);
+                $message = sprintf(__('Order amount mismatch: Callback: %1$s, Order: %2$s.', 'payment-gateway-wc-maib-mia'), $callback_price, $order_price);
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return self::return_response(WP_Http::UNPROCESSABLE_ENTITY, 'Order data mismatch');
@@ -537,7 +537,7 @@ function woocommerce_maib_mia_init()
 
             if ($order->is_paid()) {
                 /* translators: 1: Order ID */
-                $message = sprintf(__('Callback order #%1$s already fully paid.', 'wc-maib-mia'), $callback_order_id);
+                $message = sprintf(__('Callback order #%1$s already fully paid.', 'payment-gateway-wc-maib-mia'), $callback_order_id);
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return self::return_response(WP_Http::OK, 'Order already fully paid');
@@ -556,7 +556,7 @@ function woocommerce_maib_mia_init()
             //endregion
 
             /* translators: 1: Order ID, 2: Payment method title, 3: Payment notification callback data */
-            $message = esc_html(sprintf(__('Order #%1$s payment completed via %2$s: %3$s', 'wc-maib-mia'), $callback_order_id, $this->method_title, $callback_body));
+            $message = esc_html(sprintf(__('Order #%1$s payment completed via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $callback_order_id, $this->method_title, $callback_body));
             $message = $this->get_test_message($message);
             $this->log($message, WC_Log_Levels::INFO);
             $order->add_order_note($message);
@@ -580,7 +580,7 @@ function woocommerce_maib_mia_init()
             //region Validate refund amount
             if (isset($amount) && $amount !== $order_total) {
                 /* translators: 1: Payment method title */
-                $message = esc_html(sprintf(__('Partial refunds are not currently supported by %1$s.', 'wc-maib-mia'), $this->method_title));
+                $message = esc_html(sprintf(__('Partial refunds are not currently supported by %1$s.', 'payment-gateway-wc-maib-mia'), $this->method_title));
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return new WP_Error('partial_refund', $message);
@@ -616,7 +616,7 @@ function woocommerce_maib_mia_init()
                     $refund_status = strval($payment_refund_response_result['status']);
                     if (strtolower($refund_status) === 'refunded') {
                         /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details */
-                        $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s approved: %4$s', 'wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title, self::print_response_object($payment_refund_response)));
+                        $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s approved: %4$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title, self::print_response_object($payment_refund_response)));
                         $message = $this->get_test_message($message);
                         $this->log($message, WC_Log_Levels::INFO);
                         $order->add_order_note($message);
@@ -627,7 +627,7 @@ function woocommerce_maib_mia_init()
             }
 
             /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details */
-            $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s failed: %4$s', 'wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title, self::print_response_object($payment_refund_response)));
+            $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s failed: %4$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title, self::print_response_object($payment_refund_response)));
             $message = $this->get_test_message($message);
             $order->add_order_note($message);
             $this->log($message, WC_Log_Levels::ERROR);
@@ -669,7 +669,7 @@ function woocommerce_maib_mia_init()
         {
             if ($this->testmode) {
                 /* translators: 1: Original message */
-                $message = esc_html(sprintf(__('TEST: %1$s', 'wc-maib-mia'), $message));
+                $message = esc_html(sprintf(__('TEST: %1$s', 'payment-gateway-wc-maib-mia'), $message));
             }
 
             return $message;
@@ -801,7 +801,7 @@ function woocommerce_maib_mia_init()
             sprintf(
                 '<a href="%1$s">%2$s</a>',
                 esc_url(WC_MAIB_MIA::get_settings_url()),
-                esc_html__('Settings', 'wc-maib-mia')
+                esc_html__('Settings', 'payment-gateway-wc-maib-mia')
             ),
         );
 
@@ -836,7 +836,7 @@ add_action(
     'woocommerce_blocks_loaded',
     function () {
         if (class_exists(\Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType::class)) {
-            require_once plugin_dir_path(__FILE__) . 'wc-maib-mia-wbc.php';
+            require_once plugin_dir_path(__FILE__) . 'payment-gateway-wc-maib-mia-wbc.php';
 
             add_action(
                 'woocommerce_blocks_payment_method_type_registration',

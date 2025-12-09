@@ -46,7 +46,7 @@ final class WC_MAIB_MIA_WBC extends AbstractPaymentMethodType
      */
     public function get_payment_method_script_handles()
     {
-        $script_id = 'wc-maib-mia-block-frontend';
+        $script_id = 'payment-gateway-wc-maib-mia-block-frontend';
 
         wp_register_script(
             $script_id,
@@ -63,7 +63,7 @@ final class WC_MAIB_MIA_WBC extends AbstractPaymentMethodType
         );
 
         if (function_exists('wp_set_script_translations')) {
-            wp_set_script_translations($script_id, 'wc-maib-mia', dirname(plugin_basename(__FILE__)) . '/languages');
+            wp_set_script_translations($script_id, 'payment-gateway-wc-maib-mia', dirname(plugin_basename(__FILE__)) . '/languages');
         }
 
         return array($script_id);
