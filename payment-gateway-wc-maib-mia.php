@@ -15,9 +15,9 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Requires PHP: 7.2.5
  * Requires at least: 4.8
- * Tested up to: 6.8
+ * Tested up to: 6.9
  * WC requires at least: 3.3
- * WC tested up to: 10.3.5
+ * WC tested up to: 10.3.6
  * Requires Plugins: woocommerce
  */
 
@@ -311,7 +311,7 @@ function woocommerce_maib_mia_init()
         {
             $options = array(
                 'base_uri' => $this->maib_mia_base_url,
-                'timeout' => self::DEFAULT_TIMEOUT,
+                'timeout'  => self::DEFAULT_TIMEOUT,
             );
 
             if ($this->debug) {
@@ -537,7 +537,7 @@ function woocommerce_maib_mia_init()
 
             if ($order->is_paid()) {
                 /* translators: 1: Order ID */
-                $message = sprintf(__('Callback order already fully paid: %1$d.', 'payment-gateway-wc-maib-mia'), $callback_order_id);
+                $message = sprintf(__('Callback order #%1$s already fully paid.', 'payment-gateway-wc-maib-mia'), $callback_order_id);
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return self::return_response(WP_Http::OK, 'Order already fully paid');

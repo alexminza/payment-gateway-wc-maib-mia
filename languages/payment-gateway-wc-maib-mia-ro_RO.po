@@ -6,8 +6,8 @@ msgstr ""
 "Project-Id-Version: Payment Gateway for maib MIA for WooCommerce 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/payment-gateway-"
 "wc-maib-mia\n"
-"POT-Creation-Date: 2025-12-09 19:13+0200\n"
-"PO-Revision-Date: 2025-12-09 19:14+0200\n"
+"POT-Creation-Date: 2025-12-09 21:52+0200\n"
+"PO-Revision-Date: 2025-12-09 21:54+0200\n"
 "Last-Translator: Alexander Minza <alex@alexminza.com>\n"
 "Language-Team: \n"
 "Language: ro_RO\n"
@@ -231,8 +231,8 @@ msgstr "Sumă comandă incorectă: Notificare: %1$s, Comandă: %2$s."
 #. translators: 1: Order ID
 #: payment-gateway-wc-maib-mia.php:540
 #, php-format
-msgid "Callback order already fully paid: %1$d."
-msgstr "Comanda este deja plătită integral: %1$d."
+msgid "Callback order #%1$s already fully paid."
+msgstr "Comanda #%1$s este deja plătită integral."
 
 #. translators: 1: Order ID, 2: Payment method title, 3: Payment notification callback data
 #: payment-gateway-wc-maib-mia.php:559
