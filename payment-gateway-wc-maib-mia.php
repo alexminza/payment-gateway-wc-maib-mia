@@ -469,7 +469,7 @@ function woocommerce_maib_mia_init()
 
             //region Validate callback
             $callback_data = null;
-            $validation_result = null;
+            $validation_result = false;
 
             try {
                 $callback_body = file_get_contents('php://input');
@@ -480,6 +480,7 @@ function woocommerce_maib_mia_init()
                 /* translators: 1: Payment notification callback body */
                 $this->log(sprintf(__('Payment notification callback: %1$s', 'payment-gateway-wc-maib-mia'), self::print_var($callback_body)));
 
+                /** @var array */
                 $callback_data = json_decode($callback_body, true);
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     throw new Exception(json_last_error_msg());
