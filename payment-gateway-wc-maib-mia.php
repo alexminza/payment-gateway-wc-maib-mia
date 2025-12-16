@@ -21,8 +21,8 @@
  * Requires Plugins: woocommerce
  */
 
-//Looking to contribute code to this plugin? Go ahead and fork the repository over at GitHub https://github.com/alexminza/payment-gateway-wc-maib-mia
-//This plugin is based on PHP SDK for maib MIA API https://github.com/alexminza/maib-mia-sdk-php (https://packagist.org/packages/alexminza/maib-mia-sdk)
+// Looking to contribute code to this plugin? Go ahead and fork the repository over at GitHub https://github.com/alexminza/payment-gateway-wc-maib-mia
+// This plugin is based on PHP SDK for maib MIA API https://github.com/alexminza/maib-mia-sdk-php (https://packagist.org/packages/alexminza/maib-mia-sdk)
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -473,10 +473,18 @@ function woocommerce_maib_mia_init()
 
             try {
                 $callback_body = file_get_contents('php://input');
+                if (empty($callback_body)) {
+                    throw new Exception('Empty callback body');
+                }
+
                 /* translators: 1: Payment notification callback body */
                 $this->log(sprintf(__('Payment notification callback: %1$s', 'payment-gateway-wc-maib-mia'), self::print_var($callback_body)));
 
                 $callback_data = json_decode($callback_body, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    throw new Exception(json_last_error_msg());
+                }
+
                 $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
             } catch (Exception $ex) {
                 $this->log(
