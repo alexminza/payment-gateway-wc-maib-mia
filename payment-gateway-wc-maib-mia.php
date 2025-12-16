@@ -83,7 +83,7 @@ function woocommerce_maib_mia_init()
             $this->enabled            = $this->get_option('enabled', 'no');
             $this->title              = $this->get_option('title', $this->method_title);
             $this->description        = $this->get_option('description');
-            $this->icon               = apply_filters("{$this->id}_icon", plugins_url('/assets/img/mia.svg', __FILE__));
+            $this->icon               = plugins_url('/assets/img/mia.svg', __FILE__);
 
             $this->testmode           = wc_string_to_bool($this->get_option('testmode', 'no'));
             $this->debug              = wc_string_to_bool($this->get_option('debug', 'no'));
