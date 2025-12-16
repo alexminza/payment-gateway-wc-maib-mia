@@ -48,7 +48,7 @@ function woocommerce_maib_mia_plugins_loaded()
 
 function woocommerce_maib_mia_init()
 {
-    class WC_MAIB_MIA extends WC_Payment_Gateway
+    class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway
     {
         //region Constants
         const MOD_ID             = 'maib_mia';
@@ -799,7 +799,7 @@ function woocommerce_maib_mia_init()
     // https://developer.woocommerce.com/docs/features/payments/payment-gateway-plugin-base/
     function woocommerce_maib_mia_add_gateway($methods)
     {
-        $methods[] = WC_MAIB_MIA::class;
+        $methods[] = WC_Gateway_MAIB_MIA::class;
         return $methods;
     }
 
@@ -812,7 +812,7 @@ function woocommerce_maib_mia_init()
         $plugin_links = array(
             sprintf(
                 '<a href="%1$s">%2$s</a>',
-                esc_url(WC_MAIB_MIA::get_settings_url()),
+                esc_url(WC_Gateway_MAIB_MIA::get_settings_url()),
                 esc_html__('Settings', 'payment-gateway-wc-maib-mia')
             ),
         );
@@ -853,7 +853,7 @@ add_action(
             add_action(
                 'woocommerce_blocks_payment_method_type_registration',
                 function (\Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $payment_method_registry) {
-                    $payment_method_registry->register(new WC_MAIB_MIA_WBC());
+                    $payment_method_registry->register(new WC_Gateway_MAIB_MIA_WBC());
                 }
             );
         }

@@ -2,12 +2,12 @@
 
 use Automattic\WooCommerce\Blocks\Payments\Integrations\AbstractPaymentMethodType;
 
-final class WC_MAIB_MIA_WBC extends AbstractPaymentMethodType
+final class WC_Gateway_MAIB_MIA_WBC extends AbstractPaymentMethodType
 {
     /**
      * The gateway instance.
      *
-     * @var WC_MAIB_MIA
+     * @var WC_Gateway_MAIB_MIA
      */
     protected $gateway;
 
@@ -16,7 +16,7 @@ final class WC_MAIB_MIA_WBC extends AbstractPaymentMethodType
      *
      * @var string
      */
-    protected $name = WC_MAIB_MIA::MOD_ID;
+    protected $name = WC_Gateway_MAIB_MIA::MOD_ID;
 
     /**
      * Initializes the payment method type.
@@ -58,7 +58,7 @@ final class WC_MAIB_MIA_WBC extends AbstractPaymentMethodType
                 'wp-html-entities',
                 'wp-i18n',
             ),
-            WC_MAIB_MIA::MOD_VERSION,
+            WC_Gateway_MAIB_MIA::MOD_VERSION,
             true
         );
 
