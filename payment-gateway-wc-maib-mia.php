@@ -485,6 +485,9 @@ function woocommerce_maib_mia_init()
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     throw new Exception(json_last_error_msg());
                 }
+                if (empty($callback_data) || !is_array($callback_data)) {
+                    throw new Exception('Invalid callback data');
+                }
 
                 $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
             } catch (Exception $ex) {
