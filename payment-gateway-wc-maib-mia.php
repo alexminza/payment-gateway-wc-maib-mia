@@ -507,14 +507,14 @@ function woocommerce_maib_mia_init()
 
             //region Validate QR status
             $callback_data_result = (array) $callback_data['result'];
-            $callback_qr_status = strval($callback_data_result['qrStatus']);
+            $callback_qr_status = sanitize_text_field(strval($callback_data_result['qrStatus']));
             if (strtolower($callback_qr_status) !== 'paid') {
                 return self::return_response(WP_Http::ACCEPTED);
             }
             //endregion
 
             //region Validate order ID
-            $callback_order_id = intval($callback_data_result['orderId']);
+            $callback_order_id = absint($callback_data_result['orderId']);
             $order = wc_get_order($callback_order_id);
 
             if (empty($order)) {
@@ -528,7 +528,7 @@ function woocommerce_maib_mia_init()
 
             //region Check order data
             $callback_amount = floatval($callback_data_result['amount']);
-            $callback_currency = strval($callback_data_result['currency']);
+            $callback_currency = sanitize_text_field(strval($callback_data_result['currency']));
 
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
@@ -554,8 +554,8 @@ function woocommerce_maib_mia_init()
             //endregion
 
             //region Complete order payment
-            $callback_pay_id = strval($callback_data_result['payId']);
-            $callback_reference_id = strval($callback_data_result['referenceId']);
+            $callback_pay_id = sanitize_text_field(strval($callback_data_result['payId']));
+            $callback_reference_id = sanitize_text_field(strval($callback_data_result['referenceId']));
 
             $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
             $order->add_meta_data(self::MOD_PAY_ID, $callback_pay_id, true);
