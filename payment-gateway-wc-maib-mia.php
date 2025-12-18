@@ -472,13 +472,11 @@ function woocommerce_maib_mia_init()
             $validation_result = false;
 
             try {
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Raw JSON validated via signature verification
                 $callback_body = file_get_contents('php://input');
                 if (empty($callback_body)) {
                     throw new Exception('Empty callback body');
                 }
-
-                /* translators: 1: Payment notification callback body */
-                $this->log(sprintf(__('Payment notification callback: %1$s', 'payment-gateway-wc-maib-mia'), self::print_var($callback_body)));
 
                 /** @var array */
                 $callback_data = json_decode($callback_body, true);
@@ -490,11 +488,24 @@ function woocommerce_maib_mia_init()
                 }
 
                 $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
+                $this->log(
+                    sprintf(__('Payment notification callback', 'payment-gateway-wc-maib-mia')),
+                    WC_Log_Levels::DEBUG,
+                    array(
+                        'validation_result' => $validation_result,
+                        'callback_body' => $callback_body,
+                        'callback_data' => $callback_data,
+                    )
+                );
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
-                    array('exception' => $ex)
+                    array(
+                        'exception' => $ex,
+                        'callback_body' => $callback_body,
+                        'callback_data' => $callback_data,
+                    )
                 );
 
                 return self::return_response(WP_Http::INTERNAL_SERVER_ERROR);
