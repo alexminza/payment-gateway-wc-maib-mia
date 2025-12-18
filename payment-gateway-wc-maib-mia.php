@@ -472,14 +472,13 @@ function woocommerce_maib_mia_init()
             $validation_result = false;
 
             try {
-                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Raw JSON validated via signature verification
-                $callback_body = file_get_contents('php://input');
+                $callback_body = wc_clean(file_get_contents('php://input'));
                 if (empty($callback_body)) {
                     throw new Exception('Empty callback body');
                 }
 
                 /** @var array */
-                $callback_data = json_decode($callback_body, true);
+                $callback_data = wc_clean(json_decode($callback_body, true));
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     throw new Exception(json_last_error_msg());
                 }
@@ -521,7 +520,7 @@ function woocommerce_maib_mia_init()
 
             //region Validate QR status
             $callback_data_result = (array) $callback_data['result'];
-            $callback_qr_status = sanitize_text_field(strval($callback_data_result['qrStatus']));
+            $callback_qr_status = wc_clean(strval($callback_data_result['qrStatus']));
             if (strtolower($callback_qr_status) !== 'paid') {
                 return self::return_response(WP_Http::ACCEPTED);
             }
@@ -542,7 +541,7 @@ function woocommerce_maib_mia_init()
 
             //region Check order data
             $callback_amount = floatval($callback_data_result['amount']);
-            $callback_currency = sanitize_text_field(strval($callback_data_result['currency']));
+            $callback_currency = wc_clean(strval($callback_data_result['currency']));
 
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
@@ -568,8 +567,8 @@ function woocommerce_maib_mia_init()
             //endregion
 
             //region Complete order payment
-            $callback_pay_id = sanitize_text_field(strval($callback_data_result['payId']));
-            $callback_reference_id = sanitize_text_field(strval($callback_data_result['referenceId']));
+            $callback_pay_id = wc_clean(strval($callback_data_result['payId']));
+            $callback_reference_id = wc_clean(strval($callback_data_result['referenceId']));
 
             $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
             $order->add_meta_data(self::MOD_PAY_ID, $callback_pay_id, true);
