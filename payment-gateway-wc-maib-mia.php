@@ -681,7 +681,7 @@ function woocommerce_maib_mia_init()
         protected function get_order_description($order)
         {
             $description = sprintf($this->order_template, $order->get_id());
-            return apply_filters("{$this->id}_order_description", $description, $order); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
+            return apply_filters("maib_mia_order_description", $description, $order); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
         }
 
         /**
@@ -703,14 +703,14 @@ function woocommerce_maib_mia_init()
         protected function get_redirect_url($order)
         {
             $redirect_url = $this->get_return_url($order);
-            return apply_filters("{$this->id}_redirect_url", $redirect_url); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
+            return apply_filters("maib_mia_redirect_url", $redirect_url); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
         }
 
         protected function get_callback_url()
         {
             // https://developer.woocommerce.com/docs/extensions/core-concepts/woocommerce-plugin-api-callback/
             $callback_url = WC()->api_request_url("wc_{$this->id}");
-            return apply_filters("{$this->id}_callback_url", $callback_url); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
+            return apply_filters("maib_mia_callback_url", $callback_url); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
         }
 
         protected static function get_logs_url()
