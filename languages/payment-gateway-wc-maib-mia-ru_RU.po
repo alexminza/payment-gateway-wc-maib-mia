@@ -6,8 +6,8 @@ msgstr ""
 "Project-Id-Version: Payment Gateway for maib MIA for WooCommerce 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/payment-gateway-"
 "wc-maib-mia\n"
-"POT-Creation-Date: 2025-12-09 21:52+0200\n"
-"PO-Revision-Date: 2025-12-09 21:55+0200\n"
+"POT-Creation-Date: 2025-12-18 12:33+0200\n"
+"PO-Revision-Date: 2025-12-18 12:35+0200\n"
 "Last-Translator: Alexander Minza <alex@alexminza.com>\n"
 "Language-Team: \n"
 "Language: ru_RU\n"
@@ -206,66 +206,64 @@ msgstr "Ошибка инициирования оплаты заказа #%1$s 
 msgid "%1$s Callback URL"
 msgstr "%1$s Callback URL"
 
-#. translators: 1: Payment notification callback body
-#: payment-gateway-wc-maib-mia.php:477
-#, php-format
-msgid "Payment notification callback: %1$s"
-msgstr "Уведомление об оплате: %1$s"
+#: payment-gateway-wc-maib-mia.php:491
+msgid "Payment notification callback"
+msgstr "Уведомление об оплате"
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:493
+#: payment-gateway-wc-maib-mia.php:515
 #, php-format
 msgid "%1$s callback signature validation failed."
 msgstr "Ошибка проверки подписи обратного вызова %1$s."
 
 #. translators: 1: Order ID, 2: Payment method title
-#: payment-gateway-wc-maib-mia.php:513
+#: payment-gateway-wc-maib-mia.php:535
 #, php-format
 msgid "Order not found by Order ID: %1$d received from %2$s."
 msgstr "Заказ не найден по Order ID: %1$d полученному от %2$s."
 
 #. translators: 1: Callback notification price, 2: Order total price
-#: payment-gateway-wc-maib-mia.php:532
+#: payment-gateway-wc-maib-mia.php:554
 #, php-format
 msgid "Order amount mismatch: Callback: %1$s, Order: %2$s."
 msgstr "Несоответствие суммы заказа: Уведомление: %1$s, Заказ: %2$s."
 
 #. translators: 1: Order ID
-#: payment-gateway-wc-maib-mia.php:540
+#: payment-gateway-wc-maib-mia.php:562
 #, php-format
 msgid "Callback order #%1$s already fully paid."
 msgstr "Заказ #%1$s уже полностью оплачен."
 
 #. translators: 1: Order ID, 2: Payment method title, 3: Payment notification callback data
-#: payment-gateway-wc-maib-mia.php:559
+#: payment-gateway-wc-maib-mia.php:581
 #, php-format
 msgid "Order #%1$s payment completed via %2$s: %3$s"
 msgstr "Платеж заказа #%1$s проведен через %2$s: %3$s"
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:583
+#: payment-gateway-wc-maib-mia.php:605
 #, php-format
 msgid "Partial refunds are not currently supported by %1$s."
 msgstr "Частичный возврат средств в настоящее время не поддерживается %1$s."
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details
-#: payment-gateway-wc-maib-mia.php:619
+#: payment-gateway-wc-maib-mia.php:641
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s approved: %4$s"
 msgstr "Возврат заказа #%1$s в сумме %2$s через %3$s подтвержден: %4$s"
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details
-#: payment-gateway-wc-maib-mia.php:630
+#: payment-gateway-wc-maib-mia.php:652
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s failed: %4$s"
 msgstr "Ошибка возврата заказа #%1$s в сумме %2$s через %3$s: %4$s"
 
 #. translators: 1: Original message
-#: payment-gateway-wc-maib-mia.php:672
+#: payment-gateway-wc-maib-mia.php:694
 #, php-format
 msgid "TEST: %1$s"
 msgstr "ТЕСТ: %1$s"
 
-#: payment-gateway-wc-maib-mia.php:804
+#: payment-gateway-wc-maib-mia.php:826
 msgid "Settings"
 msgstr "Настройки"
