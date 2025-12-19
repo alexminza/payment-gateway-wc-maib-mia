@@ -1,0 +1,21 @@
+name: Deploy to WordPress.org
+
+on:
+  # workflow_dispatch:
+  release:
+    types: [released]
+
+jobs:
+  publish-to-wporg:
+    name: Publish plugin to WPORG
+    runs-on: ubuntu-latest
+    environment:
+      name: wporg
+      url: https://wordpress.org/plugins/payment-gateway-wc-maib-mia/
+    steps:
+    - uses: actions/checkout@master
+    - name: WordPress Plugin Deploy
+      uses: 10up/action-wordpress-plugin-deploy@stable
+      env:
+        SVN_USERNAME: ${{ vars.WPORG_SVN_USERNAME }}
+        SVN_PASSWORD: ${{ secrets.WPORG_SVN_PASSWORD }}

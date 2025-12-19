@@ -1,0 +1,45 @@
+{
+    "name": "alexminza/payment-gateway-wc-maib-mia",
+    "description": "Payment Gateway for maib MIA for WooCommerce",
+    "type": "wordpress-plugin",
+    "keywords": [
+        "WooCommerce",
+        "maib",
+        "MIA",
+        "QR",
+        "bank",
+        "payment",
+        "gateway"
+    ],
+    "homepage": "https://github.com/alexminza/payment-gateway-wc-maib-mia",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Alexander Minza",
+            "homepage": "https://www.alexminza.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/alexminza/payment-gateway-wc-maib-mia/issues",
+        "forum": "https://wordpress.org/support/plugin/payment-gateway-wc-maib-mia",
+        "source": "https://github.com/alexminza/payment-gateway-wc-maib-mia"
+    },
+    "require": {
+        "php": ">=7.2.5",
+        "alexminza/maib-mia-sdk": "*",
+        "monolog/monolog": "^2.7"
+    },
+    "config": {
+        "platform": {
+            "php": "7.2.5"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "prefer-stable": true,
+    "require-dev": {
+        "woocommerce/woocommerce-sniffs": "^1.0"
+    }
+}
