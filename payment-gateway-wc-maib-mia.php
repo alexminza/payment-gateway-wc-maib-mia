@@ -397,8 +397,8 @@ function maib_mia_init()
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
+                        'exception' => (string) $ex,
                         'order_id' => $order_id,
-                        'exception' => $ex,
                     )
                 );
             }
@@ -456,13 +456,14 @@ function maib_mia_init()
         public function check_response()
         {
             $request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
-            if (strtoupper($request_method) === 'GET') {
+            if (strtoupper($request_method) !== 'POST') {
                 /* translators: 1: Payment method title */
                 $message = sprintf(__('%1$s Callback URL', 'payment-gateway-wc-maib-mia'), $this->method_title);
                 return self::return_response(WP_Http::OK, $message);
             }
 
             //region Validate callback
+            $callback_body = null;
             $callback_data = null;
             $validation_result = false;
 
@@ -496,7 +497,7 @@ function maib_mia_init()
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
-                        'exception' => $ex,
+                        'exception' => (string) $ex,
                         'callback_body' => $callback_body,
                         'callback_data' => $callback_data,
                     )
@@ -615,10 +616,10 @@ function maib_mia_init()
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
+                        'exception' => (string) $ex,
                         'order_id' => $order_id,
                         'amount' => $amount,
                         'reason' => $reason,
-                        'exception' => $ex,
                     )
                 );
 
