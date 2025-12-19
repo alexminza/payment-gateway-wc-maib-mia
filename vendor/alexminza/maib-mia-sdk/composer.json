@@ -1,0 +1,44 @@
+{
+    "name": "alexminza/maib-mia-sdk",
+    "description": "PHP SDK for maib MIA API",
+    "type": "library",
+    "keywords": [
+        "maib",
+        "moldova",
+        "mia",
+        "qr",
+        "payments",
+        "api",
+        "sdk",
+        "php"
+    ],
+    "homepage": "https://github.com/alexminza/maib-mia-sdk-php",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Alexander Minza",
+            "homepage": "https://www.alexminza.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/alexminza/maib-mia-sdk-php/issues",
+        "forum": "https://github.com/alexminza/maib-mia-sdk-php/discussions",
+        "source": "https://github.com/alexminza/maib-mia-sdk-php"
+    },
+    "require": {
+        "php": ">=7.2.5",
+        "guzzlehttp/guzzle": "^7.0",
+        "guzzlehttp/guzzle-services": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Maib\\": "src/"
+        }
+    },
+    "archive": {
+        "exclude": [
+            "/.vscode"
+        ]
+    }
+}

@@ -4,7 +4,7 @@
  * Plugin Name: Payment Gateway for maib MIA for WooCommerce
  * Description: Accept MIA Instant Payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
  * Plugin URI: https://github.com/alexminza/payment-gateway-wc-maib-mia
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Alexander Minza
  * Author URI: https://profiles.wordpress.org/alexminza
  * Developer: Alexander Minza
@@ -49,7 +49,7 @@ function maib_mia_init()
         const MOD_ID             = 'maib_mia';
         const MOD_TITLE          = 'maib MIA';
         const MOD_PREFIX         = 'maib_mia_';
-        const MOD_VERSION        = '1.0.0';
+        const MOD_VERSION        = '1.0.1';
 
         const SUPPORTED_CURRENCIES = array('MDL');
         const ORDER_TEMPLATE       = 'Order #%1$s';

@@ -3,7 +3,7 @@ Contributors: alexminza
 Tags: Moldova, maib, MIA, QR, payment gateway
 Requires at least: 4.8
 Tested up to: 6.9
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.2.5
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -68,10 +68,16 @@ You can also contribute to the plugin by translating it. Simply visit [translate
 
 See [payment-gateway-wc-maib-mia project releases on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia/releases) for details.
 
+= 1.0.1 =
+Included vendor packages.
+
 = 1.0.0 =
 Initial version release.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Included vendor packages.
 
 = 1.0.0 =
 Initial version release.
