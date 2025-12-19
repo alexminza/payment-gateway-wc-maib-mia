@@ -108,6 +108,7 @@ function woocommerce_maib_mia_init()
             //endregion
 
             if (is_admin()) {
+                add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'plugin_action_links'));
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
             }
 
@@ -803,6 +804,21 @@ function woocommerce_maib_mia_init()
             exit;
         }
         //endregion
+
+        //region Admin
+        public static function plugin_action_links($links)
+        {
+            $plugin_links = array(
+                sprintf(
+                    '<a href="%1$s">%2$s</a>',
+                    esc_url(self::get_settings_url()),
+                    esc_html__('Settings', 'payment-gateway-wc-maib-mia')
+                ),
+            );
+
+            return array_merge($plugin_links, $links);
+        }
+        //endregion
     }
 
     //region Add gateway to WooCommerce
@@ -814,25 +830,6 @@ function woocommerce_maib_mia_init()
     }
 
     add_filter('woocommerce_payment_gateways', 'woocommerce_maib_mia_add_gateway');
-    //endregion
-
-    //region Admin init
-    function woocommerce_maib_mia_plugin_links($links)
-    {
-        $plugin_links = array(
-            sprintf(
-                '<a href="%1$s">%2$s</a>',
-                esc_url(WC_Gateway_MAIB_MIA::get_settings_url()),
-                esc_html__('Settings', 'payment-gateway-wc-maib-mia')
-            ),
-        );
-
-        return array_merge($plugin_links, $links);
-    }
-
-    if (is_admin()) {
-        add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'woocommerce_maib_mia_plugin_links');
-    }
     //endregion
 }
 
