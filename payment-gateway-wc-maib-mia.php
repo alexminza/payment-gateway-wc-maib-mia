@@ -32,22 +32,17 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Maib\MaibMia\MaibMiaClient;
 
-add_action('plugins_loaded', 'woocommerce_maib_mia_plugins_loaded', 0);
+add_action('plugins_loaded', 'maib_mia_init', 0);
 
-function woocommerce_maib_mia_plugins_loaded()
+function maib_mia_init()
 {
+    // https://developer.woocommerce.com/docs/features/payments/payment-gateway-plugin-base/
     // load_plugin_textdomain('payment-gateway-wc-maib-mia', false, dirname(plugin_basename(__FILE__)) . '/languages');
 
-    // https://woocommerce.com/document/query-whether-woocommerce-is-activated/
-    if (!class_exists('WooCommerce')) {
+    if (!class_exists('WC_Payment_Gateway')) {
         return;
     }
 
-    woocommerce_maib_mia_init();
-}
-
-function woocommerce_maib_mia_init()
-{
     class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway
     {
         //region Constants
@@ -681,7 +676,7 @@ function woocommerce_maib_mia_init()
         protected function get_order_description($order)
         {
             $description = sprintf($this->order_template, $order->get_id());
-            return apply_filters("maib_mia_order_description", $description, $order); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
+            return apply_filters('maib_mia_order_description', $description, $order);
         }
 
         /**
@@ -703,14 +698,14 @@ function woocommerce_maib_mia_init()
         protected function get_redirect_url($order)
         {
             $redirect_url = $this->get_return_url($order);
-            return apply_filters("maib_mia_redirect_url", $redirect_url); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
+            return apply_filters('maib_mia_redirect_url', $redirect_url);
         }
 
         protected function get_callback_url()
         {
             // https://developer.woocommerce.com/docs/extensions/core-concepts/woocommerce-plugin-api-callback/
             $callback_url = WC()->api_request_url("wc_{$this->id}");
-            return apply_filters("maib_mia_callback_url", $callback_url); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound
+            return apply_filters('maib_mia_callback_url', $callback_url);
         }
 
         protected static function get_logs_url()
@@ -818,7 +813,6 @@ function woocommerce_maib_mia_init()
             return array_merge($plugin_links, $links);
         }
 
-        // https://developer.woocommerce.com/docs/features/payments/payment-gateway-plugin-base/
         public static function add_gateway($methods)
         {
             $methods[] = self::class;
