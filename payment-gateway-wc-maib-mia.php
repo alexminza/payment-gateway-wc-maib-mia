@@ -4,7 +4,7 @@
  * Plugin Name: Payment Gateway for maib MIA for WooCommerce
  * Description: Accept MIA Instant Payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
  * Plugin URI: https://github.com/alexminza/payment-gateway-wc-maib-mia
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Alexander Minza
  * Author URI: https://profiles.wordpress.org/alexminza
  * Developer: Alexander Minza
@@ -49,7 +49,7 @@ function maib_mia_init()
         const MOD_ID             = 'maib_mia';
         const MOD_TITLE          = 'maib MIA';
         const MOD_PREFIX         = 'maib_mia_';
-        const MOD_VERSION        = '1.0.1';
+        const MOD_VERSION        = '1.0.2';
 
         const SUPPORTED_CURRENCIES = array('MDL');
         const ORDER_TEMPLATE       = 'Order #%1$s';
@@ -516,7 +516,7 @@ function maib_mia_init()
 
             //region Validate QR status
             $callback_data_result = (array) $callback_data['result'];
-            $callback_qr_status = wc_clean(strval($callback_data_result['qrStatus']));
+            $callback_qr_status = strval($callback_data_result['qrStatus']);
             if (strtolower($callback_qr_status) !== 'paid') {
                 return self::return_response(WP_Http::ACCEPTED);
             }
@@ -537,7 +537,7 @@ function maib_mia_init()
 
             //region Check order data
             $callback_amount = floatval($callback_data_result['amount']);
-            $callback_currency = wc_clean(strval($callback_data_result['currency']));
+            $callback_currency = strval($callback_data_result['currency']);
 
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
@@ -563,8 +563,8 @@ function maib_mia_init()
             //endregion
 
             //region Complete order payment
-            $callback_pay_id = wc_clean(strval($callback_data_result['payId']));
-            $callback_reference_id = wc_clean(strval($callback_data_result['referenceId']));
+            $callback_pay_id = strval($callback_data_result['payId']);
+            $callback_reference_id = strval($callback_data_result['referenceId']);
 
             $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
             $order->add_meta_data(self::MOD_PAY_ID, $callback_pay_id, true);
