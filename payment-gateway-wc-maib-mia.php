@@ -74,6 +74,9 @@ function maib_mia_init()
             $this->has_fields         = false;
             $this->supports           = array('products', 'refunds');
 
+            $this->init_form_fields();
+            $this->init_settings();
+
             //region Initialize user set variables
             $this->enabled            = $this->get_option('enabled', 'no');
             $this->title              = $this->get_option('title', $this->method_title);
@@ -97,9 +100,6 @@ function maib_mia_init()
             $this->maib_mia_client_id     = $this->get_option('maib_mia_client_id');
             $this->maib_mia_client_secret = $this->get_option('maib_mia_client_secret');
             $this->maib_mia_signature_key = $this->get_option('maib_mia_signature_key');
-
-            $this->init_form_fields();
-            $this->init_settings();
             //endregion
 
             if (is_admin()) {
