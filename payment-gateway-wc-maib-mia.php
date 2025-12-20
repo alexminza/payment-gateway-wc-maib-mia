@@ -61,6 +61,7 @@ function maib_mia_init()
 
         const DEFAULT_TIMEOUT  = 30; // seconds
         const DEFAULT_VALIDITY = 60; // minutes
+        const MAX_VALIDITY     = 1440; //minutes
         //endregion
 
         protected $testmode, $debug, $logger, $order_template, $transaction_validity;
@@ -164,6 +165,7 @@ function maib_mia_init()
                     'custom_attributes' => array(
                         'min'  => 1,
                         'step' => 1,
+                        'max'  => self::MAX_VALIDITY,
                     ),
                     /* translators: 1: Transaction validity in minutes */
                     'description' => sprintf(__('Default: %1$s minutes', 'payment-gateway-wc-maib-mia'), self::DEFAULT_VALIDITY),
@@ -330,7 +332,9 @@ function maib_mia_init()
 
         protected function validate_transaction_validity($value)
         {
-            return intval($value) > 0;
+            $transaction_validity = intval($value);
+            return $transaction_validity > 0
+                && $transaction_validity <= self::MAX_VALIDITY;
         }
 
         protected function logs_admin_website_notice()
