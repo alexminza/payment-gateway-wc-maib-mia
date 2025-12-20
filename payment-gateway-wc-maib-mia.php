@@ -60,7 +60,7 @@ function maib_mia_init()
         const MOD_CALLBACK         =  self::MOD_PREFIX . 'callback';
 
         const DEFAULT_TIMEOUT  = 30; // seconds
-        const DEFAULT_VALIDITY = 15; // minutes
+        const DEFAULT_VALIDITY = 60; // minutes
         //endregion
 
         protected $testmode, $debug, $logger, $order_template, $transaction_validity;
