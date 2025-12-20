@@ -161,7 +161,8 @@ function maib_mia_init()
                 'transaction_validity'  => array(
                     'title'       => __('Transaction validity', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'decimal',
-                    'description' => __('minutes', 'payment-gateway-wc-maib-mia'),
+                    /* translators: 1: Transaction validity in minutes */
+                    'description' => sprintf(__('Default: %1$s minutes', 'payment-gateway-wc-maib-mia'), self::DEFAULT_VALIDITY),
                     'default'     => self::DEFAULT_VALIDITY,
                 ),
 
