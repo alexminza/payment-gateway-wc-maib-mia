@@ -477,7 +477,6 @@ function maib_mia_init()
                     $this->get_redirect_url($order),
                     $this->transaction_validity
                 );
-                $this->log(self::print_var($create_qr_response));
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
@@ -698,7 +697,6 @@ function maib_mia_init()
                 $auth_token = $this->maib_mia_generate_token($client);
 
                 $payment_refund_response = $client->paymentRefund($pay_id, $reason, $auth_token);
-                $this->log(self::print_var($payment_refund_response));
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
@@ -838,26 +836,21 @@ function maib_mia_init()
             $this->logger->log($level, $message, $log_context);
         }
 
-        /**
-         * @param string $message
-         * @param string $level
-         * @param array  $additional_context
-         */
-        protected static function static_log($message, $level = WC_Log_Levels::DEBUG, $additional_context = null)
+        protected function log_var($message, $value)
         {
-            $log_context = array('source' => self::MOD_ID);
-            if (!empty($additional_context)) {
-                $log_context = array_merge($log_context, $additional_context);
-            }
-
-            $logger = wc_get_logger();
-            $logger->log($level, $message, $log_context);
+            $this->log(
+                $message,
+                WC_Log_Levels::DEBUG,
+                array(
+                    'value' => self::print_var($value),
+                )
+            );
         }
 
-        protected static function print_var($expression)
+        protected static function print_var($value)
         {
             // https://woocommerce.github.io/code-reference/namespaces/default.html#function_wc_print_r
-            return wc_print_r($expression, true);
+            return wc_print_r($value, true);
         }
 
         /**
