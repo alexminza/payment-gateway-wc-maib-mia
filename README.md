@@ -22,6 +22,7 @@ WordPress plugin: https://wordpress.org/plugins/payment-gateway-wc-maib-mia/
 
 ## Getting Started
 
+* [maib MIA](https://www.maib.md/en/plati-prin-qr-mia)
 * [Installation Instructions](https://wordpress.org/plugins/payment-gateway-wc-maib-mia/installation/)
 * [Frequently Asked Questions](https://wordpress.org/plugins/payment-gateway-wc-maib-mia/faq/)
 

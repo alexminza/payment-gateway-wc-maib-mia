@@ -68,6 +68,9 @@ You can also contribute to the plugin by translating it. Simply visit [translate
 
 See [payment-gateway-wc-maib-mia project releases on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia/releases) for details.
 
+= 1.0.2 =
+Improved QR code generation logic and settings validation.
+
 = 1.0.1 =
 Included vendor packages.
 
@@ -75,6 +78,9 @@ Included vendor packages.
 Initial version release.
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Improved QR code generation logic and settings validation.
 
 = 1.0.1 =
 Included vendor packages.
