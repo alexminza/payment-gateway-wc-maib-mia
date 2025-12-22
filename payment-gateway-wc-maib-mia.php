@@ -486,10 +486,10 @@ function maib_mia_init()
                         $expires_at = new DateTime($qr_details_result_expires_at);
 
                         if ($expires_at > $now) {
-                            $min_validity_minutes = intdiv($this->transaction_validity, 2);
-                            $remaining_minutes = intdiv($expires_at->getTimestamp() - $now->getTimestamp(), 60);
+                            $min_validity_seconds = $this->transaction_validity * 60 / 2;
+                            $remaining_seconds = $expires_at->getTimestamp() - $now->getTimestamp();
 
-                            return $remaining_minutes >= $min_validity_minutes;
+                            return $remaining_seconds >= $min_validity_seconds;
                         }
                     }
                 }
