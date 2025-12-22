@@ -17,7 +17,7 @@
  * Requires at least: 4.8
  * Tested up to: 6.9
  * WC requires at least: 3.3
- * WC tested up to: 10.4.2
+ * WC tested up to: 10.4.3
  * Requires Plugins: woocommerce
  */
 
@@ -542,11 +542,11 @@ function maib_mia_init()
         public function check_response()
         {
             $request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
-            if ($request_method === 'GET') {
+            if ('GET' === $request_method) {
                 /* translators: 1: Payment method title */
                 $message = sprintf(__('%1$s Callback URL', 'payment-gateway-wc-maib-mia'), $this->method_title);
                 return self::return_response(WP_Http::OK, $message);
-            } elseif ($request_method !== 'POST') {
+            } elseif ('POST' !== $request_method) {
                 return self::return_response(WP_Http::METHOD_NOT_ALLOWED);
             }
 
@@ -678,7 +678,7 @@ function maib_mia_init()
             }
 
             $order = wc_get_order($order_id);
-            $pay_id = $order->get_meta(self::MOD_PAY_ID, true);
+            $pay_id = strval($order->get_meta(self::MOD_PAY_ID, true));
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
             $payment_refund_response = null;
