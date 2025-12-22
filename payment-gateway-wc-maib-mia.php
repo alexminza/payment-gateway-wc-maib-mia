@@ -388,6 +388,9 @@ function maib_mia_init()
         //endregion
 
         //region maib MIA
+        /**
+         * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#getting-started
+         */
         protected function init_maib_mia_client()
         {
             $options = array(
@@ -416,6 +419,7 @@ function maib_mia_init()
 
         /**
          * @param MaibMiaClient $client
+         * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/authentication/obtain-authentication-token
          */
         private function maib_mia_generate_token($client)
         {
@@ -435,6 +439,8 @@ function maib_mia_init()
          * @param string $callback_url
          * @param string $redirect_url
          * @param int    $validity_minutes
+         * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#create-a-dynamic-order-payment-qr
+         * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-qr-code-static-dynamic
          */
         private function maib_mia_pay($client, $auth_token, $order_id, $order_name, $total_amount, $currency, $callback_url, $redirect_url, $validity_minutes)
         {
@@ -459,6 +465,7 @@ function maib_mia_init()
          * @param MaibMiaClient $client
          * @param string $auth_token
          * @param string $qr_id
+         * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-qr-details-by-id
          */
         private function maib_mia_qr_active($client, $auth_token, $qr_id)
         {
@@ -478,8 +485,8 @@ function maib_mia_init()
                         $expires_at = new DateTime($qr_details_response_result_expires_at);
 
                         if ($expires_at > $now) {
-                            $remaining_minutes = intdiv($expires_at->getTimestamp() - $now->getTimestamp(), 60);
                             $min_validity_minutes = intdiv($this->transaction_validity, 2);
+                            $remaining_minutes = intdiv($expires_at->getTimestamp() - $now->getTimestamp(), 60);
 
                             return $remaining_minutes >= $min_validity_minutes;
                         }
