@@ -643,7 +643,7 @@ function maib_mia_init()
                     WC_Log_Levels::DEBUG,
                     array(
                         'validation_result' => $validation_result,
-                        'callback_body' => $callback_body,
+                        // 'callback_body' => $callback_body,
                         'callback_data' => $callback_data,
                     )
                 );
