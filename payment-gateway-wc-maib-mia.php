@@ -294,19 +294,32 @@ function maib_mia_init()
         }
 
         // https://developer.woocommerce.com/docs/extensions/settings-and-config/implementing-settings/
-        public function validate_order_template_field($key, $value)
+        protected function get_settings_field_label($key)
+        {
+            $form_fields = $this->get_form_fields();
+            return $form_fields[$key]['title'];
+        }
+
+        public function validate_required_field($key, $value)
         {
             if (isset($value) && empty($value)) {
-                WC_Admin_Settings::add_error(esc_html__('Order description field must be set.', 'payment-gateway-wc-maib-mia'));
+                /* translators: 1: Field label */
+                WC_Admin_Settings::add_error(sprintf(esc_html__('%1$s field must be set.', 'payment-gateway-wc-maib-mia'), $this->get_settings_field_label($key)));
             }
 
             return $value;
         }
 
+        public function validate_order_template_field($key, $value)
+        {
+            return $this->validate_required_field($key, $value);
+        }
+
         public function validate_transaction_validity_field($key, $value)
         {
             if (isset($value) && !$this->validate_transaction_validity($value)) {
-                WC_Admin_Settings::add_error(esc_html__('Transaction validity field must be a positive integer.', 'payment-gateway-wc-maib-mia'));
+                /* translators: 1: Field label, 2: Min value, 3: Max value */
+                WC_Admin_Settings::add_error(sprintf(esc_html__('%1$s field must be an integer between %2$d and %3$d.', 'payment-gateway-wc-maib-mia'), $this->get_settings_field_label($key), self::MIN_VALIDITY, self::MAX_VALIDITY));
             }
 
             return $value;
@@ -314,44 +327,28 @@ function maib_mia_init()
 
         public function validate_maib_mia_client_id_field($key, $value)
         {
-            if (isset($value) && empty($value)) {
-                WC_Admin_Settings::add_error(esc_html__('Client ID field must be set.', 'payment-gateway-wc-maib-mia'));
-            }
-
-            return $value;
+            return $this->validate_required_field($key, $value);
         }
 
         public function validate_maib_mia_client_secret_field($key, $value)
         {
-            if (isset($value) && empty($value)) {
-                WC_Admin_Settings::add_error(esc_html__('Client Secret field must be set.', 'payment-gateway-wc-maib-mia'));
-            }
-
-            return $value;
+            return $this->validate_required_field($key, $value);
         }
 
         public function validate_maib_mia_signature_key_field($key, $value)
         {
-            if (isset($value) && empty($value)) {
-                WC_Admin_Settings::add_error(esc_html__('Signature Key field must be set.', 'payment-gateway-wc-maib-mia'));
-            }
-
-            return $value;
+            return $this->validate_required_field($key, $value);
         }
 
         public function validate_maib_mia_callback_url_field($key, $value)
         {
-            if (isset($value) && empty($value)) {
-                WC_Admin_Settings::add_error(esc_html__('Callback URL field must be set.', 'payment-gateway-wc-maib-mia'));
-            }
-
-            return $value;
+            return $this->validate_required_field($key, $value);
         }
 
         protected function validate_transaction_validity($value)
         {
             $transaction_validity = intval($value);
-            return $transaction_validity > 0
+            return $transaction_validity >= self::MIN_VALIDITY
                 && $transaction_validity <= self::MAX_VALIDITY;
         }
 
