@@ -466,6 +466,40 @@ function maib_mia_init()
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
 
+                //region Existing QR
+                $qr_id = strval($order->get_meta(self::MOD_QR_ID, true));
+                $qr_url = strval($order->get_meta(self::MOD_QR_URL, true));
+
+                if (!empty($qr_id) && !empty($qr_url)) {
+                    $qr_details_response = $client->qrDetails($qr_id, $auth_token);
+
+                    if (!empty($qr_details_response)) {
+                        $qr_details_response_ok = boolval($qr_details_response['ok']);
+
+                        if ($qr_details_response_ok) {
+                            $qr_details_response_result = (array) $qr_details_response['result'];
+                            $qr_details_response_result_status = strval($qr_details_response_result['status']);
+
+                            if (strtolower($qr_details_response_result_status) === 'active') {
+                                $qr_details_response_result_expires_at = strval($qr_details_response_result['expiresAt']);
+
+                                $now = new DateTime();
+                                $expires_at = new DateTime($qr_details_response_result_expires_at);
+                                $remaining_minutes = intdiv($expires_at->getTimestamp() - $now->getTimestamp(), 60);
+                                $min_validity_minutes = intdiv($this->transaction_validity, 2);
+
+                                if ($expires_at > $now && $remaining_minutes >= $min_validity_minutes) {
+                                    return array(
+                                        'result'   => 'success',
+                                        'redirect' => $qr_url,
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+                //endregion
+
                 $create_qr_response = $this->maib_mia_pay(
                     $client,
                     $auth_token,
