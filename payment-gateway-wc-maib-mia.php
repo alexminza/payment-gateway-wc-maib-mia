@@ -419,6 +419,7 @@ function maib_mia_init()
 
         /**
          * @param MaibMiaClient $client
+         * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#get-access-token-with-client-id-and-client-secret
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/authentication/obtain-authentication-token
          */
         private function maib_mia_generate_token($client)
