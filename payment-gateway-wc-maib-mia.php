@@ -470,20 +470,20 @@ function maib_mia_init()
          */
         private function maib_mia_qr_active($client, $auth_token, $qr_id)
         {
-            $qr_details_response = $client->qrDetails($qr_id, $auth_token);
+            $qr_details = $client->qrDetails($qr_id, $auth_token);
 
-            if (!empty($qr_details_response)) {
-                $qr_details_response_ok = boolval($qr_details_response['ok']);
+            if (!empty($qr_details)) {
+                $qr_details_ok = boolval($qr_details['ok']);
 
-                if ($qr_details_response_ok) {
-                    $qr_details_response_result = (array) $qr_details_response['result'];
-                    $qr_details_response_result_status = strval($qr_details_response_result['status']);
+                if ($qr_details_ok) {
+                    $qr_details_result = (array) $qr_details['result'];
+                    $qr_details_result_status = strval($qr_details_result['status']);
 
-                    if (strtolower($qr_details_response_result_status) === 'active') {
-                        $qr_details_response_result_expires_at = strval($qr_details_response_result['expiresAt']);
+                    if (strtolower($qr_details_result_status) === 'active') {
+                        $qr_details_result_expires_at = strval($qr_details_result['expiresAt']);
 
                         $now = new DateTime();
-                        $expires_at = new DateTime($qr_details_response_result_expires_at);
+                        $expires_at = new DateTime($qr_details_result_expires_at);
 
                         if ($expires_at > $now) {
                             $min_validity_minutes = intdiv($this->transaction_validity, 2);
