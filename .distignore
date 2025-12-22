@@ -19,7 +19,7 @@
 *.log
 *.zip
 composer.phar
-composer.json
+# composer.json
 composer.lock
 phpcs.xml
 README.md
