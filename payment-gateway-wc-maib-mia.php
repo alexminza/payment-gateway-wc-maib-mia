@@ -4,7 +4,7 @@
  * Plugin Name: Payment Gateway for maib MIA for WooCommerce
  * Description: Accept MIA Instant Payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
  * Plugin URI: https://github.com/alexminza/payment-gateway-wc-maib-mia
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Alexander Minza
  * Author URI: https://profiles.wordpress.org/alexminza
  * Developer: Alexander Minza
@@ -17,7 +17,7 @@
  * Requires at least: 4.8
  * Tested up to: 6.9
  * WC requires at least: 3.3
- * WC tested up to: 10.4.2
+ * WC tested up to: 10.4.3
  * Requires Plugins: woocommerce
  */
 
@@ -37,8 +37,6 @@ add_action('plugins_loaded', 'maib_mia_init', 0);
 function maib_mia_init()
 {
     // https://developer.woocommerce.com/docs/features/payments/payment-gateway-plugin-base/
-    // load_plugin_textdomain('payment-gateway-wc-maib-mia', false, dirname(plugin_basename(__FILE__)) . '/languages');
-
     if (!class_exists('WC_Payment_Gateway')) {
         return;
     }
@@ -46,21 +44,22 @@ function maib_mia_init()
     class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway
     {
         //region Constants
-        const MOD_ID             = 'maib_mia';
-        const MOD_TITLE          = 'maib MIA';
-        const MOD_PREFIX         = 'maib_mia_';
-        const MOD_VERSION        = '1.0.1';
+        const MOD_ID      = 'maib_mia';
+        const MOD_PREFIX  = 'maib_mia_';
+        const MOD_VERSION = '1.0.2';
 
         const SUPPORTED_CURRENCIES = array('MDL');
         const ORDER_TEMPLATE       = 'Order #%1$s';
 
-        const MOD_QR_ID            =  self::MOD_PREFIX . 'qr_id';
-        const MOD_QR_URL           =  self::MOD_PREFIX . 'qr_url';
-        const MOD_PAY_ID           =  self::MOD_PREFIX . 'pay_id';
-        const MOD_CALLBACK         =  self::MOD_PREFIX . 'callback';
+        const MOD_QR_ID        = self::MOD_PREFIX . 'qr_id';
+        const MOD_QR_URL       = self::MOD_PREFIX . 'qr_url';
+        const MOD_PAY_ID       = self::MOD_PREFIX . 'pay_id';
+        const MOD_CALLBACK     = self::MOD_PREFIX . 'callback';
 
-        const DEFAULT_TIMEOUT  = 30; // seconds
-        const DEFAULT_VALIDITY = 15; // minutes
+        const DEFAULT_TIMEOUT  = 30;   // seconds
+        const DEFAULT_VALIDITY = 360;  // minutes
+        const MIN_VALIDITY     = 1;    // minutes
+        const MAX_VALIDITY     = 1440; // minutes
         //endregion
 
         protected $testmode, $debug, $logger, $order_template, $transaction_validity;
@@ -69,20 +68,23 @@ function maib_mia_init()
         public function __construct()
         {
             $this->id                 = self::MOD_ID;
-            $this->method_title       = self::MOD_TITLE;
-            $this->method_description = 'Payment Gateway for maib MIA';
+            $this->method_title       = 'maib MIA';
+            $this->method_description = __('Accept MIA Instant Payments through maib.', 'payment-gateway-wc-maib-mia');
             $this->has_fields         = false;
             $this->supports           = array('products', 'refunds');
 
-            //region Initialize user set variables
-            $this->enabled            = $this->get_option('enabled', 'no');
-            $this->title              = $this->get_option('title', $this->method_title);
-            $this->description        = $this->get_option('description');
-            $this->icon               = plugins_url('/assets/img/mia.svg', __FILE__);
+            //region Initialize settings
+            $this->init_form_fields();
+            $this->init_settings();
 
-            $this->testmode           = wc_string_to_bool($this->get_option('testmode', 'no'));
-            $this->debug              = wc_string_to_bool($this->get_option('debug', 'no'));
-            $this->logger             = new WC_Logger(null, $this->debug ? WC_Log_Levels::DEBUG : WC_Log_Levels::INFO);
+            $this->enabled     = $this->get_option('enabled', 'no');
+            $this->title       = $this->get_option('title', $this->method_title);
+            $this->description = $this->get_option('description');
+            $this->icon        = plugins_url('/assets/img/mia.svg', __FILE__);
+
+            $this->testmode    = wc_string_to_bool($this->get_option('testmode', 'no'));
+            $this->debug       = wc_string_to_bool($this->get_option('debug', 'no'));
+            $this->logger      = new WC_Logger(null, $this->debug ? WC_Log_Levels::DEBUG : WC_Log_Levels::INFO);
 
             if ($this->testmode) {
                 $this->description = $this->get_test_message($this->description);
@@ -92,19 +94,16 @@ function maib_mia_init()
             $this->transaction_validity = intval($this->get_option('transaction_validity', self::DEFAULT_VALIDITY));
 
             // https://github.com/alexminza/maib-mia-sdk-php/blob/main/src/MaibMia/MaibMiaClient.php
-            $this->maib_mia_base_url = $this->testmode ? MaibMiaClient::SANDBOX_BASE_URL : MaibMiaClient::DEFAULT_BASE_URL;
+            $this->maib_mia_base_url      = $this->testmode ? MaibMiaClient::SANDBOX_BASE_URL : MaibMiaClient::DEFAULT_BASE_URL;
             $this->maib_mia_callback_url  = $this->get_option('maib_mia_callback_url', $this->get_callback_url());
             $this->maib_mia_client_id     = $this->get_option('maib_mia_client_id');
             $this->maib_mia_client_secret = $this->get_option('maib_mia_client_secret');
             $this->maib_mia_signature_key = $this->get_option('maib_mia_signature_key');
 
-            $this->init_form_fields();
-            $this->init_settings();
-            //endregion
-
             if (is_admin()) {
                 add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
             }
+            //endregion
 
             add_action("woocommerce_api_wc_{$this->id}", array($this, 'check_response'));
         }
@@ -123,14 +122,17 @@ function maib_mia_init()
                     'type'        => 'text',
                     'description' => __('Payment method title that the customer will see during checkout.', 'payment-gateway-wc-maib-mia'),
                     'desc_tip'    => true,
-                    'default'     => self::MOD_TITLE,
+                    'default'     => $this->method_title,
+                    'custom_attributes' => array(
+                        'required' => 'required',
+                    ),
                 ),
                 'description'     => array(
                     'title'       => __('Description', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'textarea',
                     'description' => __('Payment method description that the customer will see during checkout.', 'payment-gateway-wc-maib-mia'),
                     'desc_tip'    => true,
-                    'default'     => '',
+                    'default'     => __('Pay instantly by scanning the QR code using your bank\'s mobile application.', 'payment-gateway-wc-maib-mia'),
                 ),
 
                 'testmode'        => array(
@@ -145,9 +147,9 @@ function maib_mia_init()
                     'title'       => __('Debug mode', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'checkbox',
                     'label'       => __('Enable logging', 'payment-gateway-wc-maib-mia'),
-                    'default'     => 'no',
                     'description' => sprintf('<a href="%2$s">%1$s</a>', esc_html__('View logs', 'payment-gateway-wc-maib-mia'), esc_url(self::get_logs_url())),
                     'desc_tip'    => __('Save debug messages to the WooCommerce System Status logs. Note: this may log personal information. Use this for debugging purposes only and delete the logs when finished.', 'payment-gateway-wc-maib-mia'),
+                    'default'     => 'no',
                 ),
 
                 'order_template'  => array(
@@ -155,14 +157,25 @@ function maib_mia_init()
                     'type'        => 'text',
                     /* translators: 1: Example placeholder shown to user, represents Order ID */
                     'description' => __('Format: <code>%1$s</code> - Order ID', 'payment-gateway-wc-maib-mia'),
-                    'desc_tip'    => __('Order description that the customer will see on the bank payment page.', 'payment-gateway-wc-maib-mia'),
+                    'desc_tip'    => __('Order description that the customer will see in the app during payment.', 'payment-gateway-wc-maib-mia'),
                     'default'     => self::ORDER_TEMPLATE,
+                    'custom_attributes' => array(
+                        'required' => 'required',
+                    ),
                 ),
                 'transaction_validity'  => array(
                     'title'       => __('Transaction validity', 'payment-gateway-wc-maib-mia'),
-                    'type'        => 'decimal',
-                    'description' => __('minutes', 'payment-gateway-wc-maib-mia'),
+                    'type'        => 'number',
+                    /* translators: 1: Transaction validity in minutes */
+                    'description' => sprintf(__('Default: %1$s minutes', 'payment-gateway-wc-maib-mia'), self::DEFAULT_VALIDITY),
+                    'desc_tip'    => __('QR code validity time in minutes.', 'payment-gateway-wc-maib-mia'),
                     'default'     => self::DEFAULT_VALIDITY,
+                    'custom_attributes' => array(
+                        'min'      => self::MIN_VALIDITY,
+                        'step'     => 1,
+                        'max'      => self::MAX_VALIDITY,
+                        'required' => 'required',
+                    ),
                 ),
 
                 'connection_settings' => array(
@@ -173,14 +186,26 @@ function maib_mia_init()
                 'maib_mia_client_id' => array(
                     'title'       => __('Client ID', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'text',
+                    'desc_tip'    => 'Client ID',
+                    'custom_attributes' => array(
+                        'required' => 'required',
+                    ),
                 ),
                 'maib_mia_client_secret' => array(
                     'title'       => __('Client Secret', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'password',
+                    'desc_tip'    => 'Client Secret',
+                    'custom_attributes' => array(
+                        'required' => 'required',
+                    ),
                 ),
                 'maib_mia_signature_key' => array(
                     'title'       => __('Signature Key', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'password',
+                    'desc_tip'    => 'Signature Key',
+                    'custom_attributes' => array(
+                        'required' => 'required',
+                    ),
                 ),
 
                 'payment_notification' => array(
@@ -191,7 +216,11 @@ function maib_mia_init()
                     'title'       => __('Callback URL', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'text',
                     'description' => sprintf('<code>%1$s</code>', esc_url($this->get_callback_url())),
+                    'desc_tip'    => 'Callback URL',
                     'default'     => $this->get_callback_url(),
+                    'custom_attributes' => array(
+                        'required' => 'required',
+                    ),
                 ),
             );
         }
@@ -231,6 +260,7 @@ function maib_mia_init()
             parent::admin_options();
         }
 
+        //region Settings validation
         protected function check_settings()
         {
             return !empty($this->maib_mia_client_id)
@@ -267,6 +297,65 @@ function maib_mia_init()
             return $validate_result;
         }
 
+        // https://developer.woocommerce.com/docs/extensions/settings-and-config/implementing-settings/
+        protected function get_settings_field_label($key)
+        {
+            $form_fields = $this->get_form_fields();
+            return $form_fields[$key]['title'];
+        }
+
+        public function validate_required_field($key, $value)
+        {
+            if (empty($value)) {
+                /* translators: 1: Field label */
+                WC_Admin_Settings::add_error(sprintf(esc_html__('%1$s field must be set.', 'payment-gateway-wc-maib-mia'), $this->get_settings_field_label($key)));
+            }
+
+            return $value;
+        }
+
+        public function validate_order_template_field($key, $value)
+        {
+            return $this->validate_required_field($key, $value);
+        }
+
+        public function validate_transaction_validity_field($key, $value)
+        {
+            if (isset($value) && !$this->validate_transaction_validity($value)) {
+                /* translators: 1: Field label, 2: Min value, 3: Max value */
+                WC_Admin_Settings::add_error(sprintf(esc_html__('%1$s field must be an integer between %2$d and %3$d.', 'payment-gateway-wc-maib-mia'), $this->get_settings_field_label($key), self::MIN_VALIDITY, self::MAX_VALIDITY));
+            }
+
+            return $value;
+        }
+
+        public function validate_maib_mia_client_id_field($key, $value)
+        {
+            return $this->validate_required_field($key, $value);
+        }
+
+        public function validate_maib_mia_client_secret_field($key, $value)
+        {
+            return $this->validate_required_field($key, $value);
+        }
+
+        public function validate_maib_mia_signature_key_field($key, $value)
+        {
+            return $this->validate_required_field($key, $value);
+        }
+
+        public function validate_maib_mia_callback_url_field($key, $value)
+        {
+            return $this->validate_required_field($key, $value);
+        }
+
+        protected function validate_transaction_validity($value)
+        {
+            $transaction_validity = intval($value);
+            return $transaction_validity >= self::MIN_VALIDITY
+                && $transaction_validity <= self::MAX_VALIDITY;
+        }
+
         protected function logs_admin_website_notice()
         {
             if (current_user_can('manage_woocommerce')) {
@@ -300,8 +389,12 @@ function maib_mia_init()
             $message = sprintf(wp_kses_post(__('See <a href="%2$s">%1$s settings</a> page for log details and setup instructions.', 'payment-gateway-wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
             return $message;
         }
+        //endregion
 
         //region maib MIA
+        /**
+         * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#getting-started
+         */
         protected function init_maib_mia_client()
         {
             $options = array(
@@ -330,6 +423,8 @@ function maib_mia_init()
 
         /**
          * @param MaibMiaClient $client
+         * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#get-access-token-with-client-id-and-client-secret
+         * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/authentication/obtain-authentication-token
          */
         private function maib_mia_generate_token($client)
         {
@@ -349,6 +444,8 @@ function maib_mia_init()
          * @param string $callback_url
          * @param string $redirect_url
          * @param int    $validity_minutes
+         * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#create-a-dynamic-order-payment-qr
+         * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-qr-code-static-dynamic
          */
         private function maib_mia_pay($client, $auth_token, $order_id, $order_name, $total_amount, $currency, $callback_url, $redirect_url, $validity_minutes)
         {
@@ -368,6 +465,42 @@ function maib_mia_init()
 
             return $client->createQr($qr_data, $auth_token);
         }
+
+        /**
+         * @param MaibMiaClient $client
+         * @param string $auth_token
+         * @param string $qr_id
+         * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-qr-details-by-id
+         */
+        private function maib_mia_qr_active($client, $auth_token, $qr_id)
+        {
+            $qr_details = $client->qrDetails($qr_id, $auth_token);
+
+            if (!empty($qr_details)) {
+                $qr_details_ok = boolval($qr_details['ok']);
+
+                if ($qr_details_ok) {
+                    $qr_details_result = (array) $qr_details['result'];
+                    $qr_details_result_status = strval($qr_details_result['status']);
+
+                    if (strtolower($qr_details_result_status) === 'active') {
+                        $qr_details_result_expires_at = strval($qr_details_result['expiresAt']);
+
+                        $now = new DateTime();
+                        $expires_at = new DateTime($qr_details_result_expires_at);
+
+                        if ($expires_at > $now) {
+                            $min_validity_seconds = $this->transaction_validity * 60 / 2;
+                            $remaining_seconds = $expires_at->getTimestamp() - $now->getTimestamp();
+
+                            return $remaining_seconds >= $min_validity_seconds;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
         //endregion
 
         //region Payment
@@ -380,6 +513,31 @@ function maib_mia_init()
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
 
+                //region Existing QR
+                try {
+                    $qr_id = strval($order->get_meta(self::MOD_QR_ID, true));
+                    $qr_url = strval($order->get_meta(self::MOD_QR_URL, true));
+
+                    if (!empty($qr_id) && !empty($qr_url)) {
+                        if ($this->maib_mia_qr_active($client, $auth_token, $qr_id)) {
+                            return array(
+                                'result'   => 'success',
+                                'redirect' => $qr_url,
+                            );
+                        }
+                    }
+                } catch (Exception $ex) {
+                    $this->log(
+                        $ex->getMessage(),
+                        WC_Log_Levels::ERROR,
+                        array(
+                            'exception' => (string) $ex,
+                            'order_id' => $order_id,
+                        )
+                    );
+                }
+                //endregion
+
                 $create_qr_response = $this->maib_mia_pay(
                     $client,
                     $auth_token,
@@ -391,14 +549,13 @@ function maib_mia_init()
                     $this->get_redirect_url($order),
                     $this->transaction_validity
                 );
-                $this->log(self::print_var($create_qr_response));
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
+                        'exception' => (string) $ex,
                         'order_id' => $order_id,
-                        'exception' => $ex,
                     )
                 );
             }
@@ -456,13 +613,16 @@ function maib_mia_init()
         public function check_response()
         {
             $request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
-            if (strtoupper($request_method) === 'GET') {
+            if ('GET' === $request_method) {
                 /* translators: 1: Payment method title */
                 $message = sprintf(__('%1$s Callback URL', 'payment-gateway-wc-maib-mia'), $this->method_title);
                 return self::return_response(WP_Http::OK, $message);
+            } elseif ('POST' !== $request_method) {
+                return self::return_response(WP_Http::METHOD_NOT_ALLOWED);
             }
 
             //region Validate callback
+            $callback_body = null;
             $callback_data = null;
             $validation_result = false;
 
@@ -487,7 +647,7 @@ function maib_mia_init()
                     WC_Log_Levels::DEBUG,
                     array(
                         'validation_result' => $validation_result,
-                        'callback_body' => $callback_body,
+                        // 'callback_body' => $callback_body,
                         'callback_data' => $callback_data,
                     )
                 );
@@ -496,7 +656,7 @@ function maib_mia_init()
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
-                        'exception' => $ex,
+                        'exception' => (string) $ex,
                         'callback_body' => $callback_body,
                         'callback_data' => $callback_data,
                     )
@@ -515,7 +675,7 @@ function maib_mia_init()
 
             //region Validate QR status
             $callback_data_result = (array) $callback_data['result'];
-            $callback_qr_status = wc_clean(strval($callback_data_result['qrStatus']));
+            $callback_qr_status = strval($callback_data_result['qrStatus']);
             if (strtolower($callback_qr_status) !== 'paid') {
                 return self::return_response(WP_Http::ACCEPTED);
             }
@@ -536,7 +696,7 @@ function maib_mia_init()
 
             //region Check order data
             $callback_amount = floatval($callback_data_result['amount']);
-            $callback_currency = wc_clean(strval($callback_data_result['currency']));
+            $callback_currency = strval($callback_data_result['currency']);
 
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
@@ -562,8 +722,8 @@ function maib_mia_init()
             //endregion
 
             //region Complete order payment
-            $callback_pay_id = wc_clean(strval($callback_data_result['payId']));
-            $callback_reference_id = wc_clean(strval($callback_data_result['referenceId']));
+            $callback_pay_id = strval($callback_data_result['payId']);
+            $callback_reference_id = strval($callback_data_result['referenceId']);
 
             $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
             $order->add_meta_data(self::MOD_PAY_ID, $callback_pay_id, true);
@@ -589,7 +749,7 @@ function maib_mia_init()
             }
 
             $order = wc_get_order($order_id);
-            $pay_id = $order->get_meta(self::MOD_PAY_ID, true);
+            $pay_id = strval($order->get_meta(self::MOD_PAY_ID, true));
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
             $payment_refund_response = null;
@@ -609,16 +769,15 @@ function maib_mia_init()
                 $auth_token = $this->maib_mia_generate_token($client);
 
                 $payment_refund_response = $client->paymentRefund($pay_id, $reason, $auth_token);
-                $this->log(self::print_var($payment_refund_response));
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
+                        'exception' => (string) $ex,
                         'order_id' => $order_id,
                         'amount' => $amount,
                         'reason' => $reason,
-                        'exception' => $ex,
                     )
                 );
 
@@ -749,26 +908,21 @@ function maib_mia_init()
             $this->logger->log($level, $message, $log_context);
         }
 
-        /**
-         * @param string $message
-         * @param string $level
-         * @param array  $additional_context
-         */
-        protected static function static_log($message, $level = WC_Log_Levels::DEBUG, $additional_context = null)
+        protected function log_var($message, $value)
         {
-            $log_context = array('source' => self::MOD_ID);
-            if (!empty($additional_context)) {
-                $log_context = array_merge($log_context, $additional_context);
-            }
-
-            $logger = wc_get_logger();
-            $logger->log($level, $message, $log_context);
+            $this->log(
+                $message,
+                WC_Log_Levels::DEBUG,
+                array(
+                    'value' => self::print_var($value),
+                )
+            );
         }
 
-        protected static function print_var($expression)
+        protected static function print_var($value)
         {
             // https://woocommerce.github.io/code-reference/namespaces/default.html#function_wc_print_r
-            return wc_print_r($expression, true);
+            return wc_print_r($value, true);
         }
 
         /**

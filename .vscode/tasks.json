@@ -49,26 +49,17 @@
             "problemMatcher": []
         },
         {
-            "label": "zip plugin",
+            "label": "wp dist-archive",
             "type": "shell",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "command": "zip",
+            "command": "wp",
             "args": [
-                "-r",
-                "-X",
-                "${workspaceFolderBasename}.zip",
-                "./*",
-                "-x",
-                "\"*.DS_Store*\"",
-                "\".*\"",
-                "\"*/.*\"",
-                "\"*/.*/*\"",
-                "composer.phar",
-                "phpcs.xml",
-                "\"test/*\"",
-                "\"test/\""
+                "dist-archive",
+                ".",
+                "./",
+                "--force"
             ],
             "problemMatcher": []
         },
