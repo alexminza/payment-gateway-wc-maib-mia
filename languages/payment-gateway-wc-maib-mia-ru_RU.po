@@ -7,7 +7,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/payment-gateway-"
 "wc-maib-mia\n"
 "POT-Creation-Date: 2025-12-23 11:29+0200\n"
-"PO-Revision-Date: 2025-12-23 12:00+0200\n"
+"PO-Revision-Date: 2025-12-23 16:54+0200\n"
 "Last-Translator: Alexander Minza <alex@alexminza.com>\n"
 "Language-Team: \n"
 "Language: ru_RU\n"
@@ -161,7 +161,7 @@ msgstr "Уведомление об оплате"
 
 #: payment-gateway-wc-maib-mia.php:213
 msgid "Callback URL"
-msgstr "URL обратного вызова (Callback URL)"
+msgstr "URL обратного вызова"
 
 #: payment-gateway-wc-maib-mia.php:276
 msgid "Unsupported store currency"

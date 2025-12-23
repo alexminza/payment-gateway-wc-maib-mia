@@ -186,6 +186,7 @@ function maib_mia_init()
                 'maib_mia_client_id' => array(
                     'title'       => __('Client ID', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'text',
+                    'desc_tip'    => 'Client ID',
                     'custom_attributes' => array(
                         'required' => 'required',
                     ),
@@ -193,6 +194,7 @@ function maib_mia_init()
                 'maib_mia_client_secret' => array(
                     'title'       => __('Client Secret', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'password',
+                    'desc_tip'    => 'Client Secret',
                     'custom_attributes' => array(
                         'required' => 'required',
                     ),
@@ -200,6 +202,7 @@ function maib_mia_init()
                 'maib_mia_signature_key' => array(
                     'title'       => __('Signature Key', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'password',
+                    'desc_tip'    => 'Signature Key',
                     'custom_attributes' => array(
                         'required' => 'required',
                     ),
@@ -213,6 +216,7 @@ function maib_mia_init()
                     'title'       => __('Callback URL', 'payment-gateway-wc-maib-mia'),
                     'type'        => 'text',
                     'description' => sprintf('<code>%1$s</code>', esc_url($this->get_callback_url())),
+                    'desc_tip'    => 'Callback URL',
                     'default'     => $this->get_callback_url(),
                     'custom_attributes' => array(
                         'required' => 'required',
