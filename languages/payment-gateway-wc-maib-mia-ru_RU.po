@@ -3,11 +3,11 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Payment Gateway for maib MIA for WooCommerce 1.0.1\n"
+"Project-Id-Version: Payment Gateway for maib MIA for WooCommerce 1.0.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/payment-gateway-"
 "wc-maib-mia\n"
-"POT-Creation-Date: 2025-12-19 11:01+0200\n"
-"PO-Revision-Date: 2025-12-19 11:02+0200\n"
+"POT-Creation-Date: 2025-12-23 11:29+0200\n"
+"PO-Revision-Date: 2025-12-23 12:00+0200\n"
 "Last-Translator: Alexander Minza <alex@alexminza.com>\n"
 "Language-Team: \n"
 "Language: ru_RU\n"
@@ -15,6 +15,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.8\n"
+
+#. Plugin Name of the plugin
+#: payment-gateway-wc-maib-mia.php
+msgid "Payment Gateway for maib MIA for WooCommerce"
+msgstr "Платежный шлюз для maib MIA для WooCommerce"
 
 #. Description of the plugin
 #: payment-gateway-wc-maib-mia.php
@@ -25,40 +30,52 @@ msgstr ""
 "Принимайте MIA мгновенные платежи прямо в своем магазине с помощью "
 "платежного шлюза maib MIA для WooCommerce."
 
-#: payment-gateway-wc-maib-mia.php:116
+#: payment-gateway-wc-maib-mia.php:72
+msgid "Accept MIA Instant Payments through maib."
+msgstr "Принимайте MIA мгновенные платежи через maib."
+
+#: payment-gateway-wc-maib-mia.php:115
 msgid "Enable/Disable"
 msgstr "Включить/Выключить"
 
-#: payment-gateway-wc-maib-mia.php:118
+#: payment-gateway-wc-maib-mia.php:117
 msgid "Enable this gateway"
 msgstr "Включить платежный шлюз"
 
-#: payment-gateway-wc-maib-mia.php:122
+#: payment-gateway-wc-maib-mia.php:121
 msgid "Title"
 msgstr "Наименование"
 
-#: payment-gateway-wc-maib-mia.php:124
+#: payment-gateway-wc-maib-mia.php:123
 msgid "Payment method title that the customer will see during checkout."
-msgstr "Заголовок, который видит пользователь в процессе оформления заказа."
+msgstr ""
+"Название способа оплаты, которое покупатель увидит при оформлении заказа."
 
-#: payment-gateway-wc-maib-mia.php:129
+#: payment-gateway-wc-maib-mia.php:131
 msgid "Description"
 msgstr "Описание"
 
-#: payment-gateway-wc-maib-mia.php:131
+#: payment-gateway-wc-maib-mia.php:133
 msgid "Payment method description that the customer will see during checkout."
 msgstr ""
-"Описание метода оплаты, которое клиент будет видеть при оформлении заказа."
+"Описание способа оплаты, которое покупатель увидит при оформлении заказа."
 
-#: payment-gateway-wc-maib-mia.php:137
+#: payment-gateway-wc-maib-mia.php:135
+msgid ""
+"Pay instantly by scanning the QR code using your bank's mobile application."
+msgstr ""
+"Оплатите мгновенно, отсканировав QR-код с помощью мобильного приложения "
+"вашего банка."
+
+#: payment-gateway-wc-maib-mia.php:139
 msgid "Test mode"
 msgstr "Тестовый режим"
 
-#: payment-gateway-wc-maib-mia.php:139
+#: payment-gateway-wc-maib-mia.php:141
 msgid "Enabled"
 msgstr "Включен"
 
-#: payment-gateway-wc-maib-mia.php:140
+#: payment-gateway-wc-maib-mia.php:142
 msgid ""
 "Use Test or Live bank gateway to process the payments. Disable when ready to "
 "accept live payments."
@@ -66,19 +83,19 @@ msgstr ""
 "Использовать Тестовый или Рабочий платежный шлюз на стороне банка. "
 "Отключить, когда будете готовы принимать реальные платежи."
 
-#: payment-gateway-wc-maib-mia.php:145
+#: payment-gateway-wc-maib-mia.php:147
 msgid "Debug mode"
 msgstr "Режим отладки"
 
-#: payment-gateway-wc-maib-mia.php:147
+#: payment-gateway-wc-maib-mia.php:149
 msgid "Enable logging"
 msgstr "Включить журналирование"
 
-#: payment-gateway-wc-maib-mia.php:149
+#: payment-gateway-wc-maib-mia.php:150
 msgid "View logs"
 msgstr "Просмотреть журналы"
 
-#: payment-gateway-wc-maib-mia.php:150
+#: payment-gateway-wc-maib-mia.php:151
 msgid ""
 "Save debug messages to the WooCommerce System Status logs. Note: this may "
 "log personal information. Use this for debugging purposes only and delete "
@@ -88,68 +105,74 @@ msgstr ""
 "могут быть записаны персональные данные. Используйте эту опцию только для "
 "отладки и удалите журналы по завершению."
 
-#: payment-gateway-wc-maib-mia.php:154
+#: payment-gateway-wc-maib-mia.php:156
 msgid "Order description"
 msgstr "Описание заказа"
 
 #. translators: 1: Example placeholder shown to user, represents Order ID
-#: payment-gateway-wc-maib-mia.php:157
+#: payment-gateway-wc-maib-mia.php:159
 #, php-format
 msgid "Format: <code>%1$s</code> - Order ID"
 msgstr "Формат: <code>%1$s</code> - номер заказа"
 
-#: payment-gateway-wc-maib-mia.php:158
-msgid "Order description that the customer will see on the bank payment page."
+#: payment-gateway-wc-maib-mia.php:160
+msgid "Order description that the customer will see in the app during payment."
 msgstr ""
-"Описание заказа, которое клиент будет видеть при оплате на странице банка."
+"Описание заказа, которое покупатель увидит в приложении во время оплаты."
 
-#: payment-gateway-wc-maib-mia.php:162
+#: payment-gateway-wc-maib-mia.php:167
 msgid "Transaction validity"
 msgstr "Действительность транзакции"
 
-#: payment-gateway-wc-maib-mia.php:164
-msgid "minutes"
-msgstr "минут"
+#. translators: 1: Transaction validity in minutes
+#: payment-gateway-wc-maib-mia.php:170
+#, php-format
+msgid "Default: %1$s minutes"
+msgstr "По умолчанию: %1$s мин."
 
-#: payment-gateway-wc-maib-mia.php:169 payment-gateway-wc-maib-mia.php:263
+#: payment-gateway-wc-maib-mia.php:171
+msgid "QR code validity time in minutes."
+msgstr "Время действия QR-кода в минутах."
+
+#: payment-gateway-wc-maib-mia.php:182 payment-gateway-wc-maib-mia.php:289
 msgid "Connection Settings"
 msgstr "Настройки подключения"
 
-#: payment-gateway-wc-maib-mia.php:170
+#: payment-gateway-wc-maib-mia.php:183
 msgid "Payment gateway connection credentials are provided by the bank."
 msgstr ""
 "Учетные данные для подключения к платежному шлюзу предоставляются банком."
 
-#: payment-gateway-wc-maib-mia.php:174
-msgid "Client ID"
-msgstr "Client ID"
-
-#: payment-gateway-wc-maib-mia.php:178
-msgid "Client Secret"
-msgstr "Client Secret"
-
-#: payment-gateway-wc-maib-mia.php:182
-msgid "Signature Key"
-msgstr "Signature Key"
-
 #: payment-gateway-wc-maib-mia.php:187
+msgid "Client ID"
+msgstr "Код клиента"
+
+#: payment-gateway-wc-maib-mia.php:194
+msgid "Client Secret"
+msgstr "Секретный ключ клиента"
+
+#: payment-gateway-wc-maib-mia.php:201
+msgid "Signature Key"
+msgstr "Ключ подписи"
+
+#: payment-gateway-wc-maib-mia.php:209
 msgid "Payment Notification"
 msgstr "Уведомление об оплате"
 
-#: payment-gateway-wc-maib-mia.php:191
+#: payment-gateway-wc-maib-mia.php:213
 msgid "Callback URL"
 msgstr "URL обратного вызова (Callback URL)"
 
-#: payment-gateway-wc-maib-mia.php:250
+#: payment-gateway-wc-maib-mia.php:276
 msgid "Unsupported store currency"
 msgstr "Валюта магазина не поддерживается"
 
-#: payment-gateway-wc-maib-mia.php:252
+#: payment-gateway-wc-maib-mia.php:278
 msgid "Supported currencies"
 msgstr "Поддерживаемые валюты"
 
 #. translators: 1: Plugin installation instructions URL
-#: payment-gateway-wc-maib-mia.php:262
+#: payment-gateway-wc-maib-mia.php:288
 #, php-format
 msgid ""
 "See plugin documentation for <a href=\"%1$s\" target=\"_blank\">installation "
@@ -158,12 +181,24 @@ msgstr ""
 "Перейдите на страницу документации плагина для <a href=\"%1$s\" "
 "target=\"_blank\">инструкций по установке</a>."
 
-#: payment-gateway-wc-maib-mia.php:263
+#: payment-gateway-wc-maib-mia.php:289
 msgid "Not configured"
 msgstr "Не настроено"
 
+#. translators: 1: Field label
+#: payment-gateway-wc-maib-mia.php:307
+#, php-format
+msgid "%1$s field must be set."
+msgstr "В поле %1$s должно быть задано значение."
+
+#. translators: 1: Field label, 2: Min value, 3: Max value
+#: payment-gateway-wc-maib-mia.php:322
+#, php-format
+msgid "%1$s field must be an integer between %2$d and %3$d."
+msgstr "Поле %1$s должно быть целым числом от %2$d до %3$d."
+
 #. translators: 1: Payment method title, 2: Plugin settings URL
-#: payment-gateway-wc-maib-mia.php:293
+#: payment-gateway-wc-maib-mia.php:378
 #, php-format
 msgid ""
 "%1$s is not properly configured. Verify plugin <a href=\"%2$s\">Connection "
@@ -173,7 +208,7 @@ msgstr ""
 "a> плагина."
 
 #. translators: 1: Payment method title, 2: Plugin settings URL
-#: payment-gateway-wc-maib-mia.php:300
+#: payment-gateway-wc-maib-mia.php:385
 #, php-format
 msgid ""
 "See <a href=\"%2$s\">%1$s settings</a> page for log details and setup "
@@ -183,87 +218,87 @@ msgstr ""
 "сведений журнала и инструкций по установке."
 
 #. translators: 1: Order ID, 2: Payment method title, 3: API response details
-#: payment-gateway-wc-maib-mia.php:421
+#: payment-gateway-wc-maib-mia.php:574
 #, php-format
 msgid "Order #%1$s payment initiated via %2$s: %3$s"
 msgstr "Оплата заказа #%1$s инициирована через %2$s: %3$s"
 
 #. translators: 1: Order ID, 2: Payment method title, 3: API response details
-#: payment-gateway-wc-maib-mia.php:434
+#: payment-gateway-wc-maib-mia.php:587
 #, php-format
 msgid "Order #%1$s payment initiation failed via %2$s: %3$s"
 msgstr "Ошибка инициирования оплаты заказа #%1$s через %2$s: %3$s"
 
 #. translators: 1: Order ID, 2: Payment method title
-#: payment-gateway-wc-maib-mia.php:440
+#: payment-gateway-wc-maib-mia.php:593
 #, php-format
 msgid "Order #%1$s payment initiation failed via %2$s."
 msgstr "Ошибка инициирования оплаты заказа #%1$s через %2$s."
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:461
+#: payment-gateway-wc-maib-mia.php:614
 #, php-format
 msgid "%1$s Callback URL"
 msgstr "%1$s Callback URL"
 
-#: payment-gateway-wc-maib-mia.php:486
+#: payment-gateway-wc-maib-mia.php:642
 msgid "Payment notification callback"
 msgstr "Уведомление об оплате"
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:510
+#: payment-gateway-wc-maib-mia.php:666
 #, php-format
 msgid "%1$s callback signature validation failed."
 msgstr "Ошибка проверки подписи обратного вызова %1$s."
 
 #. translators: 1: Order ID, 2: Payment method title
-#: payment-gateway-wc-maib-mia.php:530
+#: payment-gateway-wc-maib-mia.php:686
 #, php-format
 msgid "Order not found by Order ID: %1$d received from %2$s."
 msgstr "Заказ не найден по Order ID: %1$d полученному от %2$s."
 
 #. translators: 1: Callback notification price, 2: Order total price
-#: payment-gateway-wc-maib-mia.php:549
+#: payment-gateway-wc-maib-mia.php:705
 #, php-format
 msgid "Order amount mismatch: Callback: %1$s, Order: %2$s."
 msgstr "Несоответствие суммы заказа: Уведомление: %1$s, Заказ: %2$s."
 
 #. translators: 1: Order ID
-#: payment-gateway-wc-maib-mia.php:557
+#: payment-gateway-wc-maib-mia.php:713
 #, php-format
 msgid "Callback order #%1$s already fully paid."
 msgstr "Заказ #%1$s уже полностью оплачен."
 
 #. translators: 1: Order ID, 2: Payment method title, 3: Payment notification callback data
-#: payment-gateway-wc-maib-mia.php:576
+#: payment-gateway-wc-maib-mia.php:732
 #, php-format
 msgid "Order #%1$s payment completed via %2$s: %3$s"
 msgstr "Платеж заказа #%1$s проведен через %2$s: %3$s"
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:600
+#: payment-gateway-wc-maib-mia.php:756
 #, php-format
 msgid "Partial refunds are not currently supported by %1$s."
 msgstr "Частичный возврат средств в настоящее время не поддерживается %1$s."
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details
-#: payment-gateway-wc-maib-mia.php:636
+#: payment-gateway-wc-maib-mia.php:791
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s approved: %4$s"
 msgstr "Возврат заказа #%1$s в сумме %2$s через %3$s подтвержден: %4$s"
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details
-#: payment-gateway-wc-maib-mia.php:647
+#: payment-gateway-wc-maib-mia.php:802
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s failed: %4$s"
 msgstr "Ошибка возврата заказа #%1$s в сумме %2$s через %3$s: %4$s"
 
 #. translators: 1: Original message
-#: payment-gateway-wc-maib-mia.php:689
+#: payment-gateway-wc-maib-mia.php:844
 #, php-format
 msgid "TEST: %1$s"
 msgstr "ТЕСТ: %1$s"
 
-#: payment-gateway-wc-maib-mia.php:809
+#: payment-gateway-wc-maib-mia.php:959
 msgid "Settings"
 msgstr "Настройки"
