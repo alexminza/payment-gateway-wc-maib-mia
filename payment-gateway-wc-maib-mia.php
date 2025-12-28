@@ -753,7 +753,7 @@ function maib_mia_init()
                             $message,
                             WC_Log_Levels::INFO,
                             array(
-                                'qrDetails' => $qr_details,
+                                'qrDetails' => (array) $qr_details,
                             )
                         );
 
