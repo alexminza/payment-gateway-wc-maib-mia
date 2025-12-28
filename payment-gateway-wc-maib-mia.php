@@ -541,19 +541,23 @@ function maib_mia_init()
                 $qr_payments_ok = boolval($qr_payments['ok']);
 
                 if ($qr_payments_ok) {
-                    $qr_payments_count = absint($qr_payments['totalCount']);
+                    $qr_payments_result = (array) $qr_payments['result'];
 
-                    if (1 === $qr_payments_count) {
-                        $qr_payments_items = (array) $qr_payments['items'];
-                        return $qr_payments_items[0];
-                    } elseif ($qr_payments_count > 1) {
-                        $this->log(
-                            sprintf('Multiple QR %1$s payments', $qr_id),
-                            WC_Log_Levels::ERROR,
-                            array(
-                                'qr_payments' => $qr_payments,
-                            )
-                        );
+                    if (!empty($qr_payments_result)) {
+                        $qr_payments_result_count = absint($qr_payments_result['totalCount']);
+
+                        if (1 === $qr_payments_result_count) {
+                            $qr_payments_result_items = (array) $qr_payments_result['items'];
+                            return $qr_payments_result_items[0];
+                        } elseif ($qr_payments_result_count > 1) {
+                            $this->log(
+                                sprintf('Multiple QR %1$s payments', $qr_id),
+                                WC_Log_Levels::ERROR,
+                                array(
+                                    'qr_payments' => $qr_payments,
+                                )
+                            );
+                        }
                     }
                 }
             }
@@ -871,9 +875,7 @@ function maib_mia_init()
             //endregion
 
             //region Complete order payment
-            if (!empty($callback_body)) {
-                $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
-            }
+            $order->add_meta_data(self::MOD_CALLBACK, wp_json_encode($callback_data), true);
 
             $payment_data_pay_id = strval($payment_data['payId']);
             $payment_data_reference_id = strval($payment_data['referenceId']);
