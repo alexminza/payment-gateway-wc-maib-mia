@@ -4,7 +4,7 @@
  * Plugin Name: Payment Gateway for maib MIA for WooCommerce
  * Description: Accept MIA Instant Payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
  * Plugin URI: https://github.com/alexminza/payment-gateway-wc-maib-mia
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Alexander Minza
  * Author URI: https://profiles.wordpress.org/alexminza
  * Developer: Alexander Minza
@@ -46,10 +46,13 @@ function maib_mia_init()
         //region Constants
         const MOD_ID      = 'maib_mia';
         const MOD_PREFIX  = 'maib_mia_';
-        const MOD_VERSION = '1.0.2';
+        const MOD_TITLE   = 'maib MIA';
+        const MOD_VERSION = '1.0.3';
 
         const SUPPORTED_CURRENCIES = array('MDL');
         const ORDER_TEMPLATE       = 'Order #%1$s';
+
+        const MOD_ACTION_CHECK_PAYMENT = self::MOD_PREFIX . 'check_payment';
 
         const MOD_QR_ID        = self::MOD_PREFIX . 'qr_id';
         const MOD_QR_URL       = self::MOD_PREFIX . 'qr_url';
@@ -68,7 +71,7 @@ function maib_mia_init()
         public function __construct()
         {
             $this->id                 = self::MOD_ID;
-            $this->method_title       = 'maib MIA';
+            $this->method_title       = self::MOD_TITLE;
             $this->method_description = __('Accept MIA Instant Payments through maib.', 'payment-gateway-wc-maib-mia');
             $this->has_fields         = false;
             $this->supports           = array('products', 'refunds');
@@ -575,9 +578,16 @@ function maib_mia_init()
                     //endregion
 
                     /* translators: 1: Order ID, 2: Payment method title, 3: API response details */
-                    $message = esc_html(sprintf(__('Order #%1$s payment initiated via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, self::print_response_object($create_qr_response)));
+                    $message = esc_html(sprintf(__('Order #%1$s payment initiated via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_id));
                     $message = $this->get_test_message($message);
-                    $this->log($message, WC_Log_Levels::INFO);
+                    $this->log(
+                        $message,
+                        WC_Log_Levels::INFO,
+                        array(
+                            'create_qr_response' => (array) $create_qr_response,
+                        )
+                    );
+
                     $order->add_order_note($message);
 
                     return array(
@@ -587,14 +597,18 @@ function maib_mia_init()
                 }
             }
 
-            /* translators: 1: Order ID, 2: Payment method title, 3: API response details */
-            $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, self::print_response_object($create_qr_response)));
-            $message = $this->get_test_message($message);
-            $order->add_order_note($message);
-            $this->log($message, WC_Log_Levels::ERROR);
-
             /* translators: 1: Order ID, 2: Payment method title */
             $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s.', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title));
+            $message = $this->get_test_message($message);
+            $this->log(
+                $message,
+                WC_Log_Levels::ERROR,
+                array(
+                    'create_qr_response' => (array) $create_qr_response,
+                )
+            );
+
+            $order->add_order_note($message);
 
             // https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
             if (WC()->is_store_api_request()) {
@@ -694,51 +708,141 @@ function maib_mia_init()
             }
             //endregion
 
-            //region Check order data
-            $callback_amount = floatval($callback_data_result['amount']);
-            $callback_currency = strval($callback_data_result['currency']);
+            $confirm_payment_result = $this->confirm_payment($order, $callback_data_result, $callback_data, $callback_body);
 
+            if(is_wp_error($confirm_payment_result)) {
+                return self::return_response($confirm_payment_result->get_error_code(), $confirm_payment_result->get_error_message());
+            }
+
+            return self::return_response(WP_Http::OK);
+        }
+
+        /**
+         * @param \WC_Order $order
+         */
+        public function check_payment($order)
+        {
+            try {
+                $order_id = $order->get_id();
+                $qr_id = strval($order->get_meta(self::MOD_QR_ID, true));
+
+                if (empty($qr_id)) {
+                    /* translators: 1: Order ID, 2: Meta field key */
+                    $message = esc_html(sprintf(__('Order #%1$s missing meta %2$s', 'payment-gateway-wc-victoriabank-mia'), $order_id, self::MOD_QR_ID));
+                    WC_Admin_Meta_Boxes::add_error($message);
+                    return;
+                }
+
+                $client = $this->init_maib_mia_client();
+                $auth_token = $this->maib_mia_generate_token($client);
+
+                $qr_details = $client->qrDetails($qr_id, $auth_token);
+                if (!empty($qr_details)) {
+                    $qr_details_ok = boolval($qr_details['ok']);
+
+                    if ($qr_details_ok) {
+                        $qr_details_result = (array) $qr_details['result'];
+                        $qr_details_result_status = strval($qr_details_result['status']);
+
+                        /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
+                        $message = esc_html(sprintf(__('Order #%1$s payment %2$s QR Extension status: %3$s', 'payment-gateway-wc-victoriabank-mia'), $order_id, $this->method_title, $qr_details_result_status));
+                        $message = $this->get_test_message($message);
+                        WC_Admin_Notices::add_custom_notice('check_payment', $message);
+
+                        $this->log(
+                            $message,
+                            WC_Log_Levels::INFO,
+                            array(
+                                'qrDetails' => $qr_details,
+                            )
+                        );
+
+                        if (strtolower($qr_details_result_status) === 'paid') {
+                            $confirm_payment_result = $this->confirm_payment($order, $qr_details_result, $qr_details);
+
+                            if(is_wp_error($confirm_payment_result)) {
+                                WC_Admin_Meta_Boxes::add_error($confirm_payment_result->get_error_message());
+                            }
+                        }
+                    }
+                }
+            } catch (Exception $ex) {
+                $this->log(
+                    $ex->getMessage(),
+                    WC_Log_Levels::ERROR,
+                    array(
+                        'exception' => (string) $ex,
+                        'order_id' => $order_id,
+                    )
+                );
+
+                $message = sprintf('Order #%1$s check payment failed.', $order_id);
+                WC_Admin_Meta_Boxes::add_error($message);
+            }
+        }
+
+        /**
+         * @param \WC_Order $order
+         * @param array     $payment_data
+         * @param array     $callback_data
+         * @param string    $callback_body
+         */
+        protected function confirm_payment($order, $payment_data, $callback_data, $callback_body = null)
+        {
+            //region Check order data
+            $payment_data_amount = floatval($payment_data['amount']);
+            $payment_data_currency = strval($payment_data['currency']);
+
+            $order_id = $order->get_id();
             $order_total = $order->get_total();
             $order_currency = $order->get_currency();
 
             $order_price = $this->format_price($order_total, $order_currency);
-            $callback_price = $this->format_price($callback_amount, $callback_currency);
+            $payment_data_price = $this->format_price($payment_data_amount, $payment_data_currency);
 
-            if ($order_price !== $callback_price) {
-                /* translators: 1: Callback notification price, 2: Order total price */
-                $message = sprintf(__('Order amount mismatch: Callback: %1$s, Order: %2$s.', 'payment-gateway-wc-maib-mia'), $callback_price, $order_price);
+            if ($order_price !== $payment_data_price) {
+                /* translators: 1: Payment data price, 2: Order total price */
+                $message = sprintf(__('Order amount mismatch: Payment: %1$s, Order: %2$s.', 'payment-gateway-wc-maib-mia'), $payment_data_price, $order_price);
                 $this->log($message, WC_Log_Levels::ERROR);
 
-                return self::return_response(WP_Http::UNPROCESSABLE_ENTITY, 'Order data mismatch');
+                return new WP_Error(WP_Http::UNPROCESSABLE_ENTITY, 'Order data mismatch');
             }
 
             if ($order->is_paid()) {
                 /* translators: 1: Order ID */
-                $message = sprintf(__('Callback order #%1$s already fully paid.', 'payment-gateway-wc-maib-mia'), $callback_order_id);
+                $message = sprintf(__('Order #%1$s already fully paid.', 'payment-gateway-wc-maib-mia'), $order_id);
                 $this->log($message, WC_Log_Levels::ERROR);
 
-                return self::return_response(WP_Http::OK, 'Order already fully paid');
+                return new WP_Error(WP_Http::ACCEPTED, 'Order already fully paid');
             }
             //endregion
 
             //region Complete order payment
-            $callback_pay_id = strval($callback_data_result['payId']);
-            $callback_reference_id = strval($callback_data_result['referenceId']);
+            if (!empty($callback_body)) {
+                $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
+            }
 
-            $order->add_meta_data(self::MOD_CALLBACK, $callback_body, true);
-            $order->add_meta_data(self::MOD_PAY_ID, $callback_pay_id, true);
+            $payment_data_pay_id = strval($payment_data['payId']);
+            $payment_data_reference_id = strval($payment_data['referenceId']);
+            $order->add_meta_data(self::MOD_PAY_ID, $payment_data_pay_id, true);
             $order->save();
 
-            $order->payment_complete($callback_reference_id);
+            $order->payment_complete($payment_data_reference_id);
             //endregion
 
-            /* translators: 1: Order ID, 2: Payment method title, 3: Payment notification callback data */
-            $message = esc_html(sprintf(__('Order #%1$s payment completed via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $callback_order_id, $this->method_title, $callback_body));
+            /* translators: 1: Order ID, 2: Payment method title, 3: Payment data */
+            $message = esc_html(sprintf(__('Order #%1$s payment completed via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $payment_data_reference_id));
             $message = $this->get_test_message($message);
-            $this->log($message, WC_Log_Levels::INFO);
-            $order->add_order_note($message);
+            $this->log(
+                $message,
+                WC_Log_Levels::INFO,
+                array(
+                    'callback_data' => $callback_data,
+                )
+            );
 
-            return self::return_response(WP_Http::OK);
+            $order->add_order_note($message);
+            return true;
         }
 
         public function process_refund($order_id, $amount = null, $reason = '')
