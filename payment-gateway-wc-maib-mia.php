@@ -501,8 +501,7 @@ function maib_mia_init()
         {
             $qr_details = $this->maib_mia_qr_details($client, $auth_token, $qr_id);
 
-            if (!empty($qr_details))
-            {
+            if (!empty($qr_details)) {
                 $qr_details_status = strval($qr_details['status']);
 
                 if (strtolower($qr_details_status) === 'active') {
@@ -531,10 +530,7 @@ function maib_mia_init()
          */
         private function maib_mia_qr_payment($client, $auth_token, $qr_id)
         {
-            $qr_payments_data = array(
-                'qrId' => $qr_id,
-            );
-
+            $qr_payments_data = array('qrId' => $qr_id,);
             $qr_payments = $client->paymentList($qr_payments_data, $auth_token);
 
             if (!empty($qr_payments)) {
@@ -548,13 +544,13 @@ function maib_mia_init()
 
                         if (1 === $qr_payments_result_count) {
                             $qr_payments_result_items = (array) $qr_payments_result['items'];
-                            return $qr_payments_result_items[0];
+                            return (array) $qr_payments_result_items[0];
                         } elseif ($qr_payments_result_count > 1) {
                             $this->log(
                                 sprintf('Multiple QR %1$s payments', $qr_id),
                                 WC_Log_Levels::ERROR,
                                 array(
-                                    'qr_payments' => $qr_payments,
+                                    'qr_payments' => $qr_payments->toArray(),
                                 )
                             );
                         }
@@ -644,7 +640,7 @@ function maib_mia_init()
                         $message,
                         WC_Log_Levels::INFO,
                         array(
-                            'create_qr_response' => (array) $create_qr_response,
+                            'create_qr_response' => $create_qr_response->toArray(),
                         )
                     );
 
@@ -664,7 +660,7 @@ function maib_mia_init()
                 $message,
                 WC_Log_Levels::ERROR,
                 array(
-                    'create_qr_response' => (array) $create_qr_response,
+                    'create_qr_response' => $create_qr_response ? $create_qr_response->toArray() : null,
                 )
             );
 
@@ -811,7 +807,7 @@ function maib_mia_init()
                         $message,
                         WC_Log_Levels::INFO,
                         array(
-                            'qr_payment' => (array) $qr_payment,
+                            'qr_payment' => $qr_payment,
                         )
                     );
 
@@ -957,7 +953,7 @@ function maib_mia_init()
                             $message,
                             WC_Log_Levels::INFO,
                             array(
-                                'payment_refund_response' => (array) $payment_refund_response,
+                                'payment_refund_response' => $payment_refund_response->toArray(),
                             )
                         );
 
@@ -974,7 +970,7 @@ function maib_mia_init()
                 $message,
                 WC_Log_Levels::ERROR,
                 array(
-                    'payment_refund_response' => (array) $payment_refund_response,
+                    'payment_refund_response' => $payment_refund_response ? $payment_refund_response->toArray() : null,
                 )
             );
 
