@@ -1054,6 +1054,29 @@ function maib_mia_init()
             return array_merge($plugin_links, $links);
         }
 
+        /**
+         * @param array $actions
+         * @param \WC_Order $order
+         */
+        public static function order_actions($actions, $order)
+        {
+            if ($order->is_paid() || $order->get_payment_method() !== self::MOD_ID) {
+                return $actions;
+            }
+
+            $actions[self::MOD_ACTION_CHECK_PAYMENT] = sprintf(esc_html__('Check %1$s order payment', 'payment-gateway-wc-maib-mia'), esc_html(self::MOD_TITLE));
+            return $actions;
+        }
+
+        /**
+         * @param \WC_Order $order
+         */
+        public static function action_check_payment($order)
+        {
+            $plugin = new self();
+            return $plugin->check_payment($order);
+        }
+
         public static function add_gateway($methods)
         {
             $methods[] = self::class;
@@ -1067,6 +1090,10 @@ function maib_mia_init()
 
     if (is_admin()) {
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array(WC_Gateway_MAIB_MIA::class, 'plugin_action_links'));
+
+        //Add WooCommerce order actions
+        add_filter('woocommerce_order_actions', array(WC_Gateway_MAIB_MIA::class, 'order_actions'), 10, 2);
+        add_action('woocommerce_order_action_' . WC_Gateway_MAIB_MIA::MOD_ACTION_CHECK_PAYMENT, array(WC_Gateway_MAIB_MIA::class, 'action_check_payment'));
     }
     //endregion
 }
