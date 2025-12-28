@@ -895,23 +895,35 @@ function maib_mia_init()
 
                     $refund_status = strval($payment_refund_response_result['status']);
                     if (strtolower($refund_status) === 'refunded') {
-                        /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details */
-                        $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s approved: %4$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title, self::print_response_object($payment_refund_response)));
+                        /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title */
+                        $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s approved.', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title));
                         $message = $this->get_test_message($message);
-                        $this->log($message, WC_Log_Levels::INFO);
-                        $order->add_order_note($message);
+                        $this->log(
+                            $message,
+                            WC_Log_Levels::INFO,
+                            array(
+                                'payment_refund_response' => (array) $payment_refund_response,
+                            )
+                        );
 
+                        $order->add_order_note($message);
                         return true;
                     }
                 }
             }
 
-            /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title, 4: API response details */
-            $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s failed: %4$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title, self::print_response_object($payment_refund_response)));
+            /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title */
+            $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s failed.', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($order_total, $order_currency), $this->method_title));
             $message = $this->get_test_message($message);
-            $order->add_order_note($message);
-            $this->log($message, WC_Log_Levels::ERROR);
+            $this->log(
+                $message,
+                WC_Log_Levels::ERROR,
+                array(
+                    'payment_refund_response' => (array) $payment_refund_response,
+                )
+            );
 
+            $order->add_order_note($message);
             $this->logs_admin_notice();
 
             return new WP_Error('process_refund', $message);
@@ -1027,18 +1039,6 @@ function maib_mia_init()
         {
             // https://woocommerce.github.io/code-reference/namespaces/default.html#function_wc_print_r
             return wc_print_r($value, true);
-        }
-
-        /**
-         * @param GuzzleHttp\Command\Result $response
-         */
-        protected static function print_response_object($response)
-        {
-            if (!empty($response)) {
-                return wp_json_encode($response->toArray());
-            }
-
-            return '';
         }
 
         /**
