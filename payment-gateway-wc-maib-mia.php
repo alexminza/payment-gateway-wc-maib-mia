@@ -728,7 +728,7 @@ function maib_mia_init()
 
                 if (empty($qr_id)) {
                     /* translators: 1: Order ID, 2: Meta field key */
-                    $message = esc_html(sprintf(__('Order #%1$s missing meta %2$s', 'payment-gateway-wc-victoriabank-mia'), $order_id, self::MOD_QR_ID));
+                    $message = esc_html(sprintf(__('Order #%1$s missing meta %2$s', 'payment-gateway-wc-maib-mia'), $order_id, self::MOD_QR_ID));
                     WC_Admin_Meta_Boxes::add_error($message);
                     return;
                 }
@@ -745,7 +745,7 @@ function maib_mia_init()
                         $qr_details_result_status = strval($qr_details_result['status']);
 
                         /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
-                        $message = esc_html(sprintf(__('Order #%1$s payment %2$s QR Extension status: %3$s', 'payment-gateway-wc-victoriabank-mia'), $order_id, $this->method_title, $qr_details_result_status));
+                        $message = esc_html(sprintf(__('Order #%1$s payment %2$s QR Extension status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_details_result_status));
                         $message = $this->get_test_message($message);
                         WC_Admin_Notices::add_custom_notice('check_payment', $message);
 
