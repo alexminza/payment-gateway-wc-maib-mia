@@ -475,7 +475,7 @@ function maib_mia_init()
          * @param string $qr_id
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-qr-details-by-id
          */
-        private function maib_mia_qr_active($client, $auth_token, $qr_id)
+        private function maib_mia_qr_details($client, $auth_token, $qr_id)
         {
             $qr_details = $client->qrDetails($qr_id, $auth_token);
 
@@ -484,25 +484,81 @@ function maib_mia_init()
 
                 if ($qr_details_ok) {
                     $qr_details_result = (array) $qr_details['result'];
-                    $qr_details_result_status = strval($qr_details_result['status']);
+                    return $qr_details_result;
+                }
+            }
 
-                    if (strtolower($qr_details_result_status) === 'active') {
-                        $qr_details_result_expires_at = strval($qr_details_result['expiresAt']);
+            return null;
+        }
 
-                        $now = new DateTime();
-                        $expires_at = new DateTime($qr_details_result_expires_at);
+        /**
+         * @param MaibMiaClient $client
+         * @param string $auth_token
+         * @param string $qr_id
+         * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-qr-details-by-id
+         */
+        private function maib_mia_qr_active($client, $auth_token, $qr_id)
+        {
+            $qr_details = $this->maib_mia_qr_details($client, $auth_token, $qr_id);
 
-                        if ($expires_at > $now) {
-                            $min_validity_seconds = $this->transaction_validity * 60 / 2;
-                            $remaining_seconds = $expires_at->getTimestamp() - $now->getTimestamp();
+            if (!empty($qr_details))
+            {
+                $qr_details_status = strval($qr_details['status']);
 
-                            return $remaining_seconds >= $min_validity_seconds;
-                        }
+                if (strtolower($qr_details_status) === 'active') {
+                    $qr_details_expires_at = strval($qr_details['expiresAt']);
+
+                    $now = new DateTime();
+                    $expires_at = new DateTime($qr_details_expires_at);
+
+                    if ($expires_at > $now) {
+                        $min_validity_seconds = $this->transaction_validity * 60 / 2;
+                        $remaining_seconds = $expires_at->getTimestamp() - $now->getTimestamp();
+
+                        return $remaining_seconds >= $min_validity_seconds;
                     }
                 }
             }
 
             return false;
+        }
+
+        /**
+         * @param MaibMiaClient $client
+         * @param string $auth_token
+         * @param string $qr_id
+         * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-list-of-payments-with-filtering-options
+         */
+        private function maib_mia_qr_payment($client, $auth_token, $qr_id)
+        {
+            $qr_payments_data = array(
+                'qrId' => $qr_id,
+            );
+
+            $qr_payments = $client->paymentList($qr_payments_data, $auth_token);
+
+            if (!empty($qr_payments)) {
+                $qr_payments_ok = boolval($qr_payments['ok']);
+
+                if ($qr_payments_ok) {
+                    $qr_payments_count = absint($qr_payments['totalCount']);
+
+                    if (1 === $qr_payments_count) {
+                        $qr_payments_items = (array) $qr_payments['items'];
+                        return $qr_payments_items[0];
+                    } elseif ($qr_payments_count > 1) {
+                        $this->log(
+                            sprintf('Multiple QR %1$s payments', $qr_id),
+                            WC_Log_Levels::ERROR,
+                            array(
+                                'qr_payments' => $qr_payments,
+                            )
+                        );
+                    }
+                }
+            }
+
+            return null;
         }
         //endregion
 
@@ -736,33 +792,30 @@ function maib_mia_init()
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
 
-                $qr_details = $client->qrDetails($qr_id, $auth_token);
-                if (!empty($qr_details)) {
-                    $qr_details_ok = boolval($qr_details['ok']);
+                $qr_payment = $this->maib_mia_qr_payment($client, $auth_token, $qr_id)
+                    ?? $this->maib_mia_qr_details($client, $auth_token, $qr_id);
 
-                    if ($qr_details_ok) {
-                        $qr_details_result = (array) $qr_details['result'];
-                        $qr_details_result_status = strval($qr_details_result['status']);
+                if (!empty($qr_payment)) {
+                    $qr_payment_status = strval($qr_payment['status']);
 
-                        /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
-                        $message = esc_html(sprintf(__('Order #%1$s payment %2$s QR Extension status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_details_result_status));
-                        $message = $this->get_test_message($message);
-                        WC_Admin_Notices::add_custom_notice('check_payment', $message);
+                    /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
+                    $message = esc_html(sprintf(__('Order #%1$s payment %2$s QR Payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_payment_status));
+                    $message = $this->get_test_message($message);
+                    WC_Admin_Notices::add_custom_notice('check_payment', $message);
 
-                        $this->log(
-                            $message,
-                            WC_Log_Levels::INFO,
-                            array(
-                                'qrDetails' => (array) $qr_details,
-                            )
-                        );
+                    $this->log(
+                        $message,
+                        WC_Log_Levels::INFO,
+                        array(
+                            'qr_payment' => (array) $qr_payment,
+                        )
+                    );
 
-                        if (strtolower($qr_details_result_status) === 'paid') {
-                            $confirm_payment_result = $this->confirm_payment($order, $qr_details_result, $qr_details);
+                    if (strtolower($qr_payment_status) === 'executed') {
+                        $confirm_payment_result = $this->confirm_payment($order, $qr_payment, $qr_payment);
 
-                            if(is_wp_error($confirm_payment_result)) {
-                                WC_Admin_Meta_Boxes::add_error($confirm_payment_result->get_error_message());
-                            }
+                        if(is_wp_error($confirm_payment_result)) {
+                            WC_Admin_Meta_Boxes::add_error($confirm_payment_result->get_error_message());
                         }
                     }
                 }
