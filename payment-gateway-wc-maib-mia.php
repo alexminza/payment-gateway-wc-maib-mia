@@ -530,7 +530,7 @@ function maib_mia_init()
          */
         private function maib_mia_qr_payment($client, $auth_token, $qr_id)
         {
-            $qr_payments_data = array('qrId' => $qr_id,);
+            $qr_payments_data = array('qrId' => $qr_id);
             $qr_payments = $client->paymentList($qr_payments_data, $auth_token);
 
             if (!empty($qr_payments)) {
