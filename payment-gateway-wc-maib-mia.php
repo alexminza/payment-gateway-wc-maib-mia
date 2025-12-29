@@ -798,47 +798,23 @@ function maib_mia_init()
          */
         public function check_payment($order)
         {
+            $order_id = $order->get_id();
+            $qr_payment = null;
+
+            $qr_id = strval($order->get_meta(self::MOD_QR_ID, true));
+            if (empty($qr_id)) {
+                /* translators: 1: Order ID, 2: Meta field key */
+                $message = esc_html(sprintf(__('Order #%1$s missing meta %2$s', 'payment-gateway-wc-maib-mia'), $order_id, self::MOD_QR_ID));
+                WC_Admin_Meta_Boxes::add_error($message);
+                return;
+            }
+
             try {
-                $order_id = $order->get_id();
-                $qr_id = strval($order->get_meta(self::MOD_QR_ID, true));
-
-                if (empty($qr_id)) {
-                    /* translators: 1: Order ID, 2: Meta field key */
-                    $message = esc_html(sprintf(__('Order #%1$s missing meta %2$s', 'payment-gateway-wc-maib-mia'), $order_id, self::MOD_QR_ID));
-                    WC_Admin_Meta_Boxes::add_error($message);
-                    return;
-                }
-
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
 
                 $qr_payment = $this->maib_mia_qr_payment($client, $auth_token, $qr_id)
                     ?? $this->maib_mia_qr_details($client, $auth_token, $qr_id);
-
-                if (!empty($qr_payment)) {
-                    $qr_payment_status = strval($qr_payment['status']);
-
-                    /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
-                    $message = esc_html(sprintf(__('Order #%1$s payment %2$s QR Payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_payment_status));
-                    $message = $this->get_test_message($message);
-                    WC_Admin_Notices::add_custom_notice('check_payment', $message);
-
-                    $this->log(
-                        $message,
-                        WC_Log_Levels::INFO,
-                        array(
-                            'qr_payment' => $qr_payment,
-                        )
-                    );
-
-                    if (strtolower($qr_payment_status) === 'executed') {
-                        $confirm_payment_result = $this->confirm_payment($order, $qr_payment, $qr_payment);
-
-                        if (is_wp_error($confirm_payment_result)) {
-                            WC_Admin_Meta_Boxes::add_error($confirm_payment_result->get_error_message());
-                        }
-                    }
-                }
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
@@ -848,10 +824,37 @@ function maib_mia_init()
                         'order_id' => $order_id,
                     )
                 );
-
-                $message = sprintf('Order #%1$s check payment failed.', $order_id);
-                WC_Admin_Meta_Boxes::add_error($message);
             }
+
+            if (!empty($qr_payment)) {
+                $qr_payment_status = strval($qr_payment['status']);
+
+                /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
+                $message = esc_html(sprintf(__('Order #%1$s payment %2$s QR Payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_payment_status));
+                $message = $this->get_test_message($message);
+                WC_Admin_Notices::add_custom_notice('check_payment', $message);
+
+                $this->log(
+                    $message,
+                    WC_Log_Levels::INFO,
+                    array(
+                        'qr_payment' => $qr_payment,
+                    )
+                );
+
+                if (strtolower($qr_payment_status) === 'executed') {
+                    $confirm_payment_result = $this->confirm_payment($order, $qr_payment, $qr_payment);
+
+                    if (is_wp_error($confirm_payment_result)) {
+                        WC_Admin_Meta_Boxes::add_error($confirm_payment_result->get_error_message());
+                    }
+                }
+
+                return;
+            }
+
+            $message = sprintf('Order #%1$s check payment failed.', $order_id);
+            WC_Admin_Meta_Boxes::add_error($message);
         }
 
         /**
