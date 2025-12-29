@@ -766,7 +766,7 @@ function maib_mia_init()
 
             $confirm_payment_result = $this->confirm_payment($order, $callback_data_result, $callback_data);
 
-            if(is_wp_error($confirm_payment_result)) {
+            if (is_wp_error($confirm_payment_result)) {
                 return self::return_response($confirm_payment_result->get_error_code(), $confirm_payment_result->get_error_message());
             }
 
