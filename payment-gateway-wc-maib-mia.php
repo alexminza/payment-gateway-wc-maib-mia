@@ -572,9 +572,6 @@ function maib_mia_init()
          */
         private function maib_mia_qr_refund($client, $auth_token, $pay_id, $amount, $reason, $callbackUrl = null)
         {
-            $client = $this->init_maib_mia_client();
-            $auth_token = $this->maib_mia_generate_token($client);
-
             $refund_data = array(
                 'amount' => $amount,
                 'reason' => $reason,
