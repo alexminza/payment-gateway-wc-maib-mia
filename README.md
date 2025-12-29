@@ -43,4 +43,4 @@ WordPress plugin: https://wordpress.org/plugins/payment-gateway-wc-maib-mia/
 
 4\. Order actions
 
-![Refunds](./.wordpress-org/screenshot-4.png)
+![Order actions](./.wordpress-org/screenshot-4.png)
