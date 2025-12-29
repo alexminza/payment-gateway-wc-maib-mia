@@ -47,7 +47,7 @@ function maib_mia_init()
         const MOD_ID      = 'maib_mia';
         const MOD_PREFIX  = 'maib_mia_';
         const MOD_TITLE   = 'maib MIA';
-        const MOD_VERSION = '1.0.3';
+        const MOD_VERSION = '1.1.0';
 
         const SUPPORTED_CURRENCIES = array('MDL');
         const ORDER_TEMPLATE       = 'Order #%1$s';
