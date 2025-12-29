@@ -841,7 +841,7 @@ function maib_mia_init()
         /**
          * @param \WC_Order $order
          * @param array     $payment_data
-         * @param string    $payment_receipt_data
+         * @param array     $payment_receipt_data
          */
         protected function confirm_payment($order, $payment_data, $payment_receipt_data)
         {
