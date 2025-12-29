@@ -54,10 +54,10 @@ function maib_mia_init()
 
         const MOD_ACTION_CHECK_PAYMENT = self::MOD_PREFIX . 'check_payment';
 
-        const MOD_QR_ID        = self::MOD_PREFIX . 'qr_id';
-        const MOD_QR_URL       = self::MOD_PREFIX . 'qr_url';
-        const MOD_PAY_ID       = self::MOD_PREFIX . 'pay_id';
-        const MOD_CALLBACK     = self::MOD_PREFIX . 'callback';
+        const MOD_QR_ID           = self::MOD_PREFIX . 'qr_id';
+        const MOD_QR_URL          = self::MOD_PREFIX . 'qr_url';
+        const MOD_PAY_ID          = self::MOD_PREFIX . 'pay_id';
+        const MOD_PAYMENT_RECEIPT = self::MOD_PREFIX . 'payment_receipt';
 
         const DEFAULT_TIMEOUT  = 30;   // seconds
         const DEFAULT_VALIDITY = 360;  // minutes
@@ -764,7 +764,7 @@ function maib_mia_init()
             }
             //endregion
 
-            $confirm_payment_result = $this->confirm_payment($order, $callback_data_result, $callback_data, $callback_body);
+            $confirm_payment_result = $this->confirm_payment($order, $callback_data_result, $callback_data);
 
             if(is_wp_error($confirm_payment_result)) {
                 return self::return_response($confirm_payment_result->get_error_code(), $confirm_payment_result->get_error_message());
@@ -837,10 +837,9 @@ function maib_mia_init()
         /**
          * @param \WC_Order $order
          * @param array     $payment_data
-         * @param array     $callback_data
-         * @param string    $callback_body
+         * @param string    $payment_receipt_data
          */
-        protected function confirm_payment($order, $payment_data, $callback_data, $callback_body = null)
+        protected function confirm_payment($order, $payment_data, $payment_receipt_data)
         {
             //region Check order data
             $payment_data_amount = floatval($payment_data['amount']);
@@ -871,10 +870,10 @@ function maib_mia_init()
             //endregion
 
             //region Complete order payment
-            $order->add_meta_data(self::MOD_CALLBACK, wp_json_encode($callback_data), true);
-
             $payment_data_pay_id = strval($payment_data['payId']);
             $payment_data_reference_id = strval($payment_data['referenceId']);
+
+            $order->add_meta_data(self::MOD_PAYMENT_RECEIPT, wp_json_encode($payment_receipt_data), true);
             $order->add_meta_data(self::MOD_PAY_ID, $payment_data_pay_id, true);
             $order->save();
 
@@ -888,7 +887,7 @@ function maib_mia_init()
                 $message,
                 WC_Log_Levels::INFO,
                 array(
-                    'callback_data' => $callback_data,
+                    'payment_receipt_data' => $payment_receipt_data,
                 )
             );
 
