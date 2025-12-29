@@ -853,7 +853,8 @@ function maib_mia_init()
                 return;
             }
 
-            $message = sprintf('Order #%1$s check payment failed.', $order_id);
+            /* translators: 1: Order ID */
+            $message = esc_html(sprintf(__('Order #%1$s check payment failed.', 'payment-gateway-wc-maib-mia'), $order_id));
             WC_Admin_Meta_Boxes::add_error($message);
         }
 
