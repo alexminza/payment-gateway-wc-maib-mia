@@ -758,8 +758,7 @@ function maib_mia_init()
             }
 
             if (!$validation_result) {
-                /* translators: 1: Payment method title */
-                $message = esc_html(sprintf(__('%1$s callback signature validation failed.', 'payment-gateway-wc-maib-mia'), $this->method_title));
+                $message = esc_html(sprintf(__('Callback signature validation failed.', 'payment-gateway-wc-maib-mia'), $this->method_title));
                 $this->log($message, WC_Log_Levels::ERROR);
                 return self::return_response(WP_Http::UNAUTHORIZED, 'Invalid callback signature');
             }
