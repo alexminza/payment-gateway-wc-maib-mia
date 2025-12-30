@@ -15,6 +15,7 @@ WordPress plugin: https://wordpress.org/plugins/payment-gateway-wc-maib-mia/
 
 * Online payments with [MIA Instant Payments](https://mia.bnm.md/en)
 * Reverse transactions – complete refunds[^1]
+* Admin order actions – check order payment status
 * Supports WooCommerce [block-based checkout experience](https://woocommerce.com/checkout-blocks/)
 * Free to use – [Open-source GPL-3.0 license on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia)
 
@@ -39,3 +40,7 @@ WordPress plugin: https://wordpress.org/plugins/payment-gateway-wc-maib-mia/
 3\. Refunds
 
 ![Refunds](./.wordpress-org/screenshot-3.png)
+
+4\. Order actions
+
+![Order actions](./.wordpress-org/screenshot-4.png)
