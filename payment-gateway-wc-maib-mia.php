@@ -547,7 +547,7 @@ function maib_mia_init()
             $qr_payments_result = $this->maib_mia_get_response_result($qr_payments_response);
 
             if (!empty($qr_payments_result)) {
-                $qr_payments_result_count = absint($qr_payments_result['totalCount']);
+                $qr_payments_result_count = intval($qr_payments_result['totalCount']);
 
                 if (1 === $qr_payments_result_count) {
                     $qr_payments_result_items = (array) $qr_payments_result['items'];
@@ -805,7 +805,7 @@ function maib_mia_init()
             $qr_id = strval($order->get_meta(self::MOD_QR_ID, true));
             if (empty($qr_id)) {
                 /* translators: 1: Order ID, 2: Meta field key */
-                $message = esc_html(sprintf(__('Order #%1$s missing meta %2$s', 'payment-gateway-wc-maib-mia'), $order_id, self::MOD_QR_ID));
+                $message = esc_html(sprintf(__('Order #%1$s missing meta field %2$s.', 'payment-gateway-wc-maib-mia'), $order_id, self::MOD_QR_ID));
                 WC_Admin_Meta_Boxes::add_error($message);
                 return;
             }
@@ -835,7 +835,7 @@ function maib_mia_init()
                 $qr_payment_status = strval($qr_payment['status']);
 
                 /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
-                $message = esc_html(sprintf(__('Order #%1$s payment %2$s QR Payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_payment_status));
+                $message = esc_html(sprintf(__('Order #%1$s %2$s payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_payment_status));
                 $message = $this->get_test_message($message);
                 WC_Admin_Notices::add_custom_notice('check_payment', $message);
 
@@ -859,14 +859,14 @@ function maib_mia_init()
             }
 
             /* translators: 1: Order ID */
-            $message = esc_html(sprintf(__('Order #%1$s check payment failed.', 'payment-gateway-wc-maib-mia'), $order_id));
+            $message = esc_html(sprintf(__('Order #%1$s payment check failed.', 'payment-gateway-wc-maib-mia'), $order_id));
             WC_Admin_Meta_Boxes::add_error($message);
         }
 
         /**
          * @param \WC_Order $order
          * @param array     $payment_data
-         * @param string    $payment_receipt_data
+         * @param array     $payment_receipt_data
          */
         protected function confirm_payment($order, $payment_data, $payment_receipt_data)
         {
@@ -937,18 +937,16 @@ function maib_mia_init()
             }
 
             $order = wc_get_order($order_id);
+            $order_currency = $order->get_currency();
             $pay_id = strval($order->get_meta(self::MOD_PAY_ID, true));
 
             if (empty($pay_id)) {
                 /* translators: 1: Order ID, 2: Meta field key */
-                $message = esc_html(sprintf(__('Order #%1$s missing meta %2$s', 'payment-gateway-wc-maib-mia'), $order_id, self::MOD_PAY_ID));
+                $message = esc_html(sprintf(__('Order #%1$s missing meta field %2$s.', 'payment-gateway-wc-maib-mia'), $order_id, self::MOD_PAY_ID));
                 return new WP_Error('order_pay_id', $message);
             }
 
-            // $order_total = $order->get_total();
-            $order_currency = $order->get_currency();
             $payment_refund_response = null;
-
             try {
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
