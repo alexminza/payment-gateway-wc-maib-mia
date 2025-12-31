@@ -599,8 +599,9 @@ function maib_mia_init()
                         $ex->getMessage(),
                         WC_Log_Levels::ERROR,
                         array(
-                            'exception' => (string) $ex,
+                            'response' => self::get_guzzle_error_response_body($ex),
                             'order_id' => $order_id,
+                            'exception' => (string) $ex,
                         )
                     );
                 }
@@ -622,8 +623,9 @@ function maib_mia_init()
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
-                        'exception' => (string) $ex,
+                        'response' => self::get_guzzle_error_response_body($ex),
                         'order_id' => $order_id,
+                        'exception' => (string) $ex,
                     )
                 );
             }
@@ -809,8 +811,9 @@ function maib_mia_init()
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
-                        'exception' => (string) $ex,
+                        'response' => self::get_guzzle_error_response_body($ex),
                         'order_id' => $order_id,
+                        'exception' => (string) $ex,
                     )
                 );
             }
@@ -948,10 +951,11 @@ function maib_mia_init()
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
-                        'exception' => (string) $ex,
+                        'response' => self::get_guzzle_error_response_body($ex),
                         'order_id' => $order_id,
                         'amount' => $amount,
                         'reason' => $reason,
+                        'exception' => (string) $ex,
                     )
                 );
 
@@ -1088,6 +1092,19 @@ function maib_mia_init()
             }
 
             $this->logger->log($level, $message, $log_context);
+        }
+
+        protected static function get_guzzle_error_response_body(Exception $exception)
+        {
+            // https://github.com/guzzle/guzzle/issues/2185
+            if ($exception instanceof \GuzzleHttp\Command\Exception\CommandException) {
+                $response = $exception->getResponse();
+                $responseBody = (string) $response->getBody();
+
+                return $responseBody;
+            }
+
+            return null;
         }
 
         /**
