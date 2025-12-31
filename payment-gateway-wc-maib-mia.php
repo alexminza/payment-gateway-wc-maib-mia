@@ -450,24 +450,8 @@ function maib_mia_init()
             $get_token_response = $client->getToken($this->maib_mia_client_id, $this->maib_mia_client_secret);
             $get_token_result = $this->maib_mia_get_response_result($get_token_response);
 
-            if (!empty($get_token_result)) {
-                $access_token = strval($get_token_result['accessToken']);
-                return $access_token;
-            }
-
-            /* translators: 1: Payment method title */
-            $message = esc_html(sprintf(__('%1$s API authentication failed.', 'payment-gateway-wc-maib-mia'), $this->method_title));
-            $message = $this->get_test_message($message);
-
-            $this->log(
-                $message,
-                WC_Log_Levels::ERROR,
-                array(
-                    'get_token_response' => $get_token_response ? $get_token_response->toArray() : null,
-                )
-            );
-
-            throw new Exception(esc_html($message));
+            $access_token = strval($get_token_result['accessToken']);
+            return $access_token;
         }
 
         /**
