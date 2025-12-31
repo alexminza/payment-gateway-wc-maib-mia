@@ -8,22 +8,27 @@
     "packages": [
         {
             "name": "alexminza/maib-mia-sdk",
-            "version": "v1.0.2",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alexminza/maib-mia-sdk-php.git",
-                "reference": "854d8c828098692874267c74aea058fdc6c656ad"
+                "reference": "ad63b8d9a732fb272ffa65c1e0a80707f2314787"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alexminza/maib-mia-sdk-php/zipball/854d8c828098692874267c74aea058fdc6c656ad",
-                "reference": "854d8c828098692874267c74aea058fdc6c656ad",
+                "url": "https://api.github.com/repos/alexminza/maib-mia-sdk-php/zipball/ad63b8d9a732fb272ffa65c1e0a80707f2314787",
+                "reference": "ad63b8d9a732fb272ffa65c1e0a80707f2314787",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.0",
                 "guzzlehttp/guzzle-services": "^1.0",
                 "php": ">=7.2.5"
+            },
+            "require-dev": {
+                "monolog/monolog": "*",
+                "phpunit/phpunit": "*",
+                "vlucas/phpdotenv": "*"
             },
             "suggest": {
                 "monolog/monolog": "To enable logging of HTTP requests and responses."
@@ -62,7 +67,7 @@
                 "issues": "https://github.com/alexminza/maib-mia-sdk-php/issues",
                 "source": "https://github.com/alexminza/maib-mia-sdk-php"
             },
-            "time": "2025-12-22T18:56:52+00:00"
+            "time": "2025-12-31T10:36:36+00:00"
         },
         {
             "name": "guzzlehttp/command",

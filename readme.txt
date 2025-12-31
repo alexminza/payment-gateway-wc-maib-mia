@@ -68,6 +68,9 @@ You can also contribute to the plugin by translating it. Simply visit [translate
 
 See [payment-gateway-wc-maib-mia project releases on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia/releases) for details.
 
+= 1.1.0 =
+Added partial refunds.
+
 = 1.0.3 =
 Added manual check payment status order action.
 
@@ -81,6 +84,9 @@ Included vendor packages.
 Initial version release.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Added partial refunds.
 
 = 1.0.3 =
 Added manual check payment status order action.
