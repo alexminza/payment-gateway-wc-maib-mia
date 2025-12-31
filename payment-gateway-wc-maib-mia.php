@@ -601,7 +601,8 @@ function maib_mia_init()
                         array(
                             'response' => self::get_guzzle_error_response_body($ex),
                             'order_id' => $order_id,
-                            'exception' => (string) $ex,
+                            'exception' => $ex->getMessage(),
+                            'backtrace' => true,
                         )
                     );
                 }
@@ -625,7 +626,8 @@ function maib_mia_init()
                     array(
                         'response' => self::get_guzzle_error_response_body($ex),
                         'order_id' => $order_id,
-                        'exception' => (string) $ex,
+                        'exception' => $ex->getMessage(),
+                        'backtrace' => true,
                     )
                 );
             }
@@ -734,9 +736,10 @@ function maib_mia_init()
                     $ex->getMessage(),
                     WC_Log_Levels::ERROR,
                     array(
-                        'exception' => (string) $ex,
                         'callback_body' => $callback_body,
                         'callback_data' => $callback_data,
+                        'exception' => $ex->getMessage(),
+                        'backtrace' => true,
                     )
                 );
 
@@ -813,7 +816,8 @@ function maib_mia_init()
                     array(
                         'response' => self::get_guzzle_error_response_body($ex),
                         'order_id' => $order_id,
-                        'exception' => (string) $ex,
+                        'exception' => $ex->getMessage(),
+                        'backtrace' => true,
                     )
                 );
             }
@@ -955,7 +959,8 @@ function maib_mia_init()
                         'order_id' => $order_id,
                         'amount' => $amount,
                         'reason' => $reason,
-                        'exception' => (string) $ex,
+                        'exception' => $ex->getMessage(),
+                        'backtrace' => true,
                     )
                 );
 
