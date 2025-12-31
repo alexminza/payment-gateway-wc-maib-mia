@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Payment Gateway for maib MIA for WooCommerce 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/payment-gateway-wc-maib-mia\n"
-"POT-Creation-Date: 2025-12-31 15:54+0200\n"
+"POT-Creation-Date: 2025-12-31 20:09+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -182,104 +182,98 @@ msgstr ""
 msgid "See <a href=\"%2$s\">%1$s settings</a> page for log details and setup instructions."
 msgstr ""
 
-#. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:459
-#, php-format
-msgid "%1$s API authentication failed."
-msgstr ""
-
 #. translators: 1: Order ID, 2: Payment method title, 3: API response details
-#: payment-gateway-wc-maib-mia.php:660
+#: payment-gateway-wc-maib-mia.php:648
 #, php-format
 msgid "Order #%1$s payment initiated via %2$s: %3$s"
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title
-#: payment-gateway-wc-maib-mia.php:679
+#: payment-gateway-wc-maib-mia.php:667
 #, php-format
 msgid "Order #%1$s payment initiation failed via %2$s."
 msgstr ""
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:710
+#: payment-gateway-wc-maib-mia.php:698
 #, php-format
 msgid "%1$s Callback URL"
 msgstr ""
 
-#: payment-gateway-wc-maib-mia.php:738
+#: payment-gateway-wc-maib-mia.php:726
 msgid "Payment notification callback"
 msgstr ""
 
-#: payment-gateway-wc-maib-mia.php:761
+#: payment-gateway-wc-maib-mia.php:750
 msgid "Callback signature validation failed."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title
-#: payment-gateway-wc-maib-mia.php:781
+#: payment-gateway-wc-maib-mia.php:770
 #, php-format
 msgid "Order not found by Order ID: %1$d received from %2$s."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Meta field key
-#: payment-gateway-wc-maib-mia.php:808 payment-gateway-wc-maib-mia.php:945
+#: payment-gateway-wc-maib-mia.php:797 payment-gateway-wc-maib-mia.php:936
 #, php-format
 msgid "Order #%1$s missing meta field %2$s."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title, 3: Payment status
-#: payment-gateway-wc-maib-mia.php:838
+#: payment-gateway-wc-maib-mia.php:829
 #, php-format
 msgid "Order #%1$s %2$s payment status: %3$s"
 msgstr ""
 
 #. translators: 1: Order ID
-#: payment-gateway-wc-maib-mia.php:862
+#: payment-gateway-wc-maib-mia.php:853
 #, php-format
 msgid "Order #%1$s payment check failed."
 msgstr ""
 
 #. translators: 1: Payment data price, 2: Order total price
-#: payment-gateway-wc-maib-mia.php:886
+#: payment-gateway-wc-maib-mia.php:877
 #, php-format
 msgid "Order amount mismatch: Payment: %1$s, Order: %2$s."
 msgstr ""
 
 #. translators: 1: Order ID
-#: payment-gateway-wc-maib-mia.php:894
+#: payment-gateway-wc-maib-mia.php:885
 #, php-format
 msgid "Order #%1$s already fully paid."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title, 3: Payment data
-#: payment-gateway-wc-maib-mia.php:913
+#: payment-gateway-wc-maib-mia.php:904
 #, php-format
 msgid "Order #%1$s payment completed via %2$s: %3$s"
 msgstr ""
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title
-#: payment-gateway-wc-maib-mia.php:982
+#: payment-gateway-wc-maib-mia.php:975
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s approved."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title
-#: payment-gateway-wc-maib-mia.php:998
+#: payment-gateway-wc-maib-mia.php:991
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s failed."
 msgstr ""
 
 #. translators: 1: Original message
-#: payment-gateway-wc-maib-mia.php:1046
+#: payment-gateway-wc-maib-mia.php:1039
 #, php-format
 msgid "TEST: %1$s"
 msgstr ""
 
-#: payment-gateway-wc-maib-mia.php:1132
+#: payment-gateway-wc-maib-mia.php:1138
 msgid "Settings"
 msgstr ""
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:1150
+#: payment-gateway-wc-maib-mia.php:1156
 #, php-format
 msgid "Check %1$s order payment"
 msgstr ""
