@@ -467,7 +467,7 @@ function maib_mia_init()
                 )
             );
 
-            throw new Exception($message);
+            throw new Exception(esc_html($message));
         }
 
         /**
