@@ -424,10 +424,7 @@ function maib_mia_init()
             return $client;
         }
 
-        /**
-         * @param \GuzzleHttp\Command\Result $response
-         */
-        private function maib_mia_get_response_result($response)
+        private function maib_mia_get_response_result(\GuzzleHttp\Command\Result $response)
         {
             if (!empty($response)) {
                 $response_ok = boolval($response['ok']);
@@ -441,11 +438,10 @@ function maib_mia_init()
         }
 
         /**
-         * @param MaibMiaClient $client
          * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#get-access-token-with-client-id-and-client-secret
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/authentication/obtain-authentication-token
          */
-        private function maib_mia_generate_token($client)
+        private function maib_mia_generate_token(MaibMiaClient $client)
         {
             $get_token_response = $client->getToken($this->maib_mia_client_id, $this->maib_mia_client_secret);
             $get_token_result = $this->maib_mia_get_response_result($get_token_response);
@@ -455,19 +451,10 @@ function maib_mia_init()
         }
 
         /**
-         * @param MaibMiaClient $client
-         * @param string $auth_token
-         * @param string $order_id
-         * @param string $order_name
-         * @param float  $total_amount
-         * @param string $currency
-         * @param string $callback_url
-         * @param string $redirect_url
-         * @param int    $validity_minutes
          * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#create-a-dynamic-order-payment-qr
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-qr-code-static-dynamic
          */
-        private function maib_mia_pay($client, $auth_token, $order_id, $order_name, $total_amount, $currency, $callback_url, $redirect_url, $validity_minutes)
+        private function maib_mia_pay(MaibMiaClient $client, string $auth_token, string $order_id, string $order_name, float $total_amount, string $currency, string $callback_url, string $redirect_url, int $validity_minutes)
         {
             $expires_at = (new DateTime())->modify("+{$validity_minutes} minutes")->format('c');
 
@@ -487,12 +474,9 @@ function maib_mia_init()
         }
 
         /**
-         * @param MaibMiaClient $client
-         * @param string $auth_token
-         * @param string $qr_id
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-qr-details-by-id
          */
-        private function maib_mia_qr_active($client, $auth_token, $qr_id)
+        private function maib_mia_qr_active(MaibMiaClient $client, string $auth_token, string $qr_id)
         {
             $qr_details_response = $client->qrDetails($qr_id, $auth_token);
             $qr_details_result = $this->maib_mia_get_response_result($qr_details_response);
@@ -519,12 +503,9 @@ function maib_mia_init()
         }
 
         /**
-         * @param MaibMiaClient $client
-         * @param string $auth_token
-         * @param string $qr_id
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-list-of-payments-with-filtering-options
          */
-        private function maib_mia_qr_payment($client, $auth_token, $qr_id)
+        private function maib_mia_qr_payment(MaibMiaClient $client, string $auth_token, string $qr_id)
         {
             $qr_payments_list_data = array('qrId' => $qr_id);
             $qr_payments_response = $client->paymentList($qr_payments_list_data, $auth_token);
@@ -551,15 +532,9 @@ function maib_mia_init()
         }
 
         /**
-         * @param MaibMiaClient $client
-         * @param string $auth_token
-         * @param string $pay_id
-         * @param float  $amount
-         * @param string $reason
-         * @param string $callbackUrl
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-refund/refund-completed-payment
          */
-        private function maib_mia_qr_refund($client, $auth_token, $pay_id, $amount, $reason, $callbackUrl = null)
+        private function maib_mia_qr_refund(MaibMiaClient $client, string $auth_token, string $pay_id, float $amount, string $reason, string $callbackUrl = null)
         {
             $refund_data = array(
                 'amount' => $amount,
@@ -572,6 +547,9 @@ function maib_mia_init()
         //endregion
 
         //region Payment
+        /**
+         * @param int $order_id
+         */
         public function process_payment($order_id)
         {
             $order = wc_get_order($order_id);
@@ -783,10 +761,7 @@ function maib_mia_init()
             return self::return_response(WP_Http::OK);
         }
 
-        /**
-         * @param \WC_Order $order
-         */
-        public function check_payment($order)
+        public function check_payment(\WC_Order $order)
         {
             $order_id = $order->get_id();
             $qr_payment = null;
@@ -854,12 +829,7 @@ function maib_mia_init()
             WC_Admin_Meta_Boxes::add_error($message);
         }
 
-        /**
-         * @param \WC_Order $order
-         * @param array     $payment_data
-         * @param array     $payment_receipt_data
-         */
-        protected function confirm_payment($order, $payment_data, $payment_receipt_data)
+        protected function confirm_payment(\WC_Order $order, array $payment_data, array $payment_receipt_data)
         {
             //region Check order data
             $payment_data_amount = floatval($payment_data['amount']);
@@ -1006,11 +976,7 @@ function maib_mia_init()
         //endregion
 
         //region Utility
-        /**
-         * @param float  $price
-         * @param string $currency
-         */
-        protected function format_price($price, $currency)
+        protected function format_price(float $price, string $currency)
         {
             $args = array(
                 'currency' => $currency,
@@ -1020,19 +986,13 @@ function maib_mia_init()
             return html_entity_decode(wc_price($price, $args));
         }
 
-        /**
-         * @param \WC_Order $order
-         */
-        protected function get_order_description($order)
+        protected function get_order_description(\WC_Order $order)
         {
             $description = sprintf($this->order_template, $order->get_id());
             return apply_filters('maib_mia_order_description', $description, $order);
         }
 
-        /**
-         * @param string $message
-         */
-        protected function get_test_message($message)
+        protected function get_test_message(string $message)
         {
             if ($this->testmode) {
                 /* translators: 1: Original message */
@@ -1042,10 +1002,7 @@ function maib_mia_init()
             return $message;
         }
 
-        /**
-         * @param \WC_Order $order
-         */
-        protected function get_redirect_url($order)
+        protected function get_redirect_url(\WC_Order $order)
         {
             $redirect_url = $this->get_return_url($order);
             return apply_filters('maib_mia_redirect_url', $redirect_url);
@@ -1082,12 +1039,7 @@ function maib_mia_init()
             );
         }
 
-        /**
-         * @param string $message
-         * @param string $level
-         * @param array  $additional_context
-         */
-        protected function log($message, $level = WC_Log_Levels::DEBUG, $additional_context = null)
+        protected function log(string $message, string $level = WC_Log_Levels::DEBUG, array $additional_context = null)
         {
             // https://developer.woocommerce.com/docs/best-practices/data-management/logging/
             // https://stackoverflow.com/questions/1423157/print-php-call-stack
@@ -1112,11 +1064,7 @@ function maib_mia_init()
             return null;
         }
 
-        /**
-         * @param int    $status_code
-         * @param string $response_text
-         */
-        protected static function return_response($status_code, $response_text = null)
+        protected static function return_response(int $status_code, string $response_text = null)
         {
             if (empty($response_text)) {
                 $response_text = get_status_header_desc($status_code);
@@ -1129,7 +1077,7 @@ function maib_mia_init()
         //endregion
 
         //region Init
-        public static function plugin_action_links($links)
+        public static function plugin_action_links(array $links)
         {
             $plugin_links = array(
                 sprintf(
@@ -1142,11 +1090,7 @@ function maib_mia_init()
             return array_merge($plugin_links, $links);
         }
 
-        /**
-         * @param array $actions
-         * @param \WC_Order $order
-         */
-        public static function order_actions($actions, $order)
+        public static function order_actions(array $actions, \WC_Order $order)
         {
             if ($order->is_paid() || $order->get_payment_method() !== self::MOD_ID) {
                 return $actions;
@@ -1157,16 +1101,13 @@ function maib_mia_init()
             return $actions;
         }
 
-        /**
-         * @param \WC_Order $order
-         */
-        public static function action_check_payment($order)
+        public static function action_check_payment(\WC_Order $order)
         {
             $plugin = new self();
             $plugin->check_payment($order);
         }
 
-        public static function add_gateway($methods)
+        public static function add_gateway(array $methods)
         {
             $methods[] = self::class;
             return $methods;
