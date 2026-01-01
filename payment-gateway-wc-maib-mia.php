@@ -534,12 +534,12 @@ function maib_mia_init()
         /**
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-refund/refund-completed-payment
          */
-        private function maib_mia_qr_refund(MaibMiaClient $client, string $auth_token, string $pay_id, float $amount, string $reason, string $callbackUrl = null)
+        private function maib_mia_qr_refund(MaibMiaClient $client, string $auth_token, string $pay_id, float $amount, string $reason, string $callback_url = null)
         {
             $refund_data = array(
                 'amount' => $amount,
                 'reason' => $reason,
-                'callbackUrl' => $callbackUrl,
+                'callbackUrl' => $callback_url,
             );
 
             return $client->paymentRefund($pay_id, $refund_data, $auth_token);
@@ -963,7 +963,7 @@ function maib_mia_init()
             $payment_refund_result = $this->maib_mia_get_response_result($payment_refund_response);
             if (!empty($payment_refund_result)) {
                 $refund_status = strval($payment_refund_result['status']);
-                if (in_array(strtolower($refund_status), ['refunded', 'created'], true)) {
+                if (in_array(strtolower($refund_status), array('refunded', 'created'), true)) {
                     /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title */
                     $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s approved.', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($amount, $order_currency), $this->get_method_title()));
                     $message = $this->get_test_message($message);
@@ -1079,9 +1079,9 @@ function maib_mia_init()
             // https://github.com/guzzle/guzzle/issues/2185
             if ($exception instanceof \GuzzleHttp\Command\Exception\CommandException) {
                 $response = $exception->getResponse();
-                $responseBody = (string) $response->getBody();
+                $response_body = (string) $response->getBody();
 
-                return $responseBody;
+                return $response_body;
             }
 
             return null;
