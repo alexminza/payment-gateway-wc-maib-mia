@@ -424,7 +424,7 @@ function maib_mia_init()
             return $client;
         }
 
-        private function maib_mia_get_response_result(\GuzzleHttp\Command\Result $response)
+        private function maib_mia_get_response_result(?\GuzzleHttp\Command\Result $response)
         {
             if (!empty($response)) {
                 $response_ok = boolval($response['ok']);
@@ -956,8 +956,6 @@ function maib_mia_init()
                         'backtrace' => true,
                     )
                 );
-
-                return new WP_Error('process_refund', $ex->getMessage());
             }
 
             $payment_refund_result = $this->maib_mia_get_response_result($payment_refund_response);
@@ -992,8 +990,6 @@ function maib_mia_init()
             );
 
             $order->add_order_note($message);
-            $this->logs_admin_notice();
-
             return new WP_Error('process_refund', $message);
         }
         //endregion
