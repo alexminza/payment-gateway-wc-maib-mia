@@ -779,6 +779,7 @@ function maib_mia_init()
         {
             $order_id = $order->get_id();
             $qr_payment = null;
+            $qr_details = null;
 
             $qr_id = strval($order->get_meta(self::MOD_QR_ID, true));
             if (empty($qr_id)) {
@@ -796,7 +797,7 @@ function maib_mia_init()
 
                 if (empty($qr_payment)) {
                     $qr_details_response = $client->qrDetails($qr_id, $auth_token);
-                    $qr_payment = $this->maib_mia_get_response_result($qr_details_response);
+                    $qr_details = $this->maib_mia_get_response_result($qr_details_response);
                 }
             } catch (Exception $ex) {
                 $this->log(
@@ -811,11 +812,16 @@ function maib_mia_init()
                 );
             }
 
+            $payment_status = null;
             if (!empty($qr_payment)) {
-                $qr_payment_status = strval($qr_payment['status']);
+                $payment_status = strval($qr_payment['status']);
+            } elseif (!empty($qr_details)) {
+                $payment_status = strval($qr_details['status']);
+            }
 
+            if (!empty($payment_status)) {
                 /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
-                $message = esc_html(sprintf(__('Order #%1$s %2$s payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->get_method_title(), $qr_payment_status));
+                $message = esc_html(sprintf(__('Order #%1$s %2$s payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->get_method_title(), $payment_status));
                 $message = $this->get_test_message($message);
                 WC_Admin_Notices::add_custom_notice('check_payment', $message);
 
@@ -824,23 +830,26 @@ function maib_mia_init()
                     WC_Log_Levels::INFO,
                     array(
                         'qr_payment' => $qr_payment,
+                        'qr_details' => $qr_details,
                     )
                 );
+            } else {
+                /* translators: 1: Order ID */
+                $message = esc_html(sprintf(__('Order #%1$s payment check failed.', 'payment-gateway-wc-maib-mia'), $order_id));
+                WC_Admin_Meta_Boxes::add_error($message);
 
-                if (strtolower($qr_payment_status) === 'executed') {
+                return;
+            }
+
+            if (!empty($qr_payment)) {
+                if (strtolower($payment_status) === 'executed') {
                     $confirm_payment_result = $this->confirm_payment($order, $qr_payment, $qr_payment);
 
                     if (is_wp_error($confirm_payment_result)) {
                         WC_Admin_Meta_Boxes::add_error($confirm_payment_result->get_error_message());
                     }
                 }
-
-                return;
             }
-
-            /* translators: 1: Order ID */
-            $message = esc_html(sprintf(__('Order #%1$s payment check failed.', 'payment-gateway-wc-maib-mia'), $order_id));
-            WC_Admin_Meta_Boxes::add_error($message);
         }
 
         protected function confirm_payment(\WC_Order $order, array $payment_data, array $payment_receipt_data)
