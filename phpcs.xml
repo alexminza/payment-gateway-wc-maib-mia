@@ -50,9 +50,11 @@
 		<exclude name="Squiz.Commenting.FileComment.SpacingAfterOpen" />
 		<exclude name="Squiz.Commenting.ClassComment.Missing" />
 		<exclude name="Squiz.Commenting.FunctionComment.Missing" />
+		<exclude name="Squiz.Commenting.FunctionComment.MissingParamTag" />
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
 		<exclude name="Squiz.Commenting.FunctionComment.SpacingAfterParamType" />
 		<exclude name="Squiz.Commenting.FunctionComment.WrongStyle" />
+		<exclude name="Squiz.Commenting.FunctionCommentThrowTag.Missing" />
 		<exclude name="Squiz.Commenting.VariableComment.Missing" />
 		<exclude name="Squiz.Commenting.VariableComment.WrongStyle" />
 		<exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterOpen" />

@@ -14,12 +14,10 @@ WordPress plugin: https://wordpress.org/plugins/payment-gateway-wc-maib-mia/
 ## Features
 
 * Online payments with [MIA Instant Payments](https://mia.bnm.md/en)
-* Reverse transactions – complete refunds[^1]
+* Reverse transactions – partial or complete refunds
 * Admin order actions – check order payment status
 * Supports WooCommerce [block-based checkout experience](https://woocommerce.com/checkout-blocks/)
 * Free to use – [Open-source GPL-3.0 license on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia)
-
-[^1]: Partial refunds are not currently supported by maib MIA.
 
 ## Getting Started
 

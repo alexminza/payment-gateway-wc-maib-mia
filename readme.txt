@@ -3,7 +3,7 @@ Contributors: alexminza
 Tags: Moldova, maib, MIA, QR, payment gateway
 Requires at least: 4.8
 Tested up to: 6.9
-Stable tag: 1.0.3
+Stable tag: 1.1.0
 Requires PHP: 7.2.5
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -17,12 +17,10 @@ Accept MIA Instant Payments directly on your store with the Payment Gateway for 
 = Features =
 
 * Online payments with [MIA Instant Payments](https://mia.bnm.md/en)
-* Reverse transactions – complete refunds[^1]
+* Reverse transactions – partial or complete refunds
 * Admin order actions – check order payment status
 * Supports WooCommerce [block-based checkout experience](https://woocommerce.com/checkout-blocks/)
 * Free to use – [Open-source GPL-3.0 license on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia)
-
-[^1]: Partial refunds are not currently supported by maib MIA.
 
 = Getting Started =
 
@@ -70,6 +68,9 @@ You can also contribute to the plugin by translating it. Simply visit [translate
 
 See [payment-gateway-wc-maib-mia project releases on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia/releases) for details.
 
+= 1.1.0 =
+Added partial refunds.
+
 = 1.0.3 =
 Added manual check payment status order action.
 
@@ -83,6 +84,9 @@ Included vendor packages.
 Initial version release.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Added partial refunds.
 
 = 1.0.3 =
 Added manual check payment status order action.
