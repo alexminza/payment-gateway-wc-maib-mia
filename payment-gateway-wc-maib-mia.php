@@ -81,7 +81,7 @@ function maib_mia_init()
             $this->init_settings();
 
             $this->enabled     = $this->get_option('enabled', 'no');
-            $this->title       = $this->get_option('title', $this->method_title);
+            $this->title       = $this->get_option('title', $this->get_method_title());
             $this->description = $this->get_option('description');
             $this->icon        = plugins_url('/assets/img/mia.svg', __FILE__);
 
@@ -125,7 +125,7 @@ function maib_mia_init()
                     'type'        => 'text',
                     'description' => __('Payment method title that the customer will see during checkout.', 'payment-gateway-wc-maib-mia'),
                     'desc_tip'    => true,
-                    'default'     => $this->method_title,
+                    'default'     => $this->get_method_title(),
                     'custom_attributes' => array(
                         'required' => 'required',
                     ),
@@ -382,14 +382,14 @@ function maib_mia_init()
         protected function get_settings_admin_message()
         {
             /* translators: 1: Payment method title, 2: Plugin settings URL */
-            $message = sprintf(wp_kses_post(__('%1$s is not properly configured. Verify plugin <a href="%2$s">Connection Settings</a>.', 'payment-gateway-wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
+            $message = sprintf(wp_kses_post(__('%1$s is not properly configured. Verify plugin <a href="%2$s">Connection Settings</a>.', 'payment-gateway-wc-maib-mia')), esc_html($this->get_method_title()), esc_url(self::get_settings_url()));
             return $message;
         }
 
         protected function get_logs_admin_message()
         {
             /* translators: 1: Payment method title, 2: Plugin settings URL */
-            $message = sprintf(wp_kses_post(__('See <a href="%2$s">%1$s settings</a> page for log details and setup instructions.', 'payment-gateway-wc-maib-mia')), esc_html($this->method_title), esc_url(self::get_settings_url()));
+            $message = sprintf(wp_kses_post(__('See <a href="%2$s">%1$s settings</a> page for log details and setup instructions.', 'payment-gateway-wc-maib-mia')), esc_html($this->get_method_title()), esc_url(self::get_settings_url()));
             return $message;
         }
         //endregion
@@ -623,7 +623,7 @@ function maib_mia_init()
                 //endregion
 
                 /* translators: 1: Order ID, 2: Payment method title, 3: API response details */
-                $message = esc_html(sprintf(__('Order #%1$s payment initiated via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_id));
+                $message = esc_html(sprintf(__('Order #%1$s payment initiated via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->get_method_title(), $qr_id));
                 $message = $this->get_test_message($message);
                 $this->log(
                     $message,
@@ -642,7 +642,7 @@ function maib_mia_init()
             }
 
             /* translators: 1: Order ID, 2: Payment method title */
-            $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s.', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title));
+            $message = esc_html(sprintf(__('Order #%1$s payment initiation failed via %2$s.', 'payment-gateway-wc-maib-mia'), $order_id, $this->get_method_title()));
             $message = $this->get_test_message($message);
             $this->log(
                 $message,
@@ -673,7 +673,7 @@ function maib_mia_init()
             $request_method = isset($_SERVER['REQUEST_METHOD']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) : '';
             if ('GET' === $request_method) {
                 /* translators: 1: Payment method title */
-                $message = sprintf(__('%1$s Callback URL', 'payment-gateway-wc-maib-mia'), $this->method_title);
+                $message = sprintf(__('%1$s Callback URL', 'payment-gateway-wc-maib-mia'), $this->get_method_title());
                 return self::return_response(WP_Http::OK, $message);
             } elseif ('POST' !== $request_method) {
                 return self::return_response(WP_Http::METHOD_NOT_ALLOWED);
@@ -725,7 +725,7 @@ function maib_mia_init()
             }
 
             if (!$validation_result) {
-                $message = esc_html(sprintf(__('Callback signature validation failed.', 'payment-gateway-wc-maib-mia'), $this->method_title));
+                $message = esc_html(sprintf(__('Callback signature validation failed.', 'payment-gateway-wc-maib-mia'), $this->get_method_title()));
                 $this->log($message, WC_Log_Levels::ERROR);
                 return self::return_response(WP_Http::UNAUTHORIZED, 'Invalid callback signature');
             }
@@ -745,7 +745,7 @@ function maib_mia_init()
 
             if (empty($order)) {
                 /* translators: 1: Order ID, 2: Payment method title */
-                $message = sprintf(__('Order not found by Order ID: %1$d received from %2$s.', 'payment-gateway-wc-maib-mia'), $callback_order_id, $this->method_title);
+                $message = sprintf(__('Order not found by Order ID: %1$d received from %2$s.', 'payment-gateway-wc-maib-mia'), $callback_order_id, $this->get_method_title());
                 $this->log($message, WC_Log_Levels::ERROR);
 
                 return self::return_response(WP_Http::UNPROCESSABLE_ENTITY, 'Order not found');
@@ -801,7 +801,7 @@ function maib_mia_init()
                 $qr_payment_status = strval($qr_payment['status']);
 
                 /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
-                $message = esc_html(sprintf(__('Order #%1$s %2$s payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $qr_payment_status));
+                $message = esc_html(sprintf(__('Order #%1$s %2$s payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->get_method_title(), $qr_payment_status));
                 $message = $this->get_test_message($message);
                 WC_Admin_Notices::add_custom_notice('check_payment', $message);
 
@@ -871,7 +871,7 @@ function maib_mia_init()
             //endregion
 
             /* translators: 1: Order ID, 2: Payment method title, 3: Payment data */
-            $message = esc_html(sprintf(__('Order #%1$s payment completed via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->method_title, $payment_data_reference_id));
+            $message = esc_html(sprintf(__('Order #%1$s payment completed via %2$s: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->get_method_title(), $payment_data_reference_id));
             $message = $this->get_test_message($message);
             $this->log(
                 $message,
@@ -942,7 +942,7 @@ function maib_mia_init()
                 $refund_status = strval($payment_refund_result['status']);
                 if (in_array(strtolower($refund_status), ['refunded', 'created'], true)) {
                     /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title */
-                    $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s approved.', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($amount, $order_currency), $this->method_title));
+                    $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s approved.', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($amount, $order_currency), $this->get_method_title()));
                     $message = $this->get_test_message($message);
                     $this->log(
                         $message,
@@ -958,7 +958,7 @@ function maib_mia_init()
             }
 
             /* translators: 1: Order ID, 2: Refund amount, 3: Payment method title */
-            $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s failed.', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($amount, $order_currency), $this->method_title));
+            $message = esc_html(sprintf(__('Order #%1$s refund of %2$s via %3$s failed.', 'payment-gateway-wc-maib-mia'), $order_id, $this->format_price($amount, $order_currency), $this->get_method_title()));
             $message = $this->get_test_message($message);
             $this->log(
                 $message,
@@ -1005,7 +1005,7 @@ function maib_mia_init()
         protected function get_redirect_url(\WC_Order $order)
         {
             $redirect_url = $this->get_return_url($order);
-            return apply_filters('maib_mia_redirect_url', $redirect_url);
+            return apply_filters('maib_mia_redirect_url', $redirect_url, $order);
         }
 
         protected function get_callback_url()
