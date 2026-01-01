@@ -509,22 +509,22 @@ function maib_mia_init()
          */
         private function maib_mia_qr_payment(MaibMiaClient $client, string $auth_token, string $qr_id)
         {
-            $qr_payments_list_data = array('qrId' => $qr_id);
-            $qr_payments_response = $client->paymentList($qr_payments_list_data, $auth_token);
-            $qr_payments_result = $this->maib_mia_get_response_result($qr_payments_response);
+            $payment_list_data = array('qrId' => $qr_id);
+            $payment_list_response = $client->paymentList($payment_list_data, $auth_token);
+            $payment_list_result = $this->maib_mia_get_response_result($payment_list_response);
 
-            if (!empty($qr_payments_result)) {
-                $qr_payments_result_count = intval($qr_payments_result['totalCount']);
+            if (!empty($payment_list_result)) {
+                $payment_list_result_count = intval($payment_list_result['totalCount']);
 
-                if (1 === $qr_payments_result_count) {
-                    $qr_payments_result_items = (array) $qr_payments_result['items'];
-                    return (array) $qr_payments_result_items[0];
-                } elseif ($qr_payments_result_count > 1) {
+                if (1 === $payment_list_result_count) {
+                    $payment_list_result_items = (array) $payment_list_result['items'];
+                    return (array) $payment_list_result_items[0];
+                } elseif ($payment_list_result_count > 1) {
                     $this->log(
                         sprintf('Multiple QR %1$s payments', $qr_id),
                         WC_Log_Levels::ERROR,
                         array(
-                            'qr_payments_response' => $qr_payments_response->toArray(),
+                            'payment_list_response' => $payment_list_response->toArray(),
                         )
                     );
                 }
