@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Payment Gateway for maib MIA for WooCommerce 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/payment-gateway-wc-maib-mia\n"
-"POT-Creation-Date: 2026-01-01 13:07+0200\n"
+"POT-Creation-Date: 2026-01-01 14:17+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -251,29 +251,29 @@ msgid "Order #%1$s payment completed via %2$s: %3$s"
 msgstr ""
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title
-#: payment-gateway-wc-maib-mia.php:968
+#: payment-gateway-wc-maib-mia.php:966
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s approved."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title
-#: payment-gateway-wc-maib-mia.php:984
+#: payment-gateway-wc-maib-mia.php:982
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s failed."
 msgstr ""
 
 #. translators: 1: Original message
-#: payment-gateway-wc-maib-mia.php:1022
+#: payment-gateway-wc-maib-mia.php:1018
 #, php-format
 msgid "TEST: %1$s"
 msgstr ""
 
-#: payment-gateway-wc-maib-mia.php:1109
+#: payment-gateway-wc-maib-mia.php:1105
 msgid "Settings"
 msgstr ""
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:1123
+#: payment-gateway-wc-maib-mia.php:1119
 #, php-format
 msgid "Check %1$s order payment"
 msgstr ""
