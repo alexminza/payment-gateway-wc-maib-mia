@@ -4,7 +4,7 @@
  * Plugin Name: Payment Gateway for maib MIA for WooCommerce
  * Description: Accept MIA Instant Payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
  * Plugin URI: https://github.com/alexminza/payment-gateway-wc-maib-mia
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Alexander Minza
  * Author URI: https://profiles.wordpress.org/alexminza
  * Developer: Alexander Minza
@@ -47,7 +47,7 @@ function maib_mia_init()
         const MOD_ID      = 'maib_mia';
         const MOD_PREFIX  = 'maib_mia_';
         const MOD_TITLE   = 'maib MIA';
-        const MOD_VERSION = '1.1.0';
+        const MOD_VERSION = '1.1.1';
 
         const SUPPORTED_CURRENCIES = array('MDL');
         const ORDER_TEMPLATE       = 'Order #%1$s';
@@ -300,7 +300,9 @@ function maib_mia_init()
             return $validate_result;
         }
 
-        // https://developer.woocommerce.com/docs/extensions/settings-and-config/implementing-settings/
+        /**
+         * @link https://developer.woocommerce.com/docs/extensions/settings-and-config/implementing-settings/
+         */
         protected function get_settings_field_label($key)
         {
             $form_fields = $this->get_form_fields();
@@ -454,20 +456,20 @@ function maib_mia_init()
          * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#create-a-dynamic-order-payment-qr
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-qr-code-static-dynamic
          */
-        private function maib_mia_pay(MaibMiaClient $client, string $auth_token, string $order_id, string $order_name, float $total_amount, string $currency, string $callback_url, string $redirect_url, int $validity_minutes)
+        private function maib_mia_pay(MaibMiaClient $client, string $auth_token, \WC_Order $order)
         {
-            $expires_at = (new DateTime())->modify("+{$validity_minutes} minutes")->format('c');
+            $expires_at = (new DateTime())->modify("+{$this->transaction_validity} minutes")->format('c');
 
             $qr_data = array(
                 'type' => 'Dynamic',
                 'expiresAt' => $expires_at,
                 'amountType' => 'Fixed',
-                'amount' => $total_amount,
-                'currency' => $currency,
-                'description' => $order_name,
-                'orderId' => strval($order_id),
-                'callbackUrl' => $callback_url,
-                'redirectUrl' => $redirect_url,
+                'amount' => $order->get_total(),
+                'currency' => $order->get_currency(),
+                'description' => $this->get_order_description($order),
+                'orderId' => strval($order->get_id()),
+                'callbackUrl' => $this->maib_mia_callback_url,
+                'redirectUrl' => $this->get_redirect_url($order),
             );
 
             return $client->qrCreate($qr_data, $auth_token);
@@ -586,17 +588,7 @@ function maib_mia_init()
                 }
                 //endregion
 
-                $create_qr_response = $this->maib_mia_pay(
-                    $client,
-                    $auth_token,
-                    $order_id,
-                    $this->get_order_description($order),
-                    $order->get_total(),
-                    $order->get_currency(),
-                    $this->maib_mia_callback_url,
-                    $this->get_redirect_url($order),
-                    $this->transaction_validity
-                );
+                $create_qr_response = $this->maib_mia_pay($client, $auth_token, $order);
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
