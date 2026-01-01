@@ -725,7 +725,7 @@ function maib_mia_init()
             }
 
             if (!$validation_result) {
-                $message = esc_html(sprintf(__('Callback signature validation failed.', 'payment-gateway-wc-maib-mia'), $this->get_method_title()));
+                $message = esc_html(__('Callback signature validation failed.', 'payment-gateway-wc-maib-mia'));
                 $this->log(
                     $message,
                     WC_Log_Levels::ERROR,
