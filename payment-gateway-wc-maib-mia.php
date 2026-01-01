@@ -579,7 +579,7 @@ function maib_mia_init()
                         array(
                             'response' => self::get_guzzle_error_response_body($ex),
                             'order_id' => $order_id,
-                            'exception' => $ex->getMessage(),
+                            'exception' => (string) $ex,
                             'backtrace' => true,
                         )
                     );
@@ -604,7 +604,7 @@ function maib_mia_init()
                     array(
                         'response' => self::get_guzzle_error_response_body($ex),
                         'order_id' => $order_id,
-                        'exception' => $ex->getMessage(),
+                        'exception' => (string) $ex,
                         'backtrace' => true,
                     )
                 );
@@ -716,7 +716,7 @@ function maib_mia_init()
                     array(
                         'callback_body' => $callback_body,
                         'callback_data' => $callback_data,
-                        'exception' => $ex->getMessage(),
+                        'exception' => (string) $ex,
                         'backtrace' => true,
                     )
                 );
@@ -806,7 +806,7 @@ function maib_mia_init()
                     array(
                         'response' => self::get_guzzle_error_response_body($ex),
                         'order_id' => $order_id,
-                        'exception' => $ex->getMessage(),
+                        'exception' => (string) $ex,
                         'backtrace' => true,
                     )
                 );
@@ -952,7 +952,7 @@ function maib_mia_init()
                         'order_id' => $order_id,
                         'amount' => $amount,
                         'reason' => $reason,
-                        'exception' => $ex->getMessage(),
+                        'exception' => (string) $ex,
                         'backtrace' => true,
                     )
                 );
