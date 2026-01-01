@@ -1,11 +1,11 @@
-# Copyright (C) 2025 Alexander Minza
+# Copyright (C) 2026 Alexander Minza
 # This file is distributed under the GPLv3 or later.
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Payment Gateway for maib MIA for WooCommerce 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/payment-gateway-wc-maib-mia\n"
-"POT-Creation-Date: 2025-12-31 20:09+0200\n"
+"POT-Creation-Date: 2026-01-01 13:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -183,97 +183,97 @@ msgid "See <a href=\"%2$s\">%1$s settings</a> page for log details and setup ins
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title, 3: API response details
-#: payment-gateway-wc-maib-mia.php:648
+#: payment-gateway-wc-maib-mia.php:626
 #, php-format
 msgid "Order #%1$s payment initiated via %2$s: %3$s"
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title
-#: payment-gateway-wc-maib-mia.php:667
+#: payment-gateway-wc-maib-mia.php:645
 #, php-format
 msgid "Order #%1$s payment initiation failed via %2$s."
 msgstr ""
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:698
+#: payment-gateway-wc-maib-mia.php:676
 #, php-format
 msgid "%1$s Callback URL"
 msgstr ""
 
-#: payment-gateway-wc-maib-mia.php:726
+#: payment-gateway-wc-maib-mia.php:704
 msgid "Payment notification callback"
 msgstr ""
 
-#: payment-gateway-wc-maib-mia.php:750
+#: payment-gateway-wc-maib-mia.php:728
 msgid "Callback signature validation failed."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title
-#: payment-gateway-wc-maib-mia.php:770
+#: payment-gateway-wc-maib-mia.php:756
 #, php-format
 msgid "Order not found by Order ID: %1$d received from %2$s."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Meta field key
-#: payment-gateway-wc-maib-mia.php:797 payment-gateway-wc-maib-mia.php:936
+#: payment-gateway-wc-maib-mia.php:787 payment-gateway-wc-maib-mia.php:929
 #, php-format
 msgid "Order #%1$s missing meta field %2$s."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title, 3: Payment status
-#: payment-gateway-wc-maib-mia.php:829
+#: payment-gateway-wc-maib-mia.php:824
 #, php-format
 msgid "Order #%1$s %2$s payment status: %3$s"
 msgstr ""
 
 #. translators: 1: Order ID
-#: payment-gateway-wc-maib-mia.php:853
+#: payment-gateway-wc-maib-mia.php:838
 #, php-format
 msgid "Order #%1$s payment check failed."
 msgstr ""
 
 #. translators: 1: Payment data price, 2: Order total price
-#: payment-gateway-wc-maib-mia.php:877
+#: payment-gateway-wc-maib-mia.php:870
 #, php-format
 msgid "Order amount mismatch: Payment: %1$s, Order: %2$s."
 msgstr ""
 
 #. translators: 1: Order ID
-#: payment-gateway-wc-maib-mia.php:885
+#: payment-gateway-wc-maib-mia.php:878
 #, php-format
 msgid "Order #%1$s already fully paid."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Payment method title, 3: Payment data
-#: payment-gateway-wc-maib-mia.php:904
+#: payment-gateway-wc-maib-mia.php:897
 #, php-format
 msgid "Order #%1$s payment completed via %2$s: %3$s"
 msgstr ""
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title
-#: payment-gateway-wc-maib-mia.php:975
+#: payment-gateway-wc-maib-mia.php:968
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s approved."
 msgstr ""
 
 #. translators: 1: Order ID, 2: Refund amount, 3: Payment method title
-#: payment-gateway-wc-maib-mia.php:991
+#: payment-gateway-wc-maib-mia.php:984
 #, php-format
 msgid "Order #%1$s refund of %2$s via %3$s failed."
 msgstr ""
 
 #. translators: 1: Original message
-#: payment-gateway-wc-maib-mia.php:1039
+#: payment-gateway-wc-maib-mia.php:1022
 #, php-format
 msgid "TEST: %1$s"
 msgstr ""
 
-#: payment-gateway-wc-maib-mia.php:1138
+#: payment-gateway-wc-maib-mia.php:1109
 msgid "Settings"
 msgstr ""
 
 #. translators: 1: Payment method title
-#: payment-gateway-wc-maib-mia.php:1156
+#: payment-gateway-wc-maib-mia.php:1123
 #, php-format
 msgid "Check %1$s order payment"
 msgstr ""
