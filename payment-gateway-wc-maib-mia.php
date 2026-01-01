@@ -847,6 +847,7 @@ function maib_mia_init()
         protected function confirm_payment(\WC_Order $order, array $payment_data, array $payment_receipt_data)
         {
             //region Check order data
+            $payment_data_order_id = intval($payment_data['orderId']);
             $payment_data_amount = floatval($payment_data['amount']);
             $payment_data_currency = strval($payment_data['currency']);
 
@@ -857,12 +858,12 @@ function maib_mia_init()
             $order_price = $this->format_price($order_total, $order_currency);
             $payment_data_price = $this->format_price($payment_data_amount, $payment_data_currency);
 
-            if ($order_price !== $payment_data_price) {
-                /* translators: 1: Payment data price, 2: Order total price */
-                $message = sprintf(__('Order amount mismatch: Payment: %1$s, Order: %2$s.', 'payment-gateway-wc-maib-mia'), $payment_data_price, $order_price);
+            if ($order_id !== $payment_data_order_id || $order_price !== $payment_data_price) {
+                /* translators: 1: Payment data order ID, 2: Payment data price, 3: Order ID, 4: Order total price */
+                $message = sprintf(__('Order payment data mismatch: Payment: #%1$s %2$s, Order: #%3$s %4$s.', 'payment-gateway-wc-maib-mia'), $payment_data_order_id, $payment_data_price, $order_id, $order_price);
                 $this->log($message, WC_Log_Levels::ERROR);
 
-                return new WP_Error(WP_Http::UNPROCESSABLE_ENTITY, 'Order data mismatch');
+                return new WP_Error(WP_Http::UNPROCESSABLE_ENTITY, 'Order payment data mismatch');
             }
 
             if ($order->is_paid()) {
