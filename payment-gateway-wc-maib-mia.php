@@ -823,7 +823,7 @@ function maib_mia_init()
                 /* translators: 1: Order ID, 2: Payment method title, 3: Payment status */
                 $message = esc_html(sprintf(__('Order #%1$s %2$s payment status: %3$s', 'payment-gateway-wc-maib-mia'), $order_id, $this->get_method_title(), $payment_status));
                 $message = $this->get_test_message($message);
-                WC_Admin_Notices::add_custom_notice('check_payment', $message);
+                WC_Admin_Meta_Boxes::add_error($message);
 
                 $this->log(
                     $message,
