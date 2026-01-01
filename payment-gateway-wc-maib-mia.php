@@ -726,7 +726,15 @@ function maib_mia_init()
 
             if (!$validation_result) {
                 $message = esc_html(sprintf(__('Callback signature validation failed.', 'payment-gateway-wc-maib-mia'), $this->get_method_title()));
-                $this->log($message, WC_Log_Levels::ERROR);
+                $this->log(
+                    $message,
+                    WC_Log_Levels::ERROR,
+                    array(
+                        'validation_result' => $validation_result,
+                        'callback_data' => $callback_data,
+                    )
+                );
+
                 return self::return_response(WP_Http::UNAUTHORIZED, 'Invalid callback signature');
             }
             //endregion
@@ -746,7 +754,13 @@ function maib_mia_init()
             if (empty($order)) {
                 /* translators: 1: Order ID, 2: Payment method title */
                 $message = sprintf(__('Order not found by Order ID: %1$d received from %2$s.', 'payment-gateway-wc-maib-mia'), $callback_order_id, $this->get_method_title());
-                $this->log($message, WC_Log_Levels::ERROR);
+                $this->log(
+                    $message,
+                    WC_Log_Levels::ERROR,
+                    array(
+                        'callback_data' => $callback_data,
+                    )
+                );
 
                 return self::return_response(WP_Http::UNPROCESSABLE_ENTITY, 'Order not found');
             }
