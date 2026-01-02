@@ -543,12 +543,12 @@ function maib_mia_init()
         /**
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-refund/refund-completed-payment
          */
-        private function maib_mia_qr_refund(MaibMiaClient $client, string $auth_token, string $pay_id, float $amount, string $reason, string $callback_url = null)
+        private function maib_mia_qr_refund(MaibMiaClient $client, string $auth_token, string $pay_id, float $amount, string $reason)
         {
             $refund_data = array(
                 'amount' => $amount,
                 'reason' => $reason,
-                'callbackUrl' => $callback_url,
+                'callbackUrl' => $this->maib_mia_callback_url,
             );
 
             return $client->paymentRefund($pay_id, $refund_data, $auth_token);
@@ -922,8 +922,8 @@ function maib_mia_init()
 
             $order = wc_get_order($order_id);
             $order_currency = $order->get_currency();
-            $pay_id = strval($order->get_meta(self::MOD_PAY_ID, true));
 
+            $pay_id = strval($order->get_meta(self::MOD_PAY_ID, true));
             if (empty($pay_id)) {
                 /* translators: 1: Order ID, 2: Meta field key */
                 $message = esc_html(sprintf(__('Order #%1$s missing meta field %2$s.', 'payment-gateway-wc-maib-mia'), $order_id, self::MOD_PAY_ID));
@@ -935,14 +935,7 @@ function maib_mia_init()
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
 
-                $payment_refund_response = $this->maib_mia_qr_refund(
-                    $client,
-                    $auth_token,
-                    $pay_id,
-                    $amount,
-                    $reason,
-                    $this->maib_mia_callback_url
-                );
+                $payment_refund_response = $this->maib_mia_qr_refund($client, $auth_token, $pay_id, $amount, $reason);
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
