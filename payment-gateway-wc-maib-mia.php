@@ -507,9 +507,14 @@ function maib_mia_init()
         /**
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-list-of-payments-with-filtering-options
          */
-        private function maib_mia_qr_payment(MaibMiaClient $client, string $auth_token, string $qr_id)
+        private function maib_mia_qr_payment(MaibMiaClient $client, string $auth_token, string $qr_id, string $order_id)
         {
-            $payment_list_data = array('qrId' => $qr_id);
+            $payment_list_data = array(
+                'qrId' => $qr_id,
+                'orderId' => $order_id,
+                'status' => 'Executed',
+            );
+
             $payment_list_response = $client->paymentList($payment_list_data, $auth_token);
             $payment_list_result = $this->maib_mia_get_response_result($payment_list_response);
 
@@ -785,7 +790,7 @@ function maib_mia_init()
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
 
-                $qr_payment = $this->maib_mia_qr_payment($client, $auth_token, $qr_id);
+                $qr_payment = $this->maib_mia_qr_payment($client, $auth_token, $qr_id, $order_id);
 
                 if (empty($qr_payment)) {
                     $qr_details_response = $client->qrDetails($qr_id, $auth_token);
