@@ -526,9 +526,11 @@ function maib_mia_init()
                     return (array) $payment_list_result_items[0];
                 } elseif ($payment_list_result_count > 1) {
                     $this->log(
-                        sprintf('Multiple QR %1$s payments', $qr_id),
+                        sprintf('Multiple order #%1$s QR %2$s payments', $order_id, $qr_id),
                         WC_Log_Levels::ERROR,
                         array(
+                            'order_id' => $order_id,
+                            'qr_id' => $qr_id,
                             'payment_list_response' => $payment_list_response->toArray(),
                         )
                     );
