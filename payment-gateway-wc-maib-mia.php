@@ -32,9 +32,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Maib\MaibMia\MaibMiaClient;
 
-add_action('plugins_loaded', 'maib_mia_init', 0);
+add_action('plugins_loaded', 'maib_mia_plugins_loaded_init', 0);
 
-function maib_mia_init()
+function maib_mia_plugins_loaded_init()
 {
     // https://developer.woocommerce.com/docs/features/payments/payment-gateway-plugin-base/
     if (!class_exists('WC_Payment_Gateway')) {
