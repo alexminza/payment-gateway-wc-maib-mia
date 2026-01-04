@@ -4,7 +4,7 @@
  * Plugin Name: Payment Gateway for maib MIA for WooCommerce
  * Description: Accept MIA Instant Payments directly on your store with the Payment Gateway for maib MIA for WooCommerce.
  * Plugin URI: https://github.com/alexminza/payment-gateway-wc-maib-mia
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Alexander Minza
  * Author URI: https://profiles.wordpress.org/alexminza
  * Developer: Alexander Minza
@@ -32,9 +32,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Maib\MaibMia\MaibMiaClient;
 
-add_action('plugins_loaded', 'maib_mia_init', 0);
+add_action('plugins_loaded', 'maib_mia_plugins_loaded_init', 0);
 
-function maib_mia_init()
+function maib_mia_plugins_loaded_init()
 {
     // https://developer.woocommerce.com/docs/features/payments/payment-gateway-plugin-base/
     if (!class_exists('WC_Payment_Gateway')) {
@@ -47,7 +47,7 @@ function maib_mia_init()
         const MOD_ID      = 'maib_mia';
         const MOD_PREFIX  = 'maib_mia_';
         const MOD_TITLE   = 'maib MIA';
-        const MOD_VERSION = '1.1.0';
+        const MOD_VERSION = '1.1.1';
 
         const SUPPORTED_CURRENCIES = array('MDL');
         const ORDER_TEMPLATE       = 'Order #%1$s';
@@ -300,7 +300,9 @@ function maib_mia_init()
             return $validate_result;
         }
 
-        // https://developer.woocommerce.com/docs/extensions/settings-and-config/implementing-settings/
+        /**
+         * @link https://developer.woocommerce.com/docs/extensions/settings-and-config/implementing-settings/
+         */
         protected function get_settings_field_label($key)
         {
             $form_fields = $this->get_form_fields();
@@ -454,20 +456,20 @@ function maib_mia_init()
          * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#create-a-dynamic-order-payment-qr
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-qr-code-static-dynamic
          */
-        private function maib_mia_pay(MaibMiaClient $client, string $auth_token, string $order_id, string $order_name, float $total_amount, string $currency, string $callback_url, string $redirect_url, int $validity_minutes)
+        private function maib_mia_pay(MaibMiaClient $client, string $auth_token, \WC_Order $order)
         {
-            $expires_at = (new DateTime())->modify("+{$validity_minutes} minutes")->format('c');
+            $expires_at = (new DateTime())->modify("+{$this->transaction_validity} minutes")->format('c');
 
             $qr_data = array(
                 'type' => 'Dynamic',
                 'expiresAt' => $expires_at,
                 'amountType' => 'Fixed',
-                'amount' => $total_amount,
-                'currency' => $currency,
-                'description' => $order_name,
-                'orderId' => strval($order_id),
-                'callbackUrl' => $callback_url,
-                'redirectUrl' => $redirect_url,
+                'amount' => $order->get_total(),
+                'currency' => $order->get_currency(),
+                'description' => $this->get_order_description($order),
+                'orderId' => strval($order->get_id()),
+                'callbackUrl' => $this->maib_mia_callback_url,
+                'redirectUrl' => $this->get_redirect_url($order),
             );
 
             return $client->qrCreate($qr_data, $auth_token);
@@ -505,24 +507,31 @@ function maib_mia_init()
         /**
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-list-of-payments-with-filtering-options
          */
-        private function maib_mia_qr_payment(MaibMiaClient $client, string $auth_token, string $qr_id)
+        private function maib_mia_qr_payment(MaibMiaClient $client, string $auth_token, string $qr_id, string $order_id)
         {
-            $qr_payments_list_data = array('qrId' => $qr_id);
-            $qr_payments_response = $client->paymentList($qr_payments_list_data, $auth_token);
-            $qr_payments_result = $this->maib_mia_get_response_result($qr_payments_response);
+            $payment_list_data = array(
+                'qrId' => $qr_id,
+                'orderId' => $order_id,
+                'status' => 'Executed',
+            );
 
-            if (!empty($qr_payments_result)) {
-                $qr_payments_result_count = intval($qr_payments_result['totalCount']);
+            $payment_list_response = $client->paymentList($payment_list_data, $auth_token);
+            $payment_list_result = $this->maib_mia_get_response_result($payment_list_response);
 
-                if (1 === $qr_payments_result_count) {
-                    $qr_payments_result_items = (array) $qr_payments_result['items'];
-                    return (array) $qr_payments_result_items[0];
-                } elseif ($qr_payments_result_count > 1) {
+            if (!empty($payment_list_result)) {
+                $payment_list_result_count = intval($payment_list_result['totalCount']);
+
+                if (1 === $payment_list_result_count) {
+                    $payment_list_result_items = (array) $payment_list_result['items'];
+                    return (array) $payment_list_result_items[0];
+                } elseif ($payment_list_result_count > 1) {
                     $this->log(
-                        sprintf('Multiple QR %1$s payments', $qr_id),
+                        sprintf('Multiple order #%1$s QR %2$s payments', $order_id, $qr_id),
                         WC_Log_Levels::ERROR,
                         array(
-                            'qr_payments_response' => $qr_payments_response->toArray(),
+                            'order_id' => $order_id,
+                            'qr_id' => $qr_id,
+                            'payment_list_response' => $payment_list_response->toArray(),
                         )
                     );
                 }
@@ -534,12 +543,12 @@ function maib_mia_init()
         /**
          * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-refund/refund-completed-payment
          */
-        private function maib_mia_qr_refund(MaibMiaClient $client, string $auth_token, string $pay_id, float $amount, string $reason, string $callback_url = null)
+        private function maib_mia_qr_refund(MaibMiaClient $client, string $auth_token, string $pay_id, float $amount, string $reason)
         {
             $refund_data = array(
                 'amount' => $amount,
                 'reason' => $reason,
-                'callbackUrl' => $callback_url,
+                'callbackUrl' => $this->maib_mia_callback_url,
             );
 
             return $client->paymentRefund($pay_id, $refund_data, $auth_token);
@@ -586,17 +595,7 @@ function maib_mia_init()
                 }
                 //endregion
 
-                $create_qr_response = $this->maib_mia_pay(
-                    $client,
-                    $auth_token,
-                    $order_id,
-                    $this->get_order_description($order),
-                    $order->get_total(),
-                    $order->get_currency(),
-                    $this->maib_mia_callback_url,
-                    $this->get_redirect_url($order),
-                    $this->transaction_validity
-                );
+                $create_qr_response = $this->maib_mia_pay($client, $auth_token, $order);
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
@@ -793,7 +792,7 @@ function maib_mia_init()
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
 
-                $qr_payment = $this->maib_mia_qr_payment($client, $auth_token, $qr_id);
+                $qr_payment = $this->maib_mia_qr_payment($client, $auth_token, $qr_id, $order_id);
 
                 if (empty($qr_payment)) {
                     $qr_details_response = $client->qrDetails($qr_id, $auth_token);
@@ -855,6 +854,7 @@ function maib_mia_init()
         protected function confirm_payment(\WC_Order $order, array $payment_data, array $payment_receipt_data)
         {
             //region Check order data
+            $payment_data_order_id = intval($payment_data['orderId']);
             $payment_data_amount = floatval($payment_data['amount']);
             $payment_data_currency = strval($payment_data['currency']);
 
@@ -865,12 +865,12 @@ function maib_mia_init()
             $order_price = $this->format_price($order_total, $order_currency);
             $payment_data_price = $this->format_price($payment_data_amount, $payment_data_currency);
 
-            if ($order_price !== $payment_data_price) {
-                /* translators: 1: Payment data price, 2: Order total price */
-                $message = sprintf(__('Order amount mismatch: Payment: %1$s, Order: %2$s.', 'payment-gateway-wc-maib-mia'), $payment_data_price, $order_price);
+            if ($order_id !== $payment_data_order_id || $order_price !== $payment_data_price) {
+                /* translators: 1: Payment data order ID, 2: Payment data price, 3: Order ID, 4: Order total price */
+                $message = sprintf(__('Order payment data mismatch: Payment: #%1$s %2$s, Order: #%3$s %4$s.', 'payment-gateway-wc-maib-mia'), $payment_data_order_id, $payment_data_price, $order_id, $order_price);
                 $this->log($message, WC_Log_Levels::ERROR);
 
-                return new WP_Error(WP_Http::UNPROCESSABLE_ENTITY, 'Order data mismatch');
+                return new WP_Error(WP_Http::UNPROCESSABLE_ENTITY, 'Order payment data mismatch');
             }
 
             if ($order->is_paid()) {
@@ -922,8 +922,8 @@ function maib_mia_init()
 
             $order = wc_get_order($order_id);
             $order_currency = $order->get_currency();
-            $pay_id = strval($order->get_meta(self::MOD_PAY_ID, true));
 
+            $pay_id = strval($order->get_meta(self::MOD_PAY_ID, true));
             if (empty($pay_id)) {
                 /* translators: 1: Order ID, 2: Meta field key */
                 $message = esc_html(sprintf(__('Order #%1$s missing meta field %2$s.', 'payment-gateway-wc-maib-mia'), $order_id, self::MOD_PAY_ID));
@@ -935,14 +935,7 @@ function maib_mia_init()
                 $client = $this->init_maib_mia_client();
                 $auth_token = $this->maib_mia_generate_token($client);
 
-                $payment_refund_response = $this->maib_mia_qr_refund(
-                    $client,
-                    $auth_token,
-                    $pay_id,
-                    $amount,
-                    $reason,
-                    $this->maib_mia_callback_url
-                );
+                $payment_refund_response = $this->maib_mia_qr_refund($client, $auth_token, $pay_id, $amount, $reason);
             } catch (Exception $ex) {
                 $this->log(
                     $ex->getMessage(),
@@ -1058,7 +1051,7 @@ function maib_mia_init()
             );
         }
 
-        protected function log(string $message, string $level = WC_Log_Levels::DEBUG, array $additional_context = null)
+        protected function log(string $message, string $level = WC_Log_Levels::DEBUG, ?array $additional_context = null)
         {
             // https://developer.woocommerce.com/docs/best-practices/data-management/logging/
             // https://stackoverflow.com/questions/1423157/print-php-call-stack
@@ -1075,15 +1068,16 @@ function maib_mia_init()
             // https://github.com/guzzle/guzzle/issues/2185
             if ($exception instanceof \GuzzleHttp\Command\Exception\CommandException) {
                 $response = $exception->getResponse();
-                $response_body = (string) $response->getBody();
 
-                return $response_body;
+                if (!empty($response)) {
+                    return (string) $response->getBody();
+                }
             }
 
             return null;
         }
 
-        protected static function return_response(int $status_code, string $response_text = null)
+        protected static function return_response(int $status_code, ?string $response_text = null)
         {
             if (empty($response_text)) {
                 $response_text = get_status_header_desc($status_code);
