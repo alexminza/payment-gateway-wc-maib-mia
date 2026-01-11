@@ -876,7 +876,7 @@ function maib_mia_plugins_loaded_init()
             if ($order->is_paid()) {
                 /* translators: 1: Order ID */
                 $message = sprintf(__('Order #%1$s already fully paid.', 'payment-gateway-wc-maib-mia'), $order_id);
-                $this->log($message, WC_Log_Levels::ERROR);
+                $this->log($message, WC_Log_Levels::WARNING);
 
                 return new WP_Error(WP_Http::ACCEPTED, 'Order already fully paid');
             }
