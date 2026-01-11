@@ -701,7 +701,7 @@ function maib_mia_plugins_loaded_init()
                 $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
                 $this->log(
                     sprintf(__('Payment notification callback', 'payment-gateway-wc-maib-mia')),
-                    WC_Log_Levels::DEBUG,
+                    WC_Log_Levels::INFO,
                     array(
                         'validation_result' => $validation_result,
                         // 'callback_body' => $callback_body,
