@@ -32,8 +32,16 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     const MOD_PAY_ID          = self::MOD_PREFIX . 'pay_id';
     const MOD_PAYMENT_RECEIPT = self::MOD_PREFIX . 'payment_receipt';
 
-    const DEFAULT_TIMEOUT  = 30;   // seconds
-    const DEFAULT_VALIDITY = 360;  // minutes
+    /**
+     * Default API request timeout (seconds).
+     */
+    const DEFAULT_TIMEOUT = 30;
+
+    /**
+     * Default transaction validity (minutes).
+     */
+    const DEFAULT_VALIDITY = 360;
+
     const MIN_VALIDITY     = 1;    // minutes
     const MAX_VALIDITY     = 1440; // minutes
     //endregion
@@ -53,14 +61,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
         $this->init_form_fields();
         $this->init_settings();
 
-        $this->enabled     = $this->get_option('enabled', 'no');
-        $this->title       = $this->get_option('title', $this->get_method_title());
-        $this->description = $this->get_option('description');
-        $this->icon        = plugins_url('/assets/img/mia.svg', self::MOD_PLUGIN_FILE);
-
-        if ($this->testmode) {
-            $this->description = $this->get_test_message($this->description);
-        }
+        $this->icon = plugins_url('/assets/img/mia.svg', self::MOD_PLUGIN_FILE);
 
         $this->transaction_validity = intval($this->get_option('transaction_validity', self::DEFAULT_VALIDITY));
 
@@ -199,7 +200,8 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     //region Settings validation
     protected function check_settings()
     {
-        return !empty($this->maib_mia_client_id)
+        return parent::check_settings()
+            && !empty($this->maib_mia_client_id)
             && !empty($this->maib_mia_client_secret)
             && !empty($this->maib_mia_signature_key)
             && !empty($this->maib_mia_callback_url);
@@ -207,30 +209,18 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
 
     protected function validate_settings()
     {
-        $validate_result = true;
-
-        if (!$this->is_valid_for_use()) {
-            $this->add_error(
-                sprintf(
-                    '<strong>%1$s: %2$s</strong>. %3$s: %4$s',
-                    esc_html__('Unsupported store currency', 'payment-gateway-wc-maib-mia'),
-                    esc_html(get_woocommerce_currency()),
-                    esc_html__('Supported currencies', 'payment-gateway-wc-maib-mia'),
-                    esc_html(join(', ', self::SUPPORTED_CURRENCIES))
-                )
-            );
-
-            $validate_result = false;
+        if (!parent::validate_settings()) {
+            return false;
         }
 
         if (!$this->check_settings()) {
             /* translators: 1: Plugin installation instructions URL */
             $message_instructions = sprintf(__('See plugin documentation for <a href="%1$s" target="_blank">installation instructions</a>.', 'payment-gateway-wc-maib-mia'), 'https://wordpress.org/plugins/payment-gateway-wc-maib-mia/#installation');
             $this->add_error(sprintf('<strong>%1$s</strong>: %2$s. %3$s', esc_html__('Connection Settings', 'payment-gateway-wc-maib-mia'), esc_html__('Not configured', 'payment-gateway-wc-maib-mia'), wp_kses_post($message_instructions)));
-            $validate_result = false;
+            return false;
         }
 
-        return $validate_result;
+        return true;
     }
 
     public function validate_order_template_field($key, $value)
