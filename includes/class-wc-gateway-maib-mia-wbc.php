@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @package payment-gateway-wc-victoriabank-mia
+ * @package payment-gateway-wc-maib-mia
  */
 
 declare(strict_types=1);
