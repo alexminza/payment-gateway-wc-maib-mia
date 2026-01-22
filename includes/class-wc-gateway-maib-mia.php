@@ -557,7 +557,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
         $validation_result = false;
 
         try {
-            $callback_body = wc_clean(file_get_contents('php://input'));
+            $callback_body = file_get_contents('php://input');
             if (empty($callback_body)) {
                 throw new \Exception('Empty callback body');
             }
