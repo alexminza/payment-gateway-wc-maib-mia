@@ -526,7 +526,8 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
 
         // https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
         if (WC()->is_store_api_request()) {
-            throw new \Exception(esc_html($message));
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is already escaped.
+            throw new \Exception($message);
         }
 
         wc_add_notice($message, 'error');
