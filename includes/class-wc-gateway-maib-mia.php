@@ -524,18 +524,14 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
 
         $order->add_order_note($message);
 
-        // https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
-        if (WC()->is_store_api_request()) {
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is already escaped.
-            throw new \Exception($message);
-        }
-
         wc_add_notice($message, 'error');
         $this->logs_admin_website_notice();
 
+        // https://github.com/woocommerce/woocommerce/issues/48687#issuecomment-2186475264
+        // https://github.com/woocommerce/woocommerce/pull/53671
         return array(
-            'result'   => 'failure',
-            'messages' => $message,
+            'result'  => 'failure',
+            'message' => $message,
         );
     }
 
