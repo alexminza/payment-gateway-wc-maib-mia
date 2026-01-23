@@ -790,7 +790,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     public function process_refund($order_id, $amount = null, $reason = '')
     {
         if (!$this->check_settings()) {
-            $message = $this->get_settings_admin_message();
+            $message = wp_strip_all_tags($this->get_settings_admin_message());
             return new \WP_Error('check_settings', $message);
         }
 
