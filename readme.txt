@@ -68,6 +68,9 @@ You can also contribute to the plugin by translating it. Simply visit [translate
 
 See [payment-gateway-wc-maib-mia project releases on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia/releases) for details.
 
+= 1.1.1 =
+Code reorganization and refactoring for better maintainability.
+
 = 1.1.0 =
 Added partial refunds.
 
@@ -84,6 +87,9 @@ Included vendor packages.
 Initial version release.
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Code reorganization and refactoring for better maintainability.
 
 = 1.1.0 =
 Added partial refunds.
