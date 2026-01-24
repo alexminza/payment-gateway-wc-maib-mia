@@ -563,8 +563,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
                 throw new \Exception('Empty callback body');
             }
 
-            /** @var array */
-            $callback_data = wc_clean(json_decode($callback_body, true));
+            $callback_data = (array) json_decode($callback_body, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \Exception(json_last_error_msg());
             }
@@ -613,6 +612,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
         //endregion
 
         //region Validate QR status
+        $callback_data = wc_clean($callback_data);
         $callback_data_result = (array) $callback_data['result'];
         $callback_qr_status = strval($callback_data_result['qrStatus']);
         if (strtolower($callback_qr_status) !== 'paid') {
