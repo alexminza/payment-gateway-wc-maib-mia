@@ -50,7 +50,7 @@ function maib_mia_plugins_loaded_init()
     require_once plugin_dir_path(__FILE__) . 'includes/class-wc-gateway-maib-mia.php';
 
     //region Init payment gateway
-    add_filter('woocommerce_payment_gateways', array(WC_Gateway_MAIB_MIA::class, 'add_gateway'));
+    add_filter('woocommerce_payment_gateways', array(WC_Gateway_MAIB_MIA::class, 'add_payment_gateway'));
 
     if (is_admin()) {
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), array(WC_Gateway_MAIB_MIA::class, 'plugin_action_links'));
