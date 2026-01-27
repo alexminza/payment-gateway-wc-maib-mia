@@ -34,7 +34,9 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-require_once __DIR__ . '/vendor/autoload.php';
+// https://vanrossum.dev/37-wordpress-and-composer
+// https://github.com/Automattic/jetpack-autoloader
+require_once __DIR__ . '/vendor/autoload_packages.php';
 
 const MAIB_MIA_MOD_PLUGIN_FILE = __FILE__;
 
