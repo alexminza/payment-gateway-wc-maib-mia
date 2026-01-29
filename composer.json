@@ -41,7 +41,8 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "automattic/jetpack-autoloader": true
         },
-        "autoloader-suffix": "payment_gateway_wc_maib_mia"
+        "autoloader-suffix": "WC_Gateway_MAIB_MIA",
+        "optimize-autoloader": true
     },
     "prefer-stable": true,
     "require-dev": {
