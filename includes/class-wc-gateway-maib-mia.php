@@ -83,6 +83,8 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
 
     public function init_form_fields()
     {
+        $callback_url = $this->get_callback_url();
+
         $this->form_fields = array(
             'enabled'         => array(
                 'title'       => __('Enable/Disable', 'payment-gateway-wc-maib-mia'),
@@ -188,9 +190,9 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
             'maib_mia_callback_url' => array(
                 'title'       => __('Callback URL', 'payment-gateway-wc-maib-mia'),
                 'type'        => 'text',
-                'description' => sprintf('<code>%1$s</code>', esc_url($this->get_callback_url())),
+                'description' => sprintf('<code>%1$s</code>', esc_url($callback_url)),
                 'desc_tip'    => 'Callback URL',
-                'default'     => $this->get_callback_url(),
+                'default'     => $callback_url,
                 'custom_attributes' => array(
                     'required' => 'required',
                 ),
@@ -206,22 +208,6 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
             && !empty($this->maib_mia_client_secret)
             && !empty($this->maib_mia_signature_key)
             && !empty($this->maib_mia_callback_url);
-    }
-
-    protected function validate_settings()
-    {
-        if (!parent::validate_settings()) {
-            return false;
-        }
-
-        if (!$this->check_settings()) {
-            /* translators: 1: Plugin installation instructions URL */
-            $message_instructions = sprintf(__('See plugin documentation for <a href="%1$s" target="_blank">installation instructions</a>.', 'payment-gateway-wc-maib-mia'), 'https://wordpress.org/plugins/payment-gateway-wc-maib-mia/#installation');
-            $this->add_error(sprintf('<strong>%1$s</strong>: %2$s. %3$s', esc_html__('Connection Settings', 'payment-gateway-wc-maib-mia'), esc_html__('Not configured', 'payment-gateway-wc-maib-mia'), wp_kses_post($message_instructions)));
-            return false;
-        }
-
-        return true;
     }
 
     public function validate_order_template_field($key, $value)
@@ -863,22 +849,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     }
     //endregion
 
-    //region Utility
-    protected function get_redirect_url(\WC_Order $order)
-    {
-        $redirect_url = $this->get_return_url($order);
-        return (string) apply_filters('maib_mia_redirect_url', $redirect_url, $order);
-    }
-
-    protected function get_callback_url()
-    {
-        // https://developer.woocommerce.com/docs/extensions/core-concepts/woocommerce-plugin-api-callback/
-        $callback_url = WC()->api_request_url("wc_{$this->id}");
-        return (string) apply_filters('maib_mia_callback_url', $callback_url);
-    }
-    //endregion
-
-    //region Init
+    //region Integration
     public static function order_actions(array $actions, \WC_Order $order)
     {
         if ($order->is_paid() || $order->get_payment_method() !== self::MOD_ID) {
