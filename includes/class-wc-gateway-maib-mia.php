@@ -63,7 +63,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
 
         parent::__construct();
 
-        $this->icon = plugins_url('/assets/img/mia.svg', self::MOD_PLUGIN_FILE);
+        $this->icon = plugins_url('assets/img/mia.svg', self::MOD_PLUGIN_FILE);
         $this->transaction_validity = intval($this->get_option('transaction_validity', self::DEFAULT_VALIDITY));
 
         // https://github.com/alexminza/maib-mia-sdk-php/blob/main/src/MaibMia/MaibMiaClient.php
