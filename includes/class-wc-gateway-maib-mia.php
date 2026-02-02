@@ -75,6 +75,9 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
 
         if (is_admin()) {
             add_action("woocommerce_update_options_payment_gateways_{$this->id}", array($this, 'process_admin_options'));
+
+            add_filter('woocommerce_order_actions', array($this, 'order_actions'), 10, 2);
+            add_action('woocommerce_order_action_' . self::MOD_ACTION_CHECK_PAYMENT, array($this, 'action_check_payment'));
         }
         //endregion
 
