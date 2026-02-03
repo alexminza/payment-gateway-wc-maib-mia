@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "alexminza/maib-mia-sdk",
-            "version": "v1.1.1",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alexminza/maib-mia-sdk-php.git",
-                "reference": "a67f3856dfef23be8de1d170e63eadb012eb0b4b"
+                "reference": "500506d0def7ae9cfc6150b2ed52f9e61a05a5e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alexminza/maib-mia-sdk-php/zipball/a67f3856dfef23be8de1d170e63eadb012eb0b4b",
-                "reference": "a67f3856dfef23be8de1d170e63eadb012eb0b4b",
+                "url": "https://api.github.com/repos/alexminza/maib-mia-sdk-php/zipball/500506d0def7ae9cfc6150b2ed52f9e61a05a5e6",
+                "reference": "500506d0def7ae9cfc6150b2ed52f9e61a05a5e6",
                 "shasum": ""
             },
             "require": {
@@ -69,7 +69,7 @@
                 "issues": "https://github.com/alexminza/maib-mia-sdk-php/issues",
                 "source": "https://github.com/alexminza/maib-mia-sdk-php"
             },
-            "time": "2026-02-02T15:12:20+00:00"
+            "time": "2026-02-03T10:17:54+00:00"
         },
         {
             "name": "alexminza/wc-payment-gateway-base",
