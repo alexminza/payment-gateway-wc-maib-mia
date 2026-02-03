@@ -4,6 +4,7 @@
     "type": "wordpress-plugin",
     "keywords": [
         "WooCommerce",
+        "Moldova",
         "maib",
         "MIA",
         "QR",
@@ -27,16 +28,21 @@
     },
     "require": {
         "php": ">=7.2.5",
-        "alexminza/maib-mia-sdk": "*",
-        "monolog/monolog": "^2.7"
+        "alexminza/maib-mia-sdk": "^1.1",
+        "alexminza/wc-payment-gateway-base": "^1.0",
+        "monolog/monolog": "^2.7",
+        "automattic/jetpack-autoloader": "^5.0"
     },
     "config": {
         "platform": {
             "php": "7.2.5"
         },
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "automattic/jetpack-autoloader": true
+        },
+        "autoloader-suffix": "WC_Gateway_MAIB_MIA",
+        "optimize-autoloader": true
     },
     "prefer-stable": true,
     "require-dev": {
