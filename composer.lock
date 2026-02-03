@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "alexminza/maib-mia-sdk",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alexminza/maib-mia-sdk-php.git",
-                "reference": "ad63b8d9a732fb272ffa65c1e0a80707f2314787"
+                "reference": "a67f3856dfef23be8de1d170e63eadb012eb0b4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alexminza/maib-mia-sdk-php/zipball/ad63b8d9a732fb272ffa65c1e0a80707f2314787",
-                "reference": "ad63b8d9a732fb272ffa65c1e0a80707f2314787",
+                "url": "https://api.github.com/repos/alexminza/maib-mia-sdk-php/zipball/a67f3856dfef23be8de1d170e63eadb012eb0b4b",
+                "reference": "a67f3856dfef23be8de1d170e63eadb012eb0b4b",
                 "shasum": ""
             },
             "require": {
@@ -26,8 +26,11 @@
                 "php": ">=7.2.5"
             },
             "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "*",
                 "monolog/monolog": "*",
+                "phpcompatibility/php-compatibility": "*",
                 "phpunit/phpunit": "*",
+                "squizlabs/php_codesniffer": "*",
                 "vlucas/phpdotenv": "*"
             },
             "suggest": {
@@ -58,7 +61,6 @@
                 "maib",
                 "mia",
                 "payments",
-                "php",
                 "qr",
                 "sdk"
             ],
@@ -67,20 +69,20 @@
                 "issues": "https://github.com/alexminza/maib-mia-sdk-php/issues",
                 "source": "https://github.com/alexminza/maib-mia-sdk-php"
             },
-            "time": "2025-12-31T10:36:36+00:00"
+            "time": "2026-02-02T15:12:20+00:00"
         },
         {
             "name": "alexminza/wc-payment-gateway-base",
-            "version": "v1.0.3",
+            "version": "v1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alexminza/wc-payment-gateway-base.git",
-                "reference": "e8081010a2ddd6c55a05ff5e6ac1ba2f17c752a3"
+                "reference": "b8248963ea5b1e9649cc5f27c5ffadc2e8115e0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alexminza/wc-payment-gateway-base/zipball/e8081010a2ddd6c55a05ff5e6ac1ba2f17c752a3",
-                "reference": "e8081010a2ddd6c55a05ff5e6ac1ba2f17c752a3",
+                "url": "https://api.github.com/repos/alexminza/wc-payment-gateway-base/zipball/b8248963ea5b1e9649cc5f27c5ffadc2e8115e0b",
+                "reference": "b8248963ea5b1e9649cc5f27c5ffadc2e8115e0b",
                 "shasum": ""
             },
             "require": {
@@ -120,7 +122,7 @@
                 "issues": "https://github.com/alexminza/wc-payment-gateway-base/issues",
                 "source": "https://github.com/alexminza/wc-payment-gateway-base"
             },
-            "time": "2026-01-29T11:17:37+00:00"
+            "time": "2026-01-30T11:41:07+00:00"
         },
         {
             "name": "automattic/jetpack-autoloader",
