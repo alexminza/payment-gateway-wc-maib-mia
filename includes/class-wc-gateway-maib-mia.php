@@ -855,7 +855,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     //region Integration
     public static function order_actions(array $actions, \WC_Order $order)
     {
-        if ($order->is_paid() || $order->get_payment_method() !== self::MOD_ID) {
+        if (!$order->needs_payment() || $order->get_payment_method() !== self::MOD_ID) {
             return $actions;
         }
 
