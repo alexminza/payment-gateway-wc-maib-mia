@@ -19,7 +19,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     const MOD_TEXT_DOMAIN = 'payment-gateway-wc-maib-mia';
     const MOD_PREFIX      = 'maib_mia_';
     const MOD_TITLE       = 'maib MIA';
-    const MOD_VERSION     = '1.1.1';
+    const MOD_VERSION     = '1.1.2';
     const MOD_PLUGIN_FILE = MAIB_MIA_MOD_PLUGIN_FILE;
 
     const SUPPORTED_CURRENCIES = array('MDL');
