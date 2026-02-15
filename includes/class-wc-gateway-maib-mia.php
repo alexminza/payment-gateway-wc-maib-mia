@@ -731,6 +731,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
         if ($order_id !== $payment_data_order_id || $order_price !== $payment_data_price) {
             /* translators: 1: Payment data order ID, 2: Payment data price, 3: Order ID, 4: Order total price */
             $message = sprintf(__('Order payment data mismatch: Payment: #%1$s %2$s, Order: #%3$s %4$s.', 'payment-gateway-wc-maib-mia'), $payment_data_order_id, $payment_data_price, $order_id, $order_price);
+            $message = $this->get_test_message($message);
             $this->log($message, \WC_Log_Levels::ERROR);
 
             return new \WP_Error(\WP_Http::UNPROCESSABLE_ENTITY, 'Order payment data mismatch');
@@ -739,6 +740,7 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
         if ($order->is_paid()) {
             /* translators: 1: Order ID */
             $message = sprintf(__('Order #%1$s already fully paid.', 'payment-gateway-wc-maib-mia'), $order_id);
+            $message = $this->get_test_message($message);
             $this->log($message, \WC_Log_Levels::WARNING);
 
             return new \WP_Error(\WP_Http::ACCEPTED, 'Order already fully paid');
