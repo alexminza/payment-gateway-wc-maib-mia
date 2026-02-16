@@ -561,8 +561,10 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
             }
 
             $validation_result = MaibMiaClient::validateCallbackSignature($callback_data, $this->maib_mia_signature_key);
+            $message = __('Payment notification callback', 'payment-gateway-wc-maib-mia');
+            $message = $this->get_test_message($message);
             $this->log(
-                sprintf(__('Payment notification callback', 'payment-gateway-wc-maib-mia')),
+                $message,
                 \WC_Log_Levels::INFO,
                 array(
                     'validation_result' => $validation_result,
