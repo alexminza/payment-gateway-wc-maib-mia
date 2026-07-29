@@ -4,7 +4,7 @@ Tags: Moldova, maib, MIA, QR, payment gateway
 Requires at least: 4.8
 Tested up to: 6.9
 Stable tag: 1.1.3
-Requires PHP: 7.2.5
+Requires PHP: 8.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
