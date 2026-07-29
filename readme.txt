@@ -1,8 +1,8 @@
 === Payment Gateway for maib MIA for WooCommerce ===
 Contributors: alexminza
 Tags: Moldova, maib, MIA, QR, payment gateway
-Requires at least: 4.8
-Tested up to: 6.9
+Requires at least: 5.6
+Tested up to: 7.0
 Stable tag: 1.1.3
 Requires PHP: 8.0
 License: GPLv3 or later
