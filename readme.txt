@@ -68,6 +68,9 @@ You can also contribute to the plugin by translating it. Simply visit [translate
 
 See [payment-gateway-wc-maib-mia project releases on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia/releases) for details.
 
+= 1.1.3 =
+Improved payment retry handling.
+
 = 1.1.2 =
 * Improved payment confirmation logging
 * Added WooCommerce Product Object Caching compatibility
@@ -92,6 +95,9 @@ Included vendor packages.
 Initial version release.
 
 == Upgrade Notice ==
+
+= 1.1.3 =
+Improved payment retry handling.
 
 = 1.1.2 =
 Improved payment confirmation logging.
