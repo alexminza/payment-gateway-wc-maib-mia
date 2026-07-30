@@ -1,10 +1,10 @@
 === Payment Gateway for maib MIA for WooCommerce ===
 Contributors: alexminza
 Tags: Moldova, maib, MIA, QR, payment gateway
-Requires at least: 4.8
-Tested up to: 6.9
-Stable tag: 1.1.2
-Requires PHP: 7.2.5
+Requires at least: 5.6
+Tested up to: 7.0
+Stable tag: 1.1.3
+Requires PHP: 8.0
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -68,6 +68,9 @@ You can also contribute to the plugin by translating it. Simply visit [translate
 
 See [payment-gateway-wc-maib-mia project releases on GitHub](https://github.com/alexminza/payment-gateway-wc-maib-mia/releases) for details.
 
+= 1.1.3 =
+Improved payment retry handling.
+
 = 1.1.2 =
 * Improved payment confirmation logging
 * Added WooCommerce Product Object Caching compatibility
@@ -92,6 +95,9 @@ Included vendor packages.
 Initial version release.
 
 == Upgrade Notice ==
+
+= 1.1.3 =
+Improved payment retry handling.
 
 = 1.1.2 =
 Improved payment confirmation logging.

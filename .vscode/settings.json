@@ -1,5 +1,5 @@
 {
-    "intelephense.environment.phpVersion": "7.2.5",
+    "intelephense.environment.phpVersion": "8.0",
     "intelephense.environment.includePaths": [
         "../../WooCommerce",
         "../../WordPress"

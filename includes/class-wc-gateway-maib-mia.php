@@ -19,11 +19,10 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     const MOD_TEXT_DOMAIN = 'payment-gateway-wc-maib-mia';
     const MOD_PREFIX      = 'maib_mia_';
     const MOD_TITLE       = 'maib MIA';
-    const MOD_VERSION     = '1.1.2';
+    const MOD_VERSION     = '1.1.3';
     const MOD_PLUGIN_FILE = MAIB_MIA_MOD_PLUGIN_FILE;
 
     const SUPPORTED_CURRENCIES = array('MDL');
-    const ORDER_TEMPLATE       = 'Order #%1$s';
 
     const MOD_ACTION_CHECK_PAYMENT = self::MOD_PREFIX . 'check_payment';
 
@@ -258,6 +257,9 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
 
     //region maib MIA
     /**
+     * Initializes the maib MIA API client.
+     *
+     * @return MaibMiaClient
      * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#getting-started
      */
     protected function init_maib_mia_client()
@@ -286,6 +288,12 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
         return $client;
     }
 
+    /**
+     * Extracts result data from a successful maib MIA API response.
+     *
+     * @param \GuzzleHttp\Command\Result|null $response API response.
+     * @return array|null Successful result data, otherwise null.
+     */
     private function maib_mia_get_response_result(?\GuzzleHttp\Command\Result $response)
     {
         if (!empty($response)) {
@@ -300,6 +308,11 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     }
 
     /**
+     * Obtains an API access token.
+     *
+     * @param MaibMiaClient $client API client.
+     * @return string Access token.
+     * @throws \Exception When the API response does not contain an access token.
      * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#get-access-token-with-client-id-and-client-secret
      * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/authentication/obtain-authentication-token
      */
@@ -317,6 +330,12 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     }
 
     /**
+     * Creates a dynamic payment QR for an order.
+     *
+     * @param MaibMiaClient $client API client.
+     * @param string        $auth_token API access token.
+     * @param \WC_Order     $order WooCommerce order.
+     * @return \GuzzleHttp\Command\Result API response.
      * @link https://github.com/alexminza/maib-mia-sdk-php/blob/main/README.md#create-a-dynamic-order-payment-qr
      * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-initiation/create-qr-code-static-dynamic
      */
@@ -340,35 +359,44 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     }
 
     /**
+     * Retrieves QR details.
+     *
+     * @param MaibMiaClient $client API client.
+     * @param string        $auth_token API access token.
+     * @param string        $qr_id QR identifier.
+     * @return array|null QR details, otherwise null.
      * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-qr-details-by-id
      */
-    private function maib_mia_qr_active(MaibMiaClient $client, string $auth_token, string $qr_id)
+    private function maib_mia_qr_details(MaibMiaClient $client, string $auth_token, string $qr_id)
     {
         $qr_details_response = $client->qrDetails($qr_id, $auth_token);
-        $qr_details_result = $this->maib_mia_get_response_result($qr_details_response);
-
-        if (!empty($qr_details_result)) {
-            $qr_details_status = strval($qr_details_result['status']);
-
-            if (strtolower($qr_details_status) === 'active') {
-                $qr_details_expires_at = strval($qr_details_result['expiresAt']);
-
-                $now = new \DateTime();
-                $expires_at = new \DateTime($qr_details_expires_at);
-
-                if ($expires_at > $now) {
-                    $min_validity_seconds = $this->transaction_validity * 60 / 2;
-                    $remaining_seconds = $expires_at->getTimestamp() - $now->getTimestamp();
-
-                    return $remaining_seconds >= $min_validity_seconds;
-                }
-            }
-        }
-
-        return false;
+        return $this->maib_mia_get_response_result($qr_details_response);
     }
 
     /**
+     * Checks whether a QR has sufficient remaining validity.
+     *
+     * @param array $qr_details QR details.
+     * @return bool Whether the QR has sufficient remaining validity.
+     */
+    private function maib_mia_qr_ttl_valid(array $qr_details)
+    {
+        $now = new \DateTime();
+        $expires_at = new \DateTime(strval($qr_details['expiresAt']));
+        $min_validity_seconds = $this->transaction_validity * 60 / 2;
+        $remaining_seconds = $expires_at->getTimestamp() - $now->getTimestamp();
+
+        return $remaining_seconds >= $min_validity_seconds;
+    }
+
+    /**
+     * Retrieves the single executed payment for a QR and order.
+     *
+     * @param MaibMiaClient $client API client.
+     * @param string        $auth_token API access token.
+     * @param string        $qr_id QR identifier.
+     * @param string        $order_id Order identifier.
+     * @return array|null Executed payment, otherwise null.
      * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/information-retrieval-get/retrieve-list-of-payments-with-filtering-options
      */
     private function maib_mia_qr_payment(MaibMiaClient $client, string $auth_token, string $qr_id, string $order_id)
@@ -405,6 +433,14 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
     }
 
     /**
+     * Refunds a completed payment.
+     *
+     * @param MaibMiaClient $client API client.
+     * @param string        $auth_token API access token.
+     * @param string        $pay_id Payment identifier.
+     * @param float         $amount Refund amount.
+     * @param string        $reason Refund reason.
+     * @return \GuzzleHttp\Command\Result API response.
      * @link https://docs.maibmerchants.md/mia-qr-api/en/endpoints/payment-refund/refund-completed-payment
      */
     private function maib_mia_qr_refund(MaibMiaClient $client, string $auth_token, string $pay_id, float $amount, string $reason)
@@ -437,12 +473,24 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
                 $qr_id = strval($order->get_meta(self::MOD_QR_ID, true));
                 $qr_url = strval($order->get_meta(self::MOD_QR_URL, true));
 
-                if (!empty($qr_id) && !empty($qr_url)) {
-                    if ($this->maib_mia_qr_active($client, $auth_token, $qr_id)) {
-                        return array(
-                            'result'   => 'success',
-                            'redirect' => $qr_url,
-                        );
+                if (!empty($qr_id)) {
+                    $qr_details = $this->maib_mia_qr_details($client, $auth_token, $qr_id);
+
+                    if (!empty($qr_details)) {
+                        $qr_status = strtolower(strval($qr_details['status']));
+
+                        if ('paid' === $qr_status) {
+                            // Payment confirmation is handled by the MAIB callback or the admin check.
+                            return array(
+                                'result'   => 'success',
+                                'redirect' => $this->get_redirect_url($order),
+                            );
+                        } elseif ('active' === $qr_status && !empty($qr_url) && $this->maib_mia_qr_ttl_valid($qr_details)) {
+                            return array(
+                                'result'   => 'success',
+                                'redirect' => $qr_url,
+                            );
+                        }
                     }
                 }
             } catch (\Exception $ex) {
@@ -524,7 +572,6 @@ class WC_Gateway_MAIB_MIA extends WC_Payment_Gateway_Base
         // https://github.com/woocommerce/woocommerce/pull/53671
         return array(
             'result'  => 'failure',
-            'message' => $message,
         );
     }
 
